@@ -2,6 +2,7 @@
 
 import os
 import json
+import logging
 
 from bs4 import BeautifulSoup
 import requests
@@ -11,9 +12,10 @@ from importlib import resources
 from tradingview_scraper.symbols.utils import save_csv_file, save_json_file, generate_user_agent
 
 class NewsScraper:
-    def __init__(self, export_result=False, export_type='json'):
+    def __init__(self, export_result=False, export_type='json', cookie=None):
         self.export_result = export_result
         self.export_type = export_type
+        self.cookie = cookie
         self.headers = {"user-agent": generate_user_agent()}
 
         self.exchanges = self._load_exchanges()
@@ -85,8 +87,14 @@ class NewsScraper:
         # construct the URL
         url = f"https://tradingview.com{story_path}"
         
+        if self.cookie:
+            self.headers["cookie"] = self.cookie
+        
         response = requests.get(url, headers=self.headers, timeout=5)
         response.raise_for_status()
+        if "<title>Captcha Challenge</title>" in response.text:
+            logging.error(f"Captcha Challenge encountered for story {story_path}. Try updating the TRADINGVIEW_COOKIE in your .env file.")
+            return {}
 
         # Use BeautifulSoup to parse the HTML
         soup = BeautifulSoup(response.text, "html.parser")
@@ -226,6 +234,9 @@ class NewsScraper:
         section = kwargs['section']
         language = kwargs['language']
 
+        if self.cookie:
+            self.headers["cookie"] = self.cookie
+
         section = "" if section == "all" else section
 
         area_code = "" if not area else self.areas[area]
@@ -237,6 +248,9 @@ class NewsScraper:
         try:
             response = requests.get(url, headers=self.headers, timeout=5)
             response.raise_for_status()  # Raises HTTPError for bad responses (4xx and 5xx)
+            if "<title>Captcha Challenge</title>" in response.text:
+                logging.error(f"Captcha Challenge encountered for {symbol} on {exchange}. Try updating the TRADINGVIEW_COOKIE in your .env file.")
+                return []
             
             response_json = response.json()
             items = response_json.get('items', [])
