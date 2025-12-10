@@ -288,67 +288,59 @@ class Streamer:
         if ind_flag:
             self._add_indicators(indicators)
 
-        if self.export_result is True:
+        ohlc_json_data = []
+        indicator_json_data = {}
+        expected_indicator_count = len(indicators) if ind_flag else 0
+        
+        logging.info(f"Starting data collection for {numb_price_candles} candles and {expected_indicator_count} indicators")
+        
+        for i, pkt in enumerate(self.get_data()):
+            # Extract OHLC data
+            received_data = self._extract_ohlc_from_stream(pkt)
+            if received_data:
+                ohlc_json_data = received_data
+                logging.debug(f"OHLC data updated: {len(ohlc_json_data)} candles")
 
-            ohlc_json_data = []
-            indicator_json_data = {}
-            expected_indicator_count = len(indicators) if ind_flag else 0
+            # Extract indicator data
+            received_indicator_data = self._extract_indicator_from_stream(pkt)
+            if received_indicator_data:
+                indicator_json_data.update(received_indicator_data)
+                logging.info(f"Indicator data received: {len(indicator_json_data)}/{expected_indicator_count} indicators")
             
-            logging.info(f"Starting data collection for {numb_price_candles} candles and {expected_indicator_count} indicators")
-            
-            for i, pkt in enumerate(self.get_data()):
-                # Extract OHLC data
-                received_data = self._extract_ohlc_from_stream(pkt)
-                if received_data:
-                    ohlc_json_data = received_data
-                    logging.debug(f"OHLC data updated: {len(ohlc_json_data)} candles")
+            # Check if we have sufficient data
+            ohlc_ready = len(ohlc_json_data) >= numb_price_candles
+            indicators_ready = not ind_flag or len(indicator_json_data) >= expected_indicator_count
 
-                # Extract indicator data
-                received_indicator_data = self._extract_indicator_from_stream(pkt)
-                if received_indicator_data:
-                    indicator_json_data.update(received_indicator_data)
-                    logging.info(f"Indicator data received: {len(indicator_json_data)}/{expected_indicator_count} indicators")
-                
-                # Check if we have sufficient data
-                ohlc_ready = len(ohlc_json_data) >= numb_price_candles
-                indicators_ready = not ind_flag or len(indicator_json_data) >= expected_indicator_count
+            # Check if we have sufficient data
+            if ohlc_ready and indicators_ready:
+                break
 
-                # if ind_flag is True and len(ohlc_json_data)>0 and len(indicator_json_data)>0:
-                #     break
-                # elif ind_flag is False and len(ohlc_json_data)>0:
-                #     break
-
-                # Check if we have sufficient data
-                if ohlc_ready and indicators_ready:
-                    break
-
-                if i > 15:
-                    logging.warning(f"Timeout reached after {i} packets. Collected: OHLC={len(ohlc_json_data)}, Indicators={len(indicator_json_data)}")
-                    if not ohlc_json_data:
-                        raise DataNotFoundError("No 'OHLC' packet found within the timeout period.")
-                    break
-            
-            # Check for empty indicator data and log errors
-            if ind_flag:
-                for indicator_id, _ in indicators:
-                    if indicator_id not in indicator_json_data:
-                        logging.error(f"❌ Unable to scrape indicator: {indicator_id} - No data received")
-                    elif not indicator_json_data[indicator_id]:
-                        logging.error(f"❌ Unable to scrape indicator: {indicator_id} - Empty data")
-            
-            logging.info(f"Data collection complete: {len(ohlc_json_data)} OHLC candles, {len(indicator_json_data)} indicators")
-            
+            if i > 15:
+                logging.warning(f"Timeout reached after {i} packets. Collected: OHLC={len(ohlc_json_data)}, Indicators={len(indicator_json_data)}")
+                if not ohlc_json_data:
+                    raise DataNotFoundError("No 'OHLC' packet found within the timeout period.")
+                break
+        
+        # Check for empty indicator data and log errors
+        if ind_flag:
+            for indicator_id, _ in indicators:
+                if indicator_id not in indicator_json_data:
+                    logging.error(f"❌ Unable to scrape indicator: {indicator_id} - No data received")
+                elif not indicator_json_data[indicator_id]:
+                    logging.error(f"❌ Unable to scrape indicator: {indicator_id} - Empty data")
+        
+        logging.info(f"Data collection complete: {len(ohlc_json_data)} OHLC candles, {len(indicator_json_data)} indicators")
+        
+        if self.export_result:
             self._export(json_data=ohlc_json_data, symbol=symbol, data_category="ohlc")
-            if ind_flag is True:
+            if ind_flag:
                 self._export(
                     json_data=indicator_json_data,
                     symbol=symbol,
                     data_category="indicator"
                     )
 
-            return {"ohlc": ohlc_json_data, "indicator": indicator_json_data}
-
-        return self.get_data()
+        return {"ohlc": ohlc_json_data, "indicator": indicator_json_data}
 
     def _export(self, json_data, symbol, data_category):
         """
