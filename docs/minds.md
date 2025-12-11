@@ -4,15 +4,8 @@
 
 The Minds module provides functionality to scrape and analyze community-generated content from TradingView's Minds feature. This includes questions, discussions, trading ideas, and sentiment analysis from the TradingView community.
 
-## Why This Feature Exists
-
-The Minds module exists to:
-
-- Access community insights and discussions about specific financial instruments
-- Analyze market sentiment and trader opinions
-- Retrieve trading ideas and strategies shared by the community
-- Enable social trading analysis by examining popular and trending discussions
-- Provide engagement metrics (likes, comments) for content popularity assessment
+!!! note "Supported Data"
+    For a complete list of supported exchanges and symbols, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -108,30 +101,6 @@ Each item in the `data` array contains:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-1. **Symbol Validation**: The system strictly validates symbol format, requiring exchange prefix (e.g., `'NASDAQ:AAPL'`).
-
-2. **Sort Options**: Three sort options are supported:
-   - `recent`: Most recently posted discussions
-   - `popular`: Most liked/commented discussions
-   - `trending`: Currently trending discussions
-
-3. **Pagination Logic**: The `get_minds()` method returns a `next_cursor` that can be used for manual pagination. The `get_all_minds()` method handles pagination automatically.
-
-4. **Rate Limiting**: The system includes a 10-second timeout for API requests to prevent hanging.
-
-5. **Error Handling**: Comprehensive error handling for:
-   - Invalid symbols
-   - Invalid sort options
-   - HTTP errors
-   - Network exceptions
-   - Empty results
-
-6. **Export Functionality**: When `export_result=True`, data is automatically saved to JSON or CSV files with appropriate naming.
-
-7. **Date Parsing**: Creation dates are parsed from ISO format to human-readable format.
-
 ## Code Examples
 
 ### Basic Usage
@@ -209,68 +178,3 @@ if result['status'] == 'failed':
     # Handle error appropriately
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Invalid Symbol Format
-
-```python
-# Wrong - missing exchange prefix
-minds.get_minds(symbol='AAPL')
-
-# Right - include exchange prefix
-minds.get_minds(symbol='NASDAQ:AAPL')
-```
-
-**Solution**: Always use the full symbol format with exchange prefix (e.g., `'NASDAQ:AAPL'`, `'BITSTAMP:BTCUSD'`).
-
-### Mistake: Invalid Sort Option
-
-```python
-# Wrong - unsupported sort option
-minds.get_minds(symbol='NASDAQ:AAPL', sort='oldest')
-
-# Right - use supported options
-minds.get_minds(symbol='NASDAQ:AAPL', sort='recent')
-```
-
-**Solution**: Use only supported sort options: `'recent'`, `'popular'`, or `'trending'`.
-
-### Mistake: Empty Symbol
-
-```python
-# Wrong - empty symbol
-minds.get_minds(symbol='')
-
-# Right - provide valid symbol
-minds.get_minds(symbol='NASDAQ:AAPL')
-```
-
-**Solution**: Always provide a non-empty symbol string with proper format.
-
-### Mistake: Ignoring Pagination
-
-```python
-# Wrong - assuming all results are in one call
-all_results = minds.get_minds(symbol='NASDAQ:AAPL', limit=200)
-
-# Right - use get_all_minds() for large datasets
-all_results = minds.get_all_minds(symbol='NASDAQ:AAPL', max_results=200)
-```
-
-**Solution**: Use `get_all_minds()` when you need more than 50 results or want to handle pagination automatically.
-
-## Environment Setup
-
-To work with the Minds module, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
-
-This documentation provides comprehensive coverage of the Minds module functionality, including recent, popular, and trending discussions retrieval, pagination logic, engagement metrics analysis, symbol information extraction, and export capabilities. The module integrates with the broader TradingView Scraper ecosystem and follows consistent patterns for error handling and data validation.

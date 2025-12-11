@@ -4,15 +4,8 @@
 
 The Symbol Overview module provides comprehensive functionality to retrieve detailed information about financial symbols from TradingView. This includes profile data, market statistics, financial metrics, performance indicators, technical analysis, and fundamental information.
 
-## Why This Feature Exists
-
-The Symbol Overview feature exists to:
-
-- Provide a centralized interface for accessing comprehensive symbol data
-- Enable detailed fundamental and technical analysis of financial instruments
-- Support trading strategies that require multiple data points
-- Offer flexibility to retrieve specific data categories or full overview
-- Facilitate research and backtesting with historical and current data
+!!! note "Supported Data"
+    For a complete list of supported exchanges and other data types, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -218,23 +211,6 @@ All methods return a dictionary with the following structure:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-1. **Symbol Validation**: The system validates symbols to ensure they include exchange prefixes (e.g., `'NASDAQ:AAPL'`).
-
-2. **Field Selection**: When no specific fields are provided, all available fields are retrieved.
-
-3. **Error Handling**: The module handles various error scenarios including:
-   - Invalid symbol formats
-   - HTTP errors and connection issues
-   - Empty or missing data responses
-
-4. **Export Functionality**: Results can be exported to JSON or CSV files when `export_result=True`.
-
-5. **Rate Limiting**: The system includes timeout handling (10 seconds) for API requests.
-
-6. **Data Consistency**: All methods return the same response structure with `status`, `data`, and `error` fields.
-
 ## Code Examples
 
 ### Basic Usage
@@ -310,73 +286,3 @@ csv_exporter = Overview(export_result=True, export_type='csv')
 result = csv_exporter.get_symbol_overview('BITSTAMP:BTCUSD')
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Invalid Symbol Format
-
-```python
-# Wrong - missing exchange prefix
-result = overview.get_symbol_overview('AAPL')
-
-# Right - include exchange prefix
-result = overview.get_symbol_overview('NASDAQ:AAPL')
-```
-
-**Solution**: Always include the exchange prefix in the symbol format `'EXCHANGE:SYMBOL'`.
-
-### Mistake: Using Unsupported Exchange
-
-```python
-# Wrong - unsupported exchange
-result = overview.get_symbol_overview('INVALID:SYMBOL')
-
-# Right - use supported exchange
-result = overview.get_symbol_overview('NASDAQ:AAPL')
-```
-
-**Solution**: Check [supported_data.md](supported_data.md) for the complete list of supported exchanges.
-
-### Mistake: Invalid Field Names
-
-```python
-# Wrong - invalid field name
-result = overview.get_symbol_overview('NASDAQ:AAPL', fields=['invalid_field'])
-
-# Right - use valid field names
-result = overview.get_symbol_overview('NASDAQ:AAPL', fields=['close', 'volume'])
-```
-
-**Solution**: Use field names from the defined field categories in the module.
-
-### Mistake: Not Handling Response Status
-
-```python
-# Wrong - not checking status
-result = overview.get_symbol_overview('NASDAQ:AAPL')
-print(result['data']['close'])  # May fail if status is 'failed'
-
-# Right - check status first
-result = overview.get_symbol_overview('NASDAQ:AAPL')
-if result['status'] == 'success':
-    print(result['data']['close'])
-else:
-    print(f"Error: {result['error']}")
-```
-
-**Solution**: Always check the `status` field before accessing the `data` field.
-
-## Environment Setup
-
-To work with the Symbol Overview module, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
-
-This documentation provides comprehensive coverage of the Symbol Overview module, including all data categories, expected schemas, usage examples, and common pitfalls. The module offers flexible access to detailed symbol information for fundamental and technical analysis.

@@ -7,15 +7,6 @@ The Markets module provides comprehensive functionality for retrieving market da
 1. **SymbolMarkets**: For finding all exchanges where a specific symbol is traded
 2. **Markets**: For retrieving top stocks and market overview data across various regions
 
-## Why This Feature Exists
-
-The Markets module exists to:
-
-- Enable comprehensive market analysis by identifying where symbols are traded
-- Provide regional and global market scanning capabilities
-- Support trading strategies that require multi-exchange analysis
-- Offer market-wide statistics and top performer identification
-- Facilitate cross-market arbitrage and liquidity analysis
 
 ## Input Specification
 
@@ -48,7 +39,7 @@ scrape(
 | `symbol` | str | Required | Symbol to search for (e.g., 'AAPL', 'BTCUSD') | Must be valid TradingView symbol |
 | `columns` | List[str] | None | Specific columns to retrieve | Must be valid column names |
 | `scanner` | str | 'global' | Scanner endpoint ('global', 'america', 'crypto', 'forex', 'cfd') | Must be one of supported scanners |
-| `limit` | int | 150 | Maximum number of results | Must be positive integer ≤ 150 |
+| `limit` | int | 150 | Maximum number of results | Must be positive integer <= 150 |
 
 ### Markets Class
 
@@ -79,7 +70,7 @@ get_top_stocks(
 | `market` | str | 'america' | Market to scan | Must be supported market |
 | `by` | str | 'market_cap' | Sorting criteria | Must be supported sort criteria |
 | `columns` | List[str] | None | Specific columns to retrieve | Must be valid column names |
-| `limit` | int | 50 | Maximum number of results | Must be positive integer ≤ 50 |
+| `limit` | int | 50 | Maximum number of results | Must be positive integer <= 50 |
 
 ## Supported Scanners and Markets
 
@@ -180,31 +171,6 @@ Each data item contains:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-### SymbolMarkets Behavior
-
-1. **Scanner Validation**: Invalid scanner names return immediate failure with supported scanner list
-2. **Empty Results**: Returns failure status with descriptive error when no markets found
-3. **Data Formatting**: Automatically maps API response fields to human-readable names
-4. **Export Handling**: Only exports when `export_result=True` is set in constructor
-5. **Rate Limiting**: Uses 10-second timeout for API requests
-
-### Markets Behavior
-
-1. **Market Validation**: Raises `ValueError` for unsupported markets
-2. **Sort Validation**: Converts user-friendly criteria to API field names
-3. **Stock Filtering**: Automatically filters for stock type instruments only
-4. **Default Sorting**: Sorts by market cap descending by default
-5. **Error Handling**: Returns structured error responses for API failures
-
-### Test-Driven Behaviors
-
-1. **Real API Testing**: Tests include real API calls with rate limiting (3-second delays)
-2. **Mock Testing**: Comprehensive mock testing for error scenarios
-3. **Validation Testing**: Tests for invalid inputs and edge cases
-4. **Data Structure**: Tests verify expected response structure and field presence
-5. **Cross-Scanner**: Tests verify all supported scanners are accessible
 
 ## Code Examples
 
@@ -319,88 +285,7 @@ for region in regions:
     )
     print(f"\nTop 5 stocks in {region.upper()}:")
     for stock in result['data']:
-        print(f"- {stock['symbol']}: ${stock['close']} ({stock['change']}%)")
-```
-
-## Common Mistakes and Solutions
-
-### Mistake: Using unsupported scanner
-
-```python
-# Wrong
-result = markets.scrape(symbol='AAPL', scanner='europe')
-
-# Right
-result = markets.scrape(symbol='AAPL', scanner='global')
-```
-
-**Solution**: Use only supported scanners: 'global', 'america', 'crypto', 'forex', 'cfd'
-
-### Mistake: Invalid market for top stocks
-
-```python
-# Wrong
-result = markets.get_top_stocks(market='europe')
-
-# Right
-result = markets.get_top_stocks(market='germany')
-```
-
-**Solution**: Check supported markets list before calling the method
-
-### Mistake: Invalid sort criteria
-
-```python
-# Wrong
-result = markets.get_top_stocks(by='price_change')
-
-# Right
-result = markets.get_top_stocks(by='change')
-```
-
-**Solution**: Use supported criteria: 'market_cap', 'volume', 'change', 'price', 'volatility'
-
-### Mistake: Exceeding limit constraints
-
-```python
-# Wrong - SymbolMarkets limit too high
-result = markets.scrape(symbol='AAPL', limit=200)
-
-# Right
-result = markets.scrape(symbol='AAPL', limit=150)
-```
-
-**Solution**: Respect the maximum limits: 150 for SymbolMarkets, 50 for Markets
-
-### Mistake: Not handling API failures
-
-```python
-# Wrong - No error checking
-result = markets.scrape(symbol='INVALID')
-print(result['data'])  # This will crash
-
-# Right - Always check status
-result = markets.scrape(symbol='INVALID')
-if result['status'] == 'success':
-    print(result['data'])
-else:
-    print(f"Error: {result['error']}")
-```
-
-**Solution**: Always check the 'status' field before accessing data
-
-## Environment Setup
-
-To work with the Markets module, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
+        print(f"- {stock['symbol']}: ${stock['close']} ({stock['change']}%) ")
 ```
 
 ## Advanced Usage Patterns

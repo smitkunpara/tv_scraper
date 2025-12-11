@@ -4,16 +4,6 @@
 
 The Market Movers module provides functionality to scrape and analyze market movers data from TradingView. This includes gainers, losers, most active stocks, penny stocks, and pre/after-market movers across various financial markets.
 
-## Why This Feature Exists
-
-The Market Movers feature exists to:
-
-- Identify top-performing and underperforming assets in real-time
-- Track market sentiment and trends across different categories
-- Provide actionable insights for traders and investors
-- Support various trading strategies (momentum, contrarian, etc.)
-- Enable automated monitoring of market conditions
-
 ## Input Specification
 
 ### MarketMovers Class Constructor
@@ -105,27 +95,6 @@ Each item in the `data` list contains:
 - `symbol` - The trading symbol (e.g., 'NASDAQ:AAPL')
 - Field values as specified in the request
 
-## Behavioral Notes from Code and Tests
-
-1. **Validation**: The system validates both market and category inputs before making API requests.
-
-2. **Filter Logic**:
-   - Gainers categories filter for `change > 0`
-   - Losers categories filter for `change < 0`
-   - Penny stocks filter for `close < 5`
-   - Market-specific filters are applied based on the selected market
-
-3. **Sorting**:
-   - Gainers are sorted by change in descending order
-   - Losers are sorted by change in ascending order
-   - Most active and penny stocks are sorted by volume in descending order
-
-4. **Error Handling**: The system handles HTTP errors and request exceptions gracefully, returning structured error responses.
-
-5. **Rate Limiting**: The system includes a 10-second timeout for requests to prevent hanging.
-
-6. **Export Functionality**: When `export_result=True`, data is automatically saved to JSON or CSV files.
-
 ## Code Examples
 
 ### Basic Usage
@@ -184,73 +153,6 @@ for market in markets:
     print(f"Top gainers in {market}:")
     for item in result['data'][:5]:
         print(f"  {item['symbol']}: {item['change']}%")
-```
-
-## Common Mistakes and Solutions
-
-### Mistake: Using unsupported market
-
-```python
-# Wrong
-scraper.scrape(market='invalid-market', category='gainers')
-
-# Right
-scraper.scrape(market='stocks-usa', category='gainers')
-```
-
-**Solution**: Always use one of the supported markets listed above.
-
-### Mistake: Using unsupported category for stock markets
-
-```python
-# Wrong
-scraper.scrape(market='stocks-usa', category='invalid-category')
-
-# Right
-scraper.scrape(market='stocks-usa', category='gainers')
-```
-
-**Solution**: Use only the supported categories for stock markets.
-
-### Mistake: Requesting too many results
-
-```python
-# This might fail or return incomplete data
-scraper.scrape(limit=1000)
-```
-
-**Solution**: Keep the limit reasonable (typically ≤ 100) to avoid API issues.
-
-### Mistake: Not handling API errors
-
-```python
-# Wrong - no error handling
-result = scraper.scrape(market='stocks-usa', category='gainers')
-print(result['data'])  # This will fail if status is 'failed'
-```
-
-**Solution**: Always check the status before accessing data:
-
-```python
-result = scraper.scrape(market='stocks-usa', category='gainers')
-if result['status'] == 'success':
-    print(result['data'])
-else:
-    print(f"Error: {result['error']}")
-```
-
-## Environment Setup
-
-To work with market movers data, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
 ```
 
 ## Advanced Usage Patterns

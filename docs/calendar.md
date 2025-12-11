@@ -4,15 +4,8 @@
 
 The Calendar module provides functionality to scrape dividend and earnings events from TradingView's event calendar. It allows users to retrieve financial events for specific time ranges, markets, and with custom field selection.
 
-## Why This Feature Exists
-
-The calendar feature exists to:
-
-- Provide programmatic access to corporate events (dividends and earnings)
-- Enable automated tracking of important financial events
-- Support research and analysis of market-moving events
-- Offer comprehensive event data for algorithmic trading strategies
-- Deliver historical and upcoming event information
+!!! note "Supported Data"
+    For a complete list of supported areas and other data types, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -121,24 +114,6 @@ EarningsEvent = {
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-1. **Timestamp Handling**: When timestamps are not provided, the system automatically calculates a 7-day range centered around the current date.
-
-2. **Market Filtering**: The `markets` parameter accepts a list of market identifiers. If not provided, events from all markets are returned.
-
-3. **Value Selection**: The `values` parameter allows custom field selection. If not provided, all default fields are returned.
-
-4. **Data Validation**: Invalid field names in the `values` parameter will raise a `ValueError`.
-
-5. **Empty Results**: If no events are found, an empty list is returned.
-
-6. **Export Behavior**: When `export_result=True`, results are automatically saved to JSON or CSV files based on the `export_type` parameter.
-
-7. **Null Handling**: Fields with no data are set to `None` and filtered out from the final response.
-
-8. **Rate Limiting**: The system includes a 3-second delay between requests to avoid rate limiting.
-
 ## Code Examples
 
 ### Basic Usage
@@ -189,58 +164,3 @@ dividends = scraper.scrape_dividends()
 earnings = scraper.scrape_earnings()
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Invalid field names
-
-```python
-# Wrong - invalid field name
-dividends = scraper.scrape_dividends(values=["invalid_field"])
-
-# Right - use valid field names
-dividends = scraper.scrape_dividends(values=["dividends_yield", "dividend_amount_upcoming"])
-```
-
-**Solution**: Always use valid field names from the default fetch values or check the source code for available fields.
-
-### Mistake: Incorrect timestamp format
-
-```python
-# Wrong - string timestamp
-dividends = scraper.scrape_dividends(timestamp_from="2023-01-01")
-
-# Right - Unix timestamp
-import datetime
-timestamp = datetime.datetime(2023, 1, 1).timestamp()
-dividends = scraper.scrape_dividends(timestamp_from=timestamp)
-```
-
-**Solution**: Always use Unix timestamps (seconds since epoch) for date parameters.
-
-### Mistake: Invalid market names
-
-```python
-# Wrong - invalid market name
-dividends = scraper.scrape_dividends(markets=["invalid_market"])
-
-# Right - use valid market names
-dividends = scraper.scrape_dividends(markets=["america", "uk"])
-```
-
-**Solution**: Use valid market identifiers. Refer to the supported data documentation for available markets.
-
-## Environment Setup
-
-To work with the calendar module, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
-
-This documentation provides comprehensive information about the calendar module's functionality, covering earnings events, dividend events, time range behavior, value selection, and market filtering as specified in the requirements.

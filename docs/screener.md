@@ -4,17 +4,6 @@
 
 The Screener module provides powerful functionality to screen financial instruments across multiple markets (stocks, crypto, forex, bonds, futures) with custom filters, sorting, and column selection. It enables users to find instruments that meet specific technical and fundamental criteria.
 
-## Why This Feature Exists
-
-The screener feature exists to:
-
-- Enable efficient market scanning across 16+ different markets
-- Support complex filtering with 15+ different operations
-- Provide flexible sorting and column selection
-- Allow export of results to JSON or CSV formats
-- Support both basic and advanced screening scenarios
-- Integrate with TradingView's scanner API for real-time data
-
 ## Input Specification
 
 ### Screener Class Constructor
@@ -146,24 +135,6 @@ Each data item contains:
 - `symbol`: Instrument symbol (e.g., 'NASDAQ:AAPL')
 - Dynamic fields based on requested columns
 
-## Behavioral Notes from Code and Tests
-
-1. **Market Validation**: The system validates markets against `SUPPORTED_MARKETS` and raises `ValueError` for invalid markets.
-
-2. **Default Columns**: If no columns are specified, the system uses market-specific default columns.
-
-3. **Filter Processing**: Multiple filters are combined with AND logic.
-
-4. **Sorting**: Results can be sorted by any available field in ascending or descending order.
-
-5. **Pagination**: The `limit` parameter controls the number of results returned (max typically 50-100).
-
-6. **Error Handling**: The system handles HTTP errors and request exceptions gracefully.
-
-7. **Export Functionality**: When `export_result=True`, results are saved to files with appropriate naming.
-
-8. **Rate Limiting**: The system includes a 10-second timeout for API requests.
-
 ## Code Examples
 
 ### Basic Screening
@@ -269,81 +240,6 @@ advanced_results = screener.screen(
 )
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Using unsupported market
-
-```python
-# Wrong
-result = screener.screen(market='europe')
-
-# Right
-result = screener.screen(market='germany')  # or other supported market
-```
-
-**Solution**: Check the supported markets list or use one of the 16 valid market keys.
-
-### Mistake: Invalid filter operation
-
-```python
-# Wrong
-filters = [{'left': 'close', 'operation': 'higher', 'right': 100}]
-
-# Right
-filters = [{'left': 'close', 'operation': 'greater', 'right': 100}]
-```
-
-**Solution**: Use only the 15 supported filter operations listed above.
-
-### Mistake: Missing required filter fields
-
-```python
-# Wrong - missing 'operation' field
-filters = [{'left': 'close', 'right': 100}]
-
-# Right - all required fields present
-filters = [{'left': 'close', 'operation': 'greater', 'right': 100}]
-```
-
-**Solution**: Ensure each filter has `left`, `operation`, and `right` fields.
-
-### Mistake: Invalid column names
-
-```python
-# Wrong - using non-existent column
-result = screener.screen(columns=['name', 'invalid_column'])
-
-# Right - using valid columns
-result = screener.screen(columns=['name', 'close', 'volume'])
-```
-
-**Solution**: Use valid column names from the default lists or check TradingView's available fields.
-
-### Mistake: Exceeding API limits
-
-```python
-# This might fail due to rate limiting
-for i in range(100):
-    result = screener.screen(limit=50)
-    time.sleep(0.1)  # Too short delay
-```
-
-**Solution**: Add appropriate delays between requests and respect TradingView's API limits.
-
-## Environment Setup
-
-To use the screener functionality, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
-
 ## Advanced Usage Patterns
 
 ### Combining Multiple Filters
@@ -407,5 +303,3 @@ tech_results = screener.screen(
 
 !!! warning
     Always validate your filters and parameters before running screens. Invalid combinations can lead to empty results or API errors.
-
-This comprehensive screener documentation provides everything needed to effectively use the TradingView Scraper's screening capabilities across all supported markets with various filtering, sorting, and export options.

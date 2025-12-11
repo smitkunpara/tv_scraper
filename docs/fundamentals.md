@@ -4,16 +4,8 @@
 
 The Fundamental Data module provides comprehensive access to financial fundamentals for stocks and other financial instruments. This module enables retrieval of detailed financial statements, ratios, and metrics that are essential for fundamental analysis.
 
-## Why This Feature Exists
-
-The fundamental data functionality exists to:
-
-- Provide programmatic access to comprehensive financial statements and metrics
-- Enable fundamental analysis and valuation modeling
-- Support investment research and due diligence processes
-- Facilitate comparative analysis across multiple companies
-- Offer historical and current financial data for backtesting strategies
-- Deliver standardized financial metrics for quantitative analysis
+!!! note "Supported Data"
+    For a complete list of supported exchanges and symbols, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -41,14 +33,14 @@ The module validates symbols with the following requirements:
 
 The module organizes fundamental data into 9 comprehensive categories:
 
-1. **Income Statement Fields** (12 fields)
-2. **Balance Sheet Fields** (6 fields)
-3. **Cash Flow Fields** (4 fields)
+1. **Income Statement Fields** (13 fields)
+2. **Balance Sheet Fields** (9 fields)
+3. **Cash Flow Fields** (7 fields)
 4. **Margin Fields** (8 fields)
 5. **Profitability Fields** (5 fields)
 6. **Liquidity Fields** (4 fields)
 7. **Leverage Fields** (3 fields)
-8. **Valuation Fields** (9 fields)
+8. **Valuation Fields** (8 fields)
 9. **Dividend Fields** (3 fields)
 
 ## Output Specification
@@ -183,49 +175,6 @@ For comparison methods, the response includes additional structure:
 | `dividends_per_share_fq` | Dividends per share (fiscal quarter) | Currency |
 | `dividend_payout_ratio_ttm` | Dividend payout ratio (trailing twelve months) | Percentage |
 
-## Behavioral Notes from Code and Tests
-
-### Symbol Validation
-
-1. **Exchange Prefix Requirement**: All symbols must include an exchange prefix (e.g., `'NASDAQ:AAPL'`). Symbols without prefixes will fail validation.
-
-2. **Case Standardization**: Symbols are automatically converted to uppercase and stripped of whitespace.
-
-3. **Error Handling**: Invalid symbols return a failed status with descriptive error messages.
-
-### Data Retrieval
-
-1. **Field Selection**: When no specific fields are requested, the module retrieves all 53 available fundamental fields.
-
-2. **HTTP Requests**: The module uses TradingView's scanner API with a 10-second timeout.
-
-3. **Rate Limiting**: No explicit rate limiting is implemented, but TradingView may impose limits on frequent requests.
-
-4. **Error Conditions**: The module handles various error scenarios including:
-   - Invalid symbols
-   - HTTP errors (non-200 status codes)
-   - Network connectivity issues
-   - Empty or missing data responses
-
-### Export Functionality
-
-1. **File Formats**: Supports JSON and CSV export formats.
-
-2. **File Naming**: Export files use the symbol name (with colon replaced by underscore) and data category in the filename.
-
-3. **Automatic Export**: When `export_result=True`, data is automatically exported after retrieval.
-
-### Comparison Functionality
-
-1. **Default Fields**: When comparing multiple symbols without specifying fields, the module uses a standard set of key metrics:
-   - `total_revenue`, `net_income`, `EBITDA`
-   - `market_cap_basic`, `price_earnings_ttm`
-   - `return_on_equity_fq`, `debt_to_equity_fq`
-
-2. **Comparison Structure**: Returns both individual symbol data and a side-by-side comparison dictionary.
-
-3. **Error Handling**: If no data is retrieved for any symbol, the comparison fails with an appropriate error message.
-
 ## Code Examples
 
 ### Basic Usage
@@ -340,97 +289,6 @@ roe_values = [
     if 'return_on_equity_fq' in data
 ]
 average_roe = sum(roe_values) / len(roe_values) if roe_values else 0
-```
-
-## Common Mistakes and Solutions
-
-### Mistake: Invalid Symbol Format
-
-```python
-# Wrong - missing exchange prefix
-result = fundamentals.get_fundamentals(symbol='AAPL')
-
-# Right - include exchange prefix
-result = fundamentals.get_fundamentals(symbol='NASDAQ:AAPL')
-```
-
-**Solution**: Always include the exchange prefix in the format `EXCHANGE:SYMBOL`.
-
-### Mistake: Using Invalid Fields
-
-```python
-# Wrong - using non-existent field
-result = fundamentals.get_fundamentals(
-    symbol='NASDAQ:AAPL',
-    fields=['invalid_field']
-)
-
-# Right - use valid field names
-result = fundamentals.get_fundamentals(
-    symbol='NASDAQ:AAPL',
-    fields=['total_revenue', 'net_income']
-)
-```
-
-**Solution**: Refer to the field categories or use the predefined category methods.
-
-### Mistake: Empty or Invalid Symbol
-
-```python
-# Wrong - empty string
-result = fundamentals.get_fundamentals(symbol='')
-
-# Wrong - None
-result = fundamentals.get_fundamentals(symbol=None)
-
-# Right - valid symbol
-result = fundamentals.get_fundamentals(symbol='NASDAQ:AAPL')
-```
-
-**Solution**: Always provide a valid, non-empty symbol string with exchange prefix.
-
-### Mistake: Network Connectivity Issues
-
-```python
-# Handle potential network errors
-result = fundamentals.get_fundamentals(symbol='NASDAQ:AAPL')
-
-if result['status'] == 'failed':
-    if 'Connection error' in result['error']:
-        # Implement retry logic or fallback
-        print("Network error, retrying...")
-        time.sleep(5)
-        result = fundamentals.get_fundamentals(symbol='NASDAQ:AAPL')
-```
-
-**Solution**: Implement proper error handling and retry logic for network-related issues.
-
-### Mistake: No Data Available
-
-```python
-# Handle cases where no data is returned
-result = fundamentals.get_fundamentals(symbol='INVALID:SYMBOL')
-
-if result['status'] == 'failed':
-    if 'No data found' in result['error']:
-        # Handle missing data scenario
-        print(f"No fundamental data available for {symbol}")
-```
-
-**Solution**: Check the error message and handle missing data scenarios gracefully.
-
-## Environment Setup
-
-To work with fundamental data, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
 ```
 
 ## Test-Verified Constraints

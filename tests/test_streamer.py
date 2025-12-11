@@ -13,13 +13,13 @@ from tradingview_scraper.symbols.stream import Streamer
 
 
 # Get JWT token from environment variable
-JWT_TOKEN = os.getenv("TRADINGVIEW_JWT_TOKEN", "")
+JWT_TOKEN = os.getenv("TRADINGVIEW_JWT_TOKEN", "unauthorized_user_token")
 
 # Skip all tests if JWT token is not set
-pytestmark = pytest.mark.skipif(
-    not JWT_TOKEN,
-    reason="TRADINGVIEW_JWT_TOKEN environment variable not set. Set it to run these tests."
-)
+# pytestmark = pytest.mark.skipif(
+#     not JWT_TOKEN,
+#     reason="TRADINGVIEW_JWT_TOKEN environment variable not set. Set it to run these tests."
+# )
 
 
 class TestStreamerOHLC:
@@ -49,7 +49,7 @@ class TestStreamerOHLC:
         assert len(result["indicator"]) == 0  # No indicators requested
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
 
 
 class TestStreamerSingleIndicator:
@@ -57,6 +57,9 @@ class TestStreamerSingleIndicator:
     
     def test_stream_with_rsi(self):
         """Test streaming OHLC data with RSI indicator"""
+        if JWT_TOKEN == "unauthorized_user_token":
+            pytest.skip("Skipping indicator test: TRADINGVIEW_JWT_TOKEN not set")
+
         streamer = Streamer(
             export_result=True,
             export_type='json',
@@ -81,7 +84,7 @@ class TestStreamerSingleIndicator:
         assert len(result["indicator"]["STD;RSI"]) > 0
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
 
 
 class TestStreamerMultipleIndicators:
@@ -89,6 +92,9 @@ class TestStreamerMultipleIndicators:
     
     def test_stream_with_rsi_and_macd(self):
         """Test streaming with RSI and MACD indicators"""
+        if JWT_TOKEN == "unauthorized_user_token":
+            pytest.skip("Skipping indicator test: TRADINGVIEW_JWT_TOKEN not set")
+
         streamer = Streamer(
             export_result=True,
             export_type='json',
@@ -116,7 +122,7 @@ class TestStreamerMultipleIndicators:
         assert len(result["indicator"]["STD;MACD"]) > 0
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
     
     def test_stream_with_three_indicators(self):
         """Test streaming with three indicators: RSI, MACD, and CCI
@@ -125,6 +131,9 @@ class TestStreamerMultipleIndicators:
         This test will only receive 2 indicators (RSI and MACD), and CCI will timeout.
         The error message "❌ Unable to scrape indicator: STD;CCI" should be logged.
         """
+        if JWT_TOKEN == "unauthorized_user_token":
+            pytest.skip("Skipping indicator test: TRADINGVIEW_JWT_TOKEN not set")
+
         streamer = Streamer(
             export_result=True,
             export_type='json',
@@ -150,7 +159,7 @@ class TestStreamerMultipleIndicators:
         assert "STD;MACD" in result["indicator"], "MACD should be present"
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
 
 
 class TestStreamerDataStructure:
@@ -178,10 +187,13 @@ class TestStreamerDataStructure:
             assert key in ohlc_candle, f"Missing key: {key}"
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
     
     def test_indicator_data_structure(self):
         """Test that indicator data has correct structure"""
+        if JWT_TOKEN == "unauthorized_user_token":
+            pytest.skip("Skipping indicator test: TRADINGVIEW_JWT_TOKEN not set")
+
         streamer = Streamer(
             export_result=True,
             export_type='json',
@@ -203,7 +215,7 @@ class TestStreamerDataStructure:
         assert isinstance(rsi_data['timestamp'], (int, float))
         
         # Sleep to avoid forbidden error
-        time.sleep(10)
+        time.sleep(1)
 
 
 if __name__ == "__main__":

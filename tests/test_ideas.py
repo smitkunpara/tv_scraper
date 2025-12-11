@@ -82,12 +82,36 @@ class TestIdeas:
 
         assert ideas == []
 
-    def test_scrape_recent_sorting_option(self, ideas_scraper):
-        """Test scraping recent ideas with real API call."""
-        pytest.importorskip("requests", reason="network tests skipped")
+    @mock.patch('tradingview_scraper.symbols.ideas.requests.get')
+    def test_scrape_recent_sorting_option(self, mock_get, ideas_scraper):
+        """Test scraping recent ideas with mocked API call."""
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            'data': {
+                'ideas': {
+                    'data': {
+                        'items': [
+                            {
+                                "name": "Recent Idea",
+                                "description": "Desc",
+                                "symbol": {"logo_urls": ["url"]},
+                                "chart_url": "url",
+                                "comments_count": 1,
+                                "views_count": 1,
+                                "user": {"username": "User"},
+                                "likes_count": 1,
+                                "date_timestamp": 1234567890
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        mock_get.return_value = mock_response
 
         ideas = ideas_scraper.scrape(symbol="BTCUSD", sort="recent", startPage=1, endPage=1)
-        if ideas == []: pytest.skip("Captcha challenge – skipping real API test")
 
         assert ideas is not None
         assert isinstance(ideas, list)
@@ -101,12 +125,37 @@ class TestIdeas:
             assert 'likes_count' in idea
             assert 'timestamp' in idea
 
-    def test_scrape_popular_sorting_option(self, ideas_scraper):
-        """Test scraping popular ideas with real API call."""
-        pytest.importorskip("requests", reason="network tests skipped")
+    @mock.patch('tradingview_scraper.symbols.ideas.requests.get')
+    def test_scrape_popular_sorting_option(self, mock_get, ideas_scraper):
+        """Test scraping popular ideas with mocked API call."""
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            'data': {
+                'ideas': {
+                    'data': {
+                        'items': [
+                            {
+                                "name": "Popular Idea",
+                                "description": "Desc",
+                                "symbol": {"logo_urls": ["url"]},
+                                "chart_url": "url",
+                                "comments_count": 100,
+                                "views_count": 1000,
+                                "user": {"username": "User"},
+                                "likes_count": 50,
+                                "date_timestamp": 1234567890
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        mock_get.return_value = mock_response
 
         ideas = ideas_scraper.scrape(symbol="BTCUSD", sort="popular", startPage=1, endPage=1)
-        if ideas == []: pytest.skip("Captcha challenge – skipping real API test")
+        
         assert ideas is not None
         assert isinstance(ideas, list)
         if ideas:
@@ -119,15 +168,42 @@ class TestIdeas:
             assert 'likes_count' in idea
             assert 'timestamp' in idea
 
-    def test_threading_avoids_rate_limiting(self, ideas_scraper):
-        """Test that threading prevents rate limiting when scraping multiple pages concurrently."""
-        pytest.importorskip("requests", reason="network tests skipped")
+    @mock.patch('tradingview_scraper.symbols.ideas.requests.get')
+    def test_threading_avoids_rate_limiting(self, mock_get, ideas_scraper):
+        """Test that threading works when scraping multiple pages (mocked)."""
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            'data': {
+                'ideas': {
+                    'data': {
+                        'items': [
+                            {
+                                "name": "Idea",
+                                "description": "Desc",
+                                "symbol": {"logo_urls": ["url"]},
+                                "chart_url": "url",
+                                "comments_count": 1,
+                                "views_count": 1,
+                                "user": {"username": "User"},
+                                "likes_count": 1,
+                                "date_timestamp": 1234567890
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        mock_get.return_value = mock_response
 
-        ideas = ideas_scraper.scrape(symbol="BTCUSD", sort="popular", startPage=1, endPage=42)
-        if ideas == []: pytest.skip("Captcha challenge – skipping real API test")
+        # Use fewer pages for mock test as speed is not the issue, just logic
+        ideas = ideas_scraper.scrape(symbol="BTCUSD", sort="popular", startPage=1, endPage=5)
+        
         assert ideas is not None  
         assert isinstance(ideas, list)
-        assert len(ideas) > 0
+        # 5 pages * 1 item per page = 5 items
+        assert len(ideas) == 5
         for idea in ideas[:5]: 
             assert 'title' in idea
             assert 'description' in idea
@@ -136,4 +212,3 @@ class TestIdeas:
             assert 'views_count' in idea
             assert 'likes_count' in idea
             assert 'timestamp' in idea
-        
