@@ -4,16 +4,9 @@
 
 The Fundamental Data module provides comprehensive access to financial fundamentals for stocks and other financial instruments. This module enables retrieval of detailed financial statements, ratios, and metrics that are essential for fundamental analysis.
 
-## Why This Feature Exists
+!!! note "Supported Data"
+    For a complete list of supported exchanges and symbols, see [Supported Data](supported_data.md).
 
-The fundamental data functionality exists to:
-
-- Provide programmatic access to comprehensive financial statements and metrics
-- Enable fundamental analysis and valuation modeling
-- Support investment research and due diligence processes
-- Facilitate comparative analysis across multiple companies
-- Offer historical and current financial data for backtesting strategies
-- Deliver standardized financial metrics for quantitative analysis
 
 ## Input Specification
 
@@ -183,48 +176,6 @@ For comparison methods, the response includes additional structure:
 | `dividends_per_share_fq` | Dividends per share (fiscal quarter) | Currency |
 | `dividend_payout_ratio_ttm` | Dividend payout ratio (trailing twelve months) | Percentage |
 
-## Behavioral Notes from Code and Tests
-
-### Symbol Validation
-
-1. **Exchange Prefix Requirement**: All symbols must include an exchange prefix (e.g., `'NASDAQ:AAPL'`). Symbols without prefixes will fail validation.
-
-2. **Case Standardization**: Symbols are automatically converted to uppercase and stripped of whitespace.
-
-3. **Error Handling**: Invalid symbols return a failed status with descriptive error messages.
-
-### Data Retrieval
-
-1. **Field Selection**: When no specific fields are requested, the module retrieves all 53 available fundamental fields.
-
-2. **HTTP Requests**: The module uses TradingView's scanner API with a 10-second timeout.
-
-3. **Rate Limiting**: No explicit rate limiting is implemented, but TradingView may impose limits on frequent requests.
-
-4. **Error Conditions**: The module handles various error scenarios including:
-   - Invalid symbols
-   - HTTP errors (non-200 status codes)
-   - Network connectivity issues
-   - Empty or missing data responses
-
-### Export Functionality
-
-1. **File Formats**: Supports JSON and CSV export formats.
-
-2. **File Naming**: Export files use the symbol name (with colon replaced by underscore) and data category in the filename.
-
-3. **Automatic Export**: When `export_result=True`, data is automatically exported after retrieval.
-
-### Comparison Functionality
-
-1. **Default Fields**: When comparing multiple symbols without specifying fields, the module uses a standard set of key metrics:
-   - `total_revenue`, `net_income`, `EBITDA`
-   - `market_cap_basic`, `price_earnings_ttm`
-   - `return_on_equity_fq`, `debt_to_equity_fq`
-
-2. **Comparison Structure**: Returns both individual symbol data and a side-by-side comparison dictionary.
-
-3. **Error Handling**: If no data is retrieved for any symbol, the comparison fails with an appropriate error message.
 
 ## Code Examples
 
@@ -419,19 +370,6 @@ if result['status'] == 'failed':
 
 **Solution**: Check the error message and handle missing data scenarios gracefully.
 
-## Environment Setup
-
-To work with fundamental data, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Test-Verified Constraints
 

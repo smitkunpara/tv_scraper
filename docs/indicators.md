@@ -4,15 +4,8 @@
 
 The Technical Indicators module provides functionality to scrape technical analysis indicators from TradingView for various financial instruments. This module allows users to retrieve technical indicator values for specific symbols, exchanges, and timeframes.
 
-## Why This Feature Exists
-
-The technical indicators feature exists to:
-
-- Enable quantitative analysis of financial markets
-- Provide access to 81+ technical indicators from TradingView
-- Support multiple timeframes for comprehensive market analysis
-- Allow both individual indicator selection and bulk retrieval
-- Facilitate automated trading strategies and market research
+!!! note "Supported Data"
+    For a complete list of supported indicators, exchanges, and timeframes, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -22,7 +15,7 @@ The technical indicators feature exists to:
 |-----------|------|---------|-------------|----------|
 | `exchange` | str | "BITSTAMP" | The exchange to scrape data from | No |
 | `symbol` | str | "BTCUSD" | The symbol to scrape data for | No |
-| `timeframe` | str | "1d" | Timeframe for analysis (1m, 5m, 15m, 30m, 1h, 2h, 4h, 1d, 1w, 1M) | No |
+| `timeframe` | str | "1m" | Timeframe for analysis (1m, 5m, 15m, 30m, 1h, 2h, 4h, 1d, 1w, 1M) | No |
 | `indicators` | List[str] | None | List of specific indicators to retrieve | Conditional |
 | `allIndicators` | bool | False | Retrieve all available indicators | No |
 
@@ -66,23 +59,6 @@ The technical indicators feature exists to:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-### Key Behaviors
-
-1. **Timeframe Handling**: The `1d` timeframe is treated specially - no timeframe suffix is appended to indicators
-2. **Indicator Validation**: All specified indicators are validated against the supported list
-3. **Error Handling**: Invalid exchanges, indicators, or timeframes raise `ValueError` exceptions
-4. **Export Functionality**: Results can be exported to JSON or CSV files when `export_result=True`
-5. **Rate Limiting**: Free TradingView accounts are limited to 2 indicators maximum when streaming
-
-### Test-Driven Behaviors
-
-- ✅ **Required Parameters**: When `allIndicators=False`, indicators list cannot be empty
-- ✅ **Default Timeframe**: Defaults to "1d" if not specified
-- ✅ **Response Structure**: Returns status and data fields with cleaned indicator keys
-- ✅ **Validation**: Validates exchanges, indicators, and timeframes before making API calls
-- ✅ **Error Handling**: Returns `{"status": "failed"}` on request failures
 
 ## Code Examples
 
@@ -234,19 +210,6 @@ result = indicators_scraper.scrape(
 
 **Solution**: Check [`tradingview_scraper/data/indicators.txt`](https://github.com/smitkunpara/tradingview-scraper/blob/main/tradingview_scraper/data/indicators.txt) for valid indicators.
 
-## Environment Setup
-
-To use the indicators functionality, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Supported Indicators Reference
 

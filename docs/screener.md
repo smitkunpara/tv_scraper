@@ -4,16 +4,6 @@
 
 The Screener module provides powerful functionality to screen financial instruments across multiple markets (stocks, crypto, forex, bonds, futures) with custom filters, sorting, and column selection. It enables users to find instruments that meet specific technical and fundamental criteria.
 
-## Why This Feature Exists
-
-The screener feature exists to:
-
-- Enable efficient market scanning across 16+ different markets
-- Support complex filtering with 15+ different operations
-- Provide flexible sorting and column selection
-- Allow export of results to JSON or CSV formats
-- Support both basic and advanced screening scenarios
-- Integrate with TradingView's scanner API for real-time data
 
 ## Input Specification
 
@@ -146,23 +136,6 @@ Each data item contains:
 - `symbol`: Instrument symbol (e.g., 'NASDAQ:AAPL')
 - Dynamic fields based on requested columns
 
-## Behavioral Notes from Code and Tests
-
-1. **Market Validation**: The system validates markets against `SUPPORTED_MARKETS` and raises `ValueError` for invalid markets.
-
-2. **Default Columns**: If no columns are specified, the system uses market-specific default columns.
-
-3. **Filter Processing**: Multiple filters are combined with AND logic.
-
-4. **Sorting**: Results can be sorted by any available field in ascending or descending order.
-
-5. **Pagination**: The `limit` parameter controls the number of results returned (max typically 50-100).
-
-6. **Error Handling**: The system handles HTTP errors and request exceptions gracefully.
-
-7. **Export Functionality**: When `export_result=True`, results are saved to files with appropriate naming.
-
-8. **Rate Limiting**: The system includes a 10-second timeout for API requests.
 
 ## Code Examples
 
@@ -330,19 +303,6 @@ for i in range(100):
 
 **Solution**: Add appropriate delays between requests and respect TradingView's API limits.
 
-## Environment Setup
-
-To use the screener functionality, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Advanced Usage Patterns
 

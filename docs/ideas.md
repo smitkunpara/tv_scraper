@@ -4,15 +4,8 @@
 
 The Ideas scraper module provides functionality to extract trading ideas from TradingView for specified symbols. It allows users to scrape published user ideas, including details such as title, description, author information, and engagement metrics.
 
-## Why This Feature Exists
-
-The Ideas scraper exists to:
-
-- Collect trading ideas and analysis from TradingView's community
-- Enable sentiment analysis and market research
-- Provide historical context for trading decisions
-- Support automated idea aggregation and monitoring
-- Facilitate competitive analysis and strategy validation
+!!! note "Supported Data"
+    For a complete list of supported exchanges and symbols, see [Supported Data](supported_data.md).
 
 ## Input Specification
 
@@ -73,25 +66,6 @@ The scraper returns a list of dictionaries, where each dictionary represents a t
 | `likes_count` | int | Number of likes the idea has received |
 | `timestamp` | int | Unix timestamp indicating when the idea was published |
 
-## Behavioral Notes from Code and Tests
-
-1. **Captcha Handling**: The scraper checks for captcha challenges in responses. If encountered, it logs an error and returns empty results.
-
-2. **Cookie Mechanism**: Providing a valid TradingView cookie in the constructor can help bypass captcha challenges.
-
-3. **Threading**: The scraper uses concurrent threading (max 3 workers) to scrape multiple pages simultaneously, improving performance.
-
-4. **Rate Limiting**: There's an implicit 5-second delay between requests to avoid overwhelming TradingView servers.
-
-5. **Error Handling**: The scraper gracefully handles various error scenarios:
-   - Network request failures
-   - Invalid JSON responses
-   - HTTP errors
-   - Invalid sort parameters
-
-6. **Pagination**: The scraper can handle multiple pages (from `startPage` to `endPage` inclusive).
-
-7. **Export Functionality**: When `export_result=True`, results are automatically saved as JSON or CSV files.
 
 ## Code Examples
 
@@ -151,72 +125,8 @@ ideas = ideas_scraper.scrape(
 )
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Invalid Sort Parameter
-
-```python
-# Wrong - invalid sort value
-ideas = ideas_scraper.scrape(sort="newest")
-
-# Right - use valid sort values
-ideas = ideas_scraper.scrape(sort="recent")  # or "popular"
-```
-
-**Solution**: Only use `'popular'` or `'recent'` for the sort parameter.
-
-### Mistake: Invalid Symbol
-
-```python
-# Wrong - invalid symbol format
-ideas = ideas_scraper.scrape(symbol="INVALID")
-
-# Right - use valid TradingView symbols
-ideas = ideas_scraper.scrape(symbol="BTCUSD")
-ideas = ideas_scraper.scrape(symbol="NASDAQ:AAPL")
-```
-
-**Solution**: Use valid TradingView symbol formats. Refer to supported symbols in the TradingView platform.
-
-### Mistake: Captcha Challenge Not Handled
-
-```python
-# Without cookie, may encounter captcha
-ideas_scraper = Ideas()
-ideas = ideas_scraper.scrape()  # May return empty list due to captcha
-
-# Solution: Use cookie
-ideas_scraper = Ideas(cookie="your_session_cookie")
-ideas = ideas_scraper.scrape()
-```
-
-**Solution**: Provide a valid TradingView session cookie to bypass captcha challenges.
-
-### Mistake: Page Range Issues
-
-```python
-# Wrong - endPage before startPage
-ideas = ideas_scraper.scrape(startPage=5, endPage=1)
-
-# Right - ensure proper page ordering
-ideas = ideas_scraper.scrape(startPage=1, endPage=5)
-```
 
 **Solution**: Ensure `endPage` is greater than or equal to `startPage`.
-
-## Environment Setup
-
-To use the Ideas scraper, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Additional Notes
 

@@ -4,15 +4,9 @@
 
 The News Scraping module provides functionality to scrape financial and cryptocurrency news from TradingView. It supports scraping both headlines and detailed story content, with filtering capabilities by provider, geographic area, and sorting options.
 
-## Why This Feature Exists
+!!! note "Supported Data"
+    For a complete list of supported news providers, areas, languages, and exchanges, see [Supported Data](supported_data.md).
 
-The news scraping feature exists to:
-
-- Provide real-time financial and cryptocurrency news data
-- Enable sentiment analysis and market monitoring
-- Support trading decision-making with up-to-date information
-- Allow filtering by specific news providers and geographic regions
-- Provide both headlines and detailed article content for comprehensive analysis
 
 ## Input Specification
 
@@ -113,14 +107,6 @@ The `scrape_news_content` method returns a dictionary with detailed article info
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-1. **Input Validation**: The system validates all inputs against supported data files before making API requests
-2. **Captcha Handling**: If a captcha challenge is encountered, an error is logged and empty results are returned
-3. **Sorting**: News can be sorted by publication date or urgency level
-4. **Empty Results**: Returns an empty list when no news items are found
-5. **Error Handling**: Raises appropriate exceptions for invalid inputs and HTTP errors
-6. **Rate Limiting**: The system includes time delays between requests to avoid rate limiting
 
 ## Code Examples
 
@@ -254,19 +240,6 @@ news_scraper = NewsScraper(cookie="your_tradingview_cookie")
 
 **Solution**: Set a valid TradingView session cookie in the constructor or environment variables.
 
-## Environment Setup
-
-To use the news scraping functionality, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Error Cases from Tests
 

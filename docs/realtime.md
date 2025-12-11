@@ -9,15 +9,9 @@ The module consists of three main components:
 - `Streamer`: High-level interface for streaming OHLC and indicator data
 - `StreamHandler`: Session management and message handling
 
-## Why This Feature Exists
+!!! note "Supported Data"
+    For a complete list of supported indicators, timeframes, and exchanges, see [Supported Data](supported_data.md).
 
-The real-time streaming feature exists to:
-
-- Provide live market data for trading applications and analysis
-- Enable real-time technical analysis with indicator calculations
-- Support automated trading systems that require up-to-date market information
-- Offer low-latency data access for time-sensitive applications
-- Allow integration with TradingView's comprehensive market data ecosystem
 
 ## Input Specification
 
@@ -109,33 +103,6 @@ The `stream()` method returns a dictionary with two keys:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-### Connection Management
-
-1. **WebSocket Connection**: Uses `wss://data.tradingview.com/socket.io/websocket` for real-time data
-2. **Heartbeat Handling**: Automatically handles WebSocket heartbeats to maintain connection
-3. **Reconnection**: Attempts to reconnect when connection is lost (WebSocketConnectionClosedException)
-
-### Session Management
-
-1. **Session Generation**: Creates unique session IDs for quote and chart sessions
-2. **Authentication**: Uses JWT tokens for authenticated access
-3. **Locale Settings**: Sets locale to "en", "US" by default
-
-### Data Processing
-
-1. **Symbol Validation**: Validates exchange:symbol format before streaming
-2. **Timeframe Mapping**: Converts human-readable timeframes to TradingView codes
-3. **Indicator Limits**: Free accounts limited to 2 indicators maximum
-4. **Timeout Handling**: Stops after 15 packets if sufficient data not received
-
-### Error Handling
-
-1. **Invalid Symbols**: Raises ValueError for malformed or invalid symbols
-2. **Connection Errors**: Logs and handles WebSocket connection issues
-3. **Data Parsing**: Skips malformed JSON packets and continues processing
-4. **Indicator Failures**: Logs errors for indicators that fail to load
 
 ## Code Examples
 
@@ -270,19 +237,6 @@ streamer = Streamer(websocket_jwt_token="your_actual_jwt_token")
 
 **Solution**: Set the `TRADINGVIEW_JWT_TOKEN` environment variable or pass a valid JWT token for full functionality.
 
-## Environment Setup
-
-To work with real-time streaming, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## JWT Token Requirements
 

@@ -4,15 +4,9 @@
 
 The Symbol Overview module provides comprehensive functionality to retrieve detailed information about financial symbols from TradingView. This includes profile data, market statistics, financial metrics, performance indicators, technical analysis, and fundamental information.
 
-## Why This Feature Exists
+!!! note "Supported Data"
+    For a complete list of supported exchanges and other data types, see [Supported Data](supported_data.md).
 
-The Symbol Overview feature exists to:
-
-- Provide a centralized interface for accessing comprehensive symbol data
-- Enable detailed fundamental and technical analysis of financial instruments
-- Support trading strategies that require multiple data points
-- Offer flexibility to retrieve specific data categories or full overview
-- Facilitate research and backtesting with historical and current data
 
 ## Input Specification
 
@@ -218,22 +212,6 @@ All methods return a dictionary with the following structure:
 }
 ```
 
-## Behavioral Notes from Code and Tests
-
-1. **Symbol Validation**: The system validates symbols to ensure they include exchange prefixes (e.g., `'NASDAQ:AAPL'`).
-
-2. **Field Selection**: When no specific fields are provided, all available fields are retrieved.
-
-3. **Error Handling**: The module handles various error scenarios including:
-   - Invalid symbol formats
-   - HTTP errors and connection issues
-   - Empty or missing data responses
-
-4. **Export Functionality**: Results can be exported to JSON or CSV files when `export_result=True`.
-
-5. **Rate Limiting**: The system includes timeout handling (10 seconds) for API requests.
-
-6. **Data Consistency**: All methods return the same response structure with `status`, `data`, and `error` fields.
 
 ## Code Examples
 
@@ -365,18 +343,5 @@ else:
 
 **Solution**: Always check the `status` field before accessing the `data` field.
 
-## Environment Setup
-
-To work with the Symbol Overview module, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 This documentation provides comprehensive coverage of the Symbol Overview module, including all data categories, expected schemas, usage examples, and common pitfalls. The module offers flexible access to detailed symbol information for fundamental and technical analysis.

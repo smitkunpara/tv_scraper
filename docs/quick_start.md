@@ -2,17 +2,10 @@
 
 ## Overview
 
-This guide provides minimal working examples to help you quickly get started with the TradingView Scraper library. These examples cover the core functionality including ideas scraping, indicators fetching, and real-time streaming.
+This guide provides minimal working examples to help you quickly get started with the TradingView Scraper library.
 
-## Why This Quick Start Exists
-
-The quick start guide exists to:
-
-- Provide immediate, working examples for new users
-- Demonstrate core functionality with minimal code
-- Help users understand basic usage patterns
-- Serve as a foundation for more advanced usage
-- Reduce time-to-first-success for new developers
+!!! note "Supported Data"
+    For a complete list of supported exchanges, symbols, and other data types, see [Supported Data](supported_data.md).
 
 ## Prerequisites
 
@@ -233,53 +226,6 @@ All methods return structured data in the following format:
     "data": [...]         # List of results or dictionary of values
     # Additional metadata may be included
 }
-```
-
-## Behavioral Notes
-
-1. **Rate Limiting**: Free TradingView accounts have limitations (e.g., 2 indicator maximum for streaming)
-2. **Captcha Handling**: Use cookies to bypass captcha challenges
-3. **Error Handling**: Invalid inputs will raise appropriate exceptions
-4. **Data Consistency**: All modules use the same data validation
-
-## Common Mistakes and Solutions
-
-### Mistake: Using unsupported exchange
-
-```python
-# Wrong
-indicators_scraper.scrape(exchange="INVALID_EXCHANGE", ...)
-
-# Right
-indicators_scraper.scrape(exchange="BINANCE", ...)
-```
-
-**Solution**: Check [supported exchanges](supported_data.md#supported-exchanges)
-
-### Mistake: Exceeding indicator limit
-
-```python
-# This will fail on free accounts
-streamer.stream(
-    indicators=[("STD;RSI", "37.0"), ("STD;MACD", "31.0"), ("STD;CCI", "37.0")]
-)
-
-# Right (max 2 indicators for free accounts)
-streamer.stream(
-    indicators=[("STD;RSI", "37.0"), ("STD;MACD", "31.0")]
-)
-```
-
-**Solution**: Free accounts can only stream 2 indicators. Upgrade to premium or use fewer indicators.
-
-## Environment Setup Reminder
-
-```bash
-# Quick setup commands
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-uv sync
 ```
 
 This quick start guide provides minimal working examples to help you begin using the TradingView Scraper library immediately. Refer to the specific module documentation for more advanced features and detailed usage instructions.

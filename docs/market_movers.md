@@ -4,15 +4,6 @@
 
 The Market Movers module provides functionality to scrape and analyze market movers data from TradingView. This includes gainers, losers, most active stocks, penny stocks, and pre/after-market movers across various financial markets.
 
-## Why This Feature Exists
-
-The Market Movers feature exists to:
-
-- Identify top-performing and underperforming assets in real-time
-- Track market sentiment and trends across different categories
-- Provide actionable insights for traders and investors
-- Support various trading strategies (momentum, contrarian, etc.)
-- Enable automated monitoring of market conditions
 
 ## Input Specification
 
@@ -105,26 +96,6 @@ Each item in the `data` list contains:
 - `symbol` - The trading symbol (e.g., 'NASDAQ:AAPL')
 - Field values as specified in the request
 
-## Behavioral Notes from Code and Tests
-
-1. **Validation**: The system validates both market and category inputs before making API requests.
-
-2. **Filter Logic**:
-   - Gainers categories filter for `change > 0`
-   - Losers categories filter for `change < 0`
-   - Penny stocks filter for `close < 5`
-   - Market-specific filters are applied based on the selected market
-
-3. **Sorting**:
-   - Gainers are sorted by change in descending order
-   - Losers are sorted by change in ascending order
-   - Most active and penny stocks are sorted by volume in descending order
-
-4. **Error Handling**: The system handles HTTP errors and request exceptions gracefully, returning structured error responses.
-
-5. **Rate Limiting**: The system includes a 10-second timeout for requests to prevent hanging.
-
-6. **Export Functionality**: When `export_result=True`, data is automatically saved to JSON or CSV files.
 
 ## Code Examples
 
@@ -239,19 +210,6 @@ else:
     print(f"Error: {result['error']}")
 ```
 
-## Environment Setup
-
-To work with market movers data, ensure your environment is properly set up:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate   # Linux/macOS
-.venv\Scripts\activate      # Windows
-
-# Install dependencies
-uv sync
-```
 
 ## Advanced Usage Patterns
 

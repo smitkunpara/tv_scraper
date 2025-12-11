@@ -75,6 +75,7 @@ nav:
     - Calendar Events: calendar.md
   - Reference:
     - Supported Data: supported_data.md
+  - Contributing: contributing.md
 
 markdown_extensions:
   - admonition
