@@ -6,13 +6,8 @@ repo_url: https://github.com/smitkunpara/tradingview-scraper
 
 theme:
   name: material
-  # Set a custom logo or use an icon
-  # logo: assets/logo.png # (Optional: Add a logo image to docs/assets/ for better branding)
   favicon: material/library
   features:
-    # --- Navigation Layout ---
-    # navigation.tabs      <-- REMOVED: This restores the Left Sidebar
-    # navigation.tabs.sticky
     - navigation.sections
     - navigation.expand    # Opens categories automatically
     - navigation.top       # Back to top button

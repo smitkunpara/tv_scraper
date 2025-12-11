@@ -2,7 +2,27 @@
 
 ## Overview
 
-This guide provides step-by-step instructions for installing and setting up the TradingView Scraper library using UV, the recommended package manager for Python projects.
+This guide provides step-by-step instructions for installing and setting up the TradingView Scraper library. Choose the method that best fits your needs: quick installation for users or development setup for contributors.
+
+## For End Users (Quick Install)
+
+If you just want to use the library in your project:
+
+### Install from GitHub
+
+```bash
+pip install git+https://github.com/smitkunpara/tradingview-scraper.git
+```
+
+### Install using UV
+
+```bash
+uv add git+https://github.com/smitkunpara/tradingview-scraper.git
+```
+
+## For Developers (Full Setup)
+
+This section is for contributors or those who want to modify the source code.
 
 ## Prerequisites
 
