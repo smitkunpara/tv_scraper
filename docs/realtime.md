@@ -180,61 +180,6 @@ for i, packet in enumerate(data_generator):
         break
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Invalid Symbol Format
-
-```python
-# Wrong
-streamer.stream(exchange="BINANCE", symbol="BTCUSDT")  # Missing exchange prefix
-
-# Right
-streamer.stream(exchange="BINANCE", symbol="BTCUSDT")  # Correct format
-```
-
-**Solution**: Always use the full "EXCHANGE:SYMBOL" format when using RealTimeData directly.
-
-### Mistake: Exceeding Indicator Limit
-
-```python
-# This will fail on free accounts
-streamer.stream(
-    exchange="BINANCE",
-    symbol="BTCUSDT",
-    indicators=[
-        ("STD;RSI", "37.0"),
-        ("STD;MACD", "31.0"),
-        ("STD;CCI", "37.0")  # Third indicator - will fail
-    ]
-)
-```
-
-**Solution**: Free TradingView accounts can only stream 2 indicators. Upgrade to premium or use fewer indicators.
-
-### Mistake: Invalid Timeframe
-
-```python
-# Wrong
-streamer.stream(exchange="BINANCE", symbol="BTCUSDT", timeframe="1hour")
-
-# Right
-streamer.stream(exchange="BINANCE", symbol="BTCUSDT", timeframe="1h")
-```
-
-**Solution**: Use supported timeframe codes: "1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d", "1w", "1M"
-
-### Mistake: Missing JWT Token
-
-```python
-# This may work but with limited functionality
-streamer = Streamer()  # Uses default unauthorized token
-
-# Better
-streamer = Streamer(websocket_jwt_token="your_actual_jwt_token")
-```
-
-**Solution**: Set the `TRADINGVIEW_JWT_TOKEN` environment variable or pass a valid JWT token for full functionality.
-
 ## JWT Token Requirements
 
 Real-time streaming requires a valid TradingView JWT token for full functionality:

@@ -227,5 +227,3 @@ All methods return structured data in the following format:
     # Additional metadata may be included
 }
 ```
-
-This quick start guide provides minimal working examples to help you begin using the TradingView Scraper library immediately. Refer to the specific module documentation for more advanced features and detailed usage instructions.

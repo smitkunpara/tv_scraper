@@ -2,7 +2,6 @@
 # TradingView Scraper
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![MIT License](https://img.shields.io/github/license/smitkunpara/tradingview-scraper.svg?color=brightgreen)](https://opensource.org/licenses/MIT)
 
 **A powerful, real-time Python library for extracting financial data, ideas, and indicators from [TradingView.com](https://www.tradingview.com).**
@@ -118,7 +117,6 @@ We welcome contributions! Please see our [Contributing Guide](https://smitkunpar
 
 - **🐛 Bug Reports**: [Open an issue](https://github.com/smitkunpara/tradingview-scraper/issues)
 - **💡 Feature Requests**: [Start a discussion](https://github.com/smitkunpara/tradingview-scraper/discussions)
-- **📝 Code Style**: We use `black` for consistent formatting
 
 ---
 

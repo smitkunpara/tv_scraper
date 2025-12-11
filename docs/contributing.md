@@ -58,34 +58,6 @@ We welcome contributions from the community! This guide will help you get starte
    mkdocs build
    ```
 
-## 📝 Code Style Guidelines
-
-### Python Style
-- Follow [PEP 8](https://pep8.org/) style guidelines
-- Write descriptive variable and function names
-- Add docstrings to all public functions and classes
-- Keep code clean and readable
-
-### Commit Messages
-- Use clear, descriptive commit messages
-- Start with a verb (Add, Fix, Update, Remove, etc.)
-- Keep the first line under 50 characters
-- Add detailed description if needed
-
-Example:
-```
-Add support for new indicator types
-
-- Add RSI indicator support
-- Update indicator validation
-- Add tests for new indicators
-```
-
-### Documentation
-- Update docstrings when changing function signatures
-- Add examples for new features
-- Keep documentation in sync with code changes
-
 ## 🧪 Testing
 
 ### Writing Tests

@@ -155,59 +155,6 @@ for market in markets:
         print(f"  {item['symbol']}: {item['change']}%")
 ```
 
-## Common Mistakes and Solutions
-
-### Mistake: Using unsupported market
-
-```python
-# Wrong
-scraper.scrape(market='invalid-market', category='gainers')
-
-# Right
-scraper.scrape(market='stocks-usa', category='gainers')
-```
-
-**Solution**: Always use one of the supported markets listed above.
-
-### Mistake: Using unsupported category for stock markets
-
-```python
-# Wrong
-scraper.scrape(market='stocks-usa', category='invalid-category')
-
-# Right
-scraper.scrape(market='stocks-usa', category='gainers')
-```
-
-**Solution**: Use only the supported categories for stock markets.
-
-### Mistake: Requesting too many results
-
-```python
-# This might fail or return incomplete data
-scraper.scrape(limit=1000)
-```
-
-**Solution**: Keep the limit reasonable (typically <= 100) to avoid API issues.
-
-### Mistake: Not handling API errors
-
-```python
-# Wrong - no error handling
-result = scraper.scrape(market='stocks-usa', category='gainers')
-print(result['data'])  # This will fail if status is 'failed'
-```
-
-**Solution**: Always check the status before accessing data:
-
-```python
-result = scraper.scrape(market='stocks-usa', category='gainers')
-if result['status'] == 'success':
-    print(result['data'])
-else:
-    print(f"Error: {result['error']}")
-```
-
 ## Advanced Usage Patterns
 
 ### Monitoring Market Conditions

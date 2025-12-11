@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![License](https://img.shields.io/github/license/smitkunpara/tradingview-scraper.svg)
 
-**A powerful, real-time Python library for extracting financial data, ideas, and indicators from TradingView.**
+**The most comprehensive and powerful Python library for programmatic access to TradingView data.**
 
 [Get Started](quick_start.md){ .md-button .md-button--primary } [View on GitHub](https://github.com/smitkunpara/tradingview-scraper){ .md-button .md-button--secondary }
 
@@ -13,79 +13,67 @@
 
 ---
 
-## Why use this library?
+## 🚀 Introduction
 
-The TradingView Scraper library exists to:
+**TradingView Scraper** is a robust Python library designed to bridge the gap between TradingView's visual data and your algorithmic needs. Whether you are building a trading bot, a market analysis dashboard, or a research tool, this library allows you to extract real-time and historical data directly from TradingView without the need for an official API key.
 
-- Provide programmatic access to TradingView's extensive financial data
-- Enable automated trading strategies and market analysis
-- Support research and backtesting of trading algorithms
-- Offer comprehensive market insights across multiple asset classes
-- Deliver real-time data for live trading applications
+It goes beyond simple price scraping, offering deep access to:
+- **Technical Analysis**: 80+ built-in indicators (RSI, MACD, Bollinger Bands, etc.) calculated in real-time.
+- **Social Sentiment**: Community Ideas, Minds discussions, and News sentiment.
+- **Fundamental Data**: Financial statements, ratios, and company overview.
+- **Live Streaming**: WebSocket integration for real-time OHLCV and indicator updates.
 
-## Target Audience
+## ⚡ Quick Glance
 
-This library is designed for:
+Get up and running in seconds. Here's how to fetch technical indicators for Bitcoin:
 
-- **Quantitative traders** who need market data for algorithmic trading
-- **Financial analysts** conducting market research and analysis
-- **Data scientists** building predictive models for financial markets
-- **Developers** creating trading applications and platforms
-- **Investors** seeking comprehensive market insights
+```python
+from tradingview_scraper.symbols.technicals import Indicators
 
-## Key Features
+# Initialize the scraper
+scraper = Indicators()
 
-### Data Scraping Capabilities
+# Get RSI and MACD for BTCUSD on Binance
+data = scraper.scrape(
+    exchange="BINANCE",
+    symbol="BTCUSD",
+    timeframe="1d",
+    indicators=["RSI", "MACD"]
+)
 
-- **Ideas**: Extract trading ideas, strategies, and market insights
-- **Indicators**: Retrieve technical indicators (RSI, MACD, Stochastic, etc.)
-- **News**: Scrape financial news and market updates
-- **Real-time data**: Stream live OHLCV and indicator data
-- **Market movers**: Identify top gainers, losers, and active stocks
-- **Screener**: Filter stocks based on custom criteria
-- **Symbol markets**: Find all exchanges where a symbol is traded
-- **Markets overview**: Get top stocks by various metrics
-- **Symbol overview**: Comprehensive symbol data including fundamentals
-- **Minds community**: Access community discussions and insights
-- **Fundamental data**: Income statements, balance sheets, cash flow data
-
-### Supported Markets
-
-The library supports 18+ markets including:
-- **Stocks**: America, Australia, Canada, Germany, India, UK, Global
-- **Cryptocurrencies**: 260+ exchanges including Binance, Coinbase, Kraken
-- **Forex**: Major currency pairs and brokers
-- **Commodities**: CME, NYMEX, COMEX
-- **Indices**: S&P 500, NASDAQ, Dow Jones
-- **Futures and Bonds**
-
-### Technical Capabilities
-
-- **Export formats**: JSON and CSV
-- **Real-time streaming**: WebSocket-based data streaming
-- **Historical data**: Access to historical market data
-- **Custom filtering**: Advanced filtering and sorting options
-- **Multi-symbol support**: Compare and analyze multiple symbols
-- **Error handling**: Robust captcha handling and rate limiting
-
-## Architecture Overview
-
-The library follows a modular design with specialized classes for each data type:
-
-```mermaid
-graph TD
-    A[TradingView Scraper] --> B[Ideas]
-    A --> C[Indicators]
-    A --> D[News]
-    A --> E[Streamer]
-    A --> F[Market Movers]
-    A --> G[Screener]
-    A --> H[Symbol Markets]
-    A --> I[Markets Overview]
-    A --> J[Symbol Overview]
-    A --> K[Minds Community]
-    A --> L[Fundamental Data]
+print(data)
 ```
 
+## 📦 Key Modules
 
-This documentation provides a comprehensive introduction to the TradingView Scraper library. Refer to the specific module documentation for detailed usage instructions and advanced features.
+The library is organized into specialized modules to handle different types of data efficiently:
+
+| Module | Description |
+| :--- | :--- |
+| **[`Indicators`](indicators.md)** | Fetch values for standard and custom technical indicators. |
+| **[`Streamer`](realtime.md)** | Connect to WebSocket for live price and indicator updates. |
+| **[`Ideas`](ideas.md)** | Scrape trading ideas, strategies, and educational content. |
+| **[`News`](news.md)** | Access real-time news headlines and detailed articles. |
+| **[`Screener`](screener.md)** | Filter stocks, crypto, and forex based on technical/fundamental criteria. |
+| **[`Fundamentals`](fundamentals.md)** | Retrieve balance sheets, income statements, and cash flow. |
+| **[`MarketMovers`](market_movers.md)** | Identify top gainers, losers, and active symbols. |
+
+## ✨ Why TradingView Scraper?
+
+- **Zero Configuration**: No API keys required for most features. Works out of the box.
+- **Broad Coverage**: Supports **260+ exchanges** (Binance, NASDAQ, NYSE, Forex) and **18+ markets**.
+- **Real-Time & Historical**: switch seamlessly between scraping static data and streaming live updates.
+- **Developer Friendly**: Fully typed, structured JSON output, and built with modern Python (3.11+).
+- **Export Ready**: Built-in support for exporting data to **JSON** and **CSV** for analysis.
+
+
+## 📚 Next Steps
+
+- Follow the [**Quick Start Guide**](quick_start.md) to set up your first scraper.
+- Explore [**Supported Data**](supported_data.md) to see available exchanges and indicators.
+- Learn about [**Real-time Streaming**](realtime.md) for live data applications.
+
+---
+<p align="center">
+    <em>Built with ❤️ for the algorithmic trading community.</em>
+</p>

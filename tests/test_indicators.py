@@ -31,7 +31,7 @@ class TestIndicators:
         mocker.patch.object(self.indicators_scraper, 'scrape', return_value=mock_response)
 
         # Scrape indicators for the BTCUSD symbol
-        time.sleep(3)
+
         indicators = self.indicators_scraper.scrape(
             exchange="BINANCE",
             symbol="BTCUSD",
@@ -53,7 +53,7 @@ class TestIndicators:
         # Mocking the response for an invalid exchange
         mocker.patch.object(self.indicators_scraper, 'scrape', side_effect=ValueError("Invalid exchange"))
 
-        time.sleep(3)
+
         with pytest.raises(ValueError, match="Invalid exchange"):
             self.indicators_scraper.scrape(
                 exchange="INVALID_EXCHANGE",
@@ -67,7 +67,7 @@ class TestIndicators:
         # Mocking an empty response
         mocker.patch.object(self.indicators_scraper, 'scrape', return_value={})
 
-        time.sleep(3)
+
         indicators = self.indicators_scraper.scrape(
             exchange="BINANCE",
             symbol="BTCUSD",
@@ -90,7 +90,7 @@ class TestIndicators:
         mocker.patch.object(self.indicators_scraper, 'scrape', return_value=valid_response)
 
         # Scrape indicators for the BTCUSD symbol
-        time.sleep(3)
+
         indicators = self.indicators_scraper.scrape(
             exchange="BINANCE",
             symbol="BTCUSD",

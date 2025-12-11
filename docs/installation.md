@@ -4,16 +4,6 @@
 
 This guide provides step-by-step instructions for installing and setting up the TradingView Scraper library using UV, the recommended package manager for Python projects.
 
-## Why This Installation Method Exists
-
-The UV-based installation method exists to:
-
-- Provide a fast, reliable dependency management system
-- Ensure consistent environments across different platforms
-- Simplify dependency resolution and virtual environment management
-- Support modern Python development workflows
-- Enable easy project setup and maintenance
-
 ## Prerequisites
 
 Before installing the TradingView Scraper, ensure you have:
