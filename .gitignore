@@ -12,6 +12,7 @@ venv.bak/
 *.egg-info/
 dist/*
 build/*
+site/
 tradingview_scraper.egg-info/*
 
 # IDEs and editors

@@ -111,11 +111,16 @@ ideas_scraper = Ideas(export_result=True, export_type='csv')
 ideas = ideas_scraper.scrape(symbol="BTCUSD")
 ```
 
-### Cookie Bypass Example
+### Captcha Bypass Example
+
+For detailed instructions on obtaining and using TradingView session cookies to bypass captcha challenges, see [Getting Cookies](getting_cookies.md).
 
 ```python
+# Set your TradingView session cookie (obtained as described in getting_cookies.md)
+TRADINGVIEW_COOKIE = "your_cookie_string_here"
+
 # Use cookie to bypass captcha challenges
-ideas_scraper = Ideas(cookie="your_tradingview_session_cookie")
+ideas_scraper = Ideas(cookie=TRADINGVIEW_COOKIE)
 ideas = ideas_scraper.scrape(
     symbol="BTCUSD",
     sort="popular",
@@ -131,5 +136,3 @@ ideas = ideas_scraper.scrape(
 
 !!! warning
     Excessive scraping without proper delays may result in IP bans or captcha challenges. Use cookies and reasonable page ranges.
-
-The Ideas scraper provides a powerful way to collect and analyze trading ideas from the TradingView community, supporting both research and automated trading strategies.

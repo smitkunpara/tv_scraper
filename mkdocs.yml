@@ -22,10 +22,10 @@ theme:
     - search.share
     - content.tabs.link
     - content.code.annotation
-    - content.code.copy    # Native copy button (no JS needed)
+    - content.code.copy
     - content.tooltips
     - navigation.footer
-  
+    
   palette:
     # Option 1: System preference (Auto-detects Light/Dark)
     - media: "(prefers-color-scheme: light)"
@@ -70,6 +70,7 @@ nav:
     - Calendar Events: calendar.md
   - Reference:
     - Supported Data: supported_data.md
+    - Getting Cookies: getting_cookies.md
   - Contributing: contributing.md
 
 markdown_extensions:
