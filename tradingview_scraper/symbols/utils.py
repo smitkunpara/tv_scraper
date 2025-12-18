@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 from typing import List
 
-import pandas as pd
+# import pandas as pd  # Moved inside save_csv_file
 
 
 def ensure_export_directory(path='/export'):
@@ -139,6 +139,7 @@ def save_csv_file(data, **kwargs):
     output_path = generate_export_filepath(symbol, data_category, timeframe, '.csv')
     ensure_export_directory(os.path.dirname(output_path))  # Ensure the directory exists
     try:
+        import pandas as pd
         df = pd.DataFrame.from_dict(data)
         df.to_csv(output_path, index=False)
         print(f"[INFO] CSV file saved at: {output_path}")

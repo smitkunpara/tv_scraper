@@ -125,14 +125,14 @@ class Minds:
         limit: Optional[int] = None
     ) -> Dict:
         """
-        Get Minds discussions for a symbol from the first page.
+        Get Minds discussions for a symbol with pagination.
 
         This method retrieves community discussions for the specified symbol
-        from the first page only (no pagination).
+        with pagination support.
 
         Args:
             symbol (str): The symbol to get discussions for (e.g., 'NASDAQ:AAPL').
-            limit (int, optional): Maximum number of results to retrieve from the first page.
+            limit (int, optional): Maximum number of results to retrieve.
 
         Returns:
             dict: A dictionary containing:
@@ -140,60 +140,88 @@ class Minds:
                 - data (List[Dict]): List of minds discussions
                 - total (int): Total number of results retrieved
                 - symbol_info (Dict): Information about the symbol
-                - pages (int): Number of pages retrieved (always 1)
+                - pages (int): Number of pages retrieved
                 - error (str): Error message if failed
 
         Example:
             >>> minds = Minds()
             >>>
-            >>> # Get discussions for Apple from first page
+            >>> # Get discussions for Apple
             >>> aapl_minds = minds.get_minds(symbol='NASDAQ:AAPL')
             >>>
-            >>> # Get up to 50 discussions for Bitcoin from first page
+            >>> # Get up to 50 discussions for Bitcoin
             >>> btc_minds = minds.get_minds(symbol='BITSTAMP:BTCUSD', limit=50)
         """
         try:
             # Validate inputs
             symbol = self._validate_symbol(symbol)
 
-            # Build parameters
-            params = {
-                'symbol': symbol,
-            }
+            parsed_data = []
+            next_cursor = None
+            pages = 0
+            symbol_info = {}
 
-            # Make request
-            response = requests.get(
-                self.MINDS_API_URL,
-                params=params,
-                headers=self.headers,
-                timeout=10
-            )
-
-            if response.status_code != 200:
-                return {
-                    'status': 'failed',
-                    'error': f'HTTP {response.status_code}: {response.text}'
+            while True:
+                # Build parameters
+                params = {
+                    'symbol': symbol,
                 }
 
-            json_response = response.json()
-            results = json_response.get('results', [])
+                # Add cursor if not first page
+                if next_cursor:
+                    params['c'] = next_cursor
 
-            if not results:
-                return {
-                    'status': 'failed',
-                    'error': f'No discussions found for symbol: {symbol}'
-                }
+                response = requests.get(
+                    self.MINDS_API_URL,
+                    params=params,
+                    headers=self.headers,
+                    timeout=10
+                )
 
-            # Parse data
-            parsed_data = [self._parse_mind(item) for item in results]
+                if response.status_code != 200:
+                    return {
+                        'status': 'failed',
+                        'error': f'HTTP {response.status_code}: {response.text}'
+                    }
+
+                json_response = response.json()
+                results = json_response.get('results', [])
+
+                if not results:
+                    break
+
+                # Parse data
+                parsed = [self._parse_mind(item) for item in results]
+                parsed_data.extend(parsed)
+
+                pages += 1
+
+                # Get symbol info from first page
+                if pages == 1:
+                    meta = json_response.get('meta', {})
+                    symbol_info = meta.get('symbols_info', {}).get(symbol, {})
+
+                # Check if we have enough
+                if limit is not None and len(parsed_data) >= limit:
+                    break
+
+                # Check for next page
+                next_url = json_response.get('next', '')
+                if not next_url or '?c=' not in next_url:
+                    break
+
+                # Extract cursor from next URL
+                next_cursor = next_url.split('?c=')[1].split('&')[0]
 
             # Apply limit if specified
             if limit is not None and len(parsed_data) > limit:
                 parsed_data = parsed_data[:limit]
 
-            # Get symbol info
-            meta = json_response.get('meta', {})
-            symbol_info = meta.get('symbols_info', {}).get(symbol, {})
+            if not parsed_data:
+                return {
+                    'status': 'failed',
+                    'error': f'No discussions found for symbol: {symbol}'
+                }
 
             # Export if requested
             if self.export_result and parsed_data:
@@ -207,7 +235,7 @@ class Minds:
                 'status': 'success',
                 'data': parsed_data,
                 'total': len(parsed_data),
-                'pages': 1,
+                'pages': pages,
                 'symbol_info': symbol_info
             }
 
