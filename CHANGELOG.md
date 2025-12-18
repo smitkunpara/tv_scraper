@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2025-12-18
+
+### Overview
+This release reintroduces pagination support for the Minds discussions scraper to handle large data requests and improves export functionality reliability.
+
+### Added
+- **Pagination Support**: Re-added pagination to `Minds.get_minds()` method to fetch multiple pages of discussions when needed, allowing retrieval of more than the first page's worth of data
+- **Cursor-Based Navigation**: Implemented cursor-based pagination using TradingView's API `next` parameter for efficient data fetching
+
+### Changed
+- **Minds API**: Modified `get_minds()` to support fetching multiple pages until the requested limit is reached or no more data is available
+- **Export Handling**: Moved pandas import inside `save_csv_file()` function for lazy loading, preventing import errors when CSV export is not used
+
+### Fixed
+- **Large Limit Handling**: Resolved issues with large limit parameters by implementing proper pagination instead of limiting to first page only
+- **Import Errors**: Fixed pandas-related import failures by deferring import until CSV export is actually needed
+
+**Full Changelog**: [Commits](https://github.com/smitkunpara/tv-scraper/commits/v0.5.2)
+
 ## [0.5.1] - 2025-12-13
 
 ### Overview
