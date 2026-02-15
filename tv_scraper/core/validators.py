@@ -196,6 +196,18 @@ class DataValidator:
         """Return timeframe mappings."""
         return dict(self._timeframes)
 
+    def get_news_providers(self) -> List[str]:
+        """Return list of all valid news providers."""
+        return list(self._news_providers)
+
+    def get_languages(self) -> Dict[str, str]:
+        """Return language name-to-code mappings."""
+        return dict(self._languages)
+
+    def get_areas(self) -> Dict[str, str]:
+        """Return area name-to-code mappings."""
+        return dict(self._areas)
+
     @classmethod
     def reset(cls) -> None:
         """Reset singleton for testing."""
