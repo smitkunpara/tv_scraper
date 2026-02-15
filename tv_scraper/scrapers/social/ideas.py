@@ -80,15 +80,14 @@ class Ideas(BaseScraper):
 
         # --- Validation ---
         try:
-            if exchange:
-                self.validator.validate_exchange(exchange)
+            self.validator.validate_exchange(exchange)
             self.validator.validate_symbol(exchange, symbol)
             self.validator.validate_choice("sort_by", sort_by, ALLOWED_SORT_VALUES)
         except ValidationError as exc:
             return self._error_response(str(exc))
 
         # Build the URL slug (TV uses HYPHEN for combined symbols in URLs)
-        url_slug = f"{exchange}-{symbol}" if exchange else symbol
+        url_slug = f"{exchange}-{symbol}"
 
         # Apply cookie header if available
         headers = dict(self._headers)
@@ -125,7 +124,7 @@ class Ideas(BaseScraper):
         if self.export_result:
             self._export(
                 data=articles,
-                symbol=f"{exchange}_{symbol}" if exchange else symbol,
+                symbol=f"{exchange}_{symbol}",
                 data_category="ideas",
             )
 

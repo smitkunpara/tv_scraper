@@ -79,8 +79,7 @@ class Technicals(BaseScraper):
 
         # --- Validation ---
         try:
-            if exchange:
-                self.validator.validate_exchange(exchange)
+            self.validator.validate_exchange(exchange)
             self.validator.validate_symbol(exchange, symbol)
             self.validator.validate_timeframe(timeframe)
         except ValidationError as exc:
@@ -113,11 +112,8 @@ class Technicals(BaseScraper):
         # Build query parameters for GET request
         fields_param = ",".join(api_indicators)
 
-        # Build symbol string for API
-        api_symbol = f"{exchange}:{symbol}" if exchange else symbol
-
         params: Dict[str, str] = {
-            "symbol": api_symbol,
+            "symbol": f"{exchange}:{symbol}",
             "fields": fields_param,
             "no_404": "true",
         }

@@ -102,8 +102,7 @@ class News(BaseScraper):
 
         # Validate inputs
         try:
-            if exchange:
-                self.validator.validate_exchange(exchange)
+            self.validator.validate_exchange(exchange)
             self.validator.validate_symbol(exchange, symbol)
             self.validator.validate_choice("sort_by", sort_by, VALID_SORT_OPTIONS)
             self.validator.validate_choice("section", section, VALID_SECTIONS)
@@ -133,9 +132,6 @@ class News(BaseScraper):
         provider_param = provider.replace(".", "_") if provider else ""
         section_param = "" if section == "all" else section
 
-        # Build symbol string for API
-        api_symbol = f"{exchange}:{symbol}" if exchange else symbol
-
         url = (
             f"{NEWS_HEADLINES_URL}"
             f"?client=web"
@@ -144,7 +140,7 @@ class News(BaseScraper):
             f"&provider={provider_param}"
             f"&section={section_param}"
             f"&streaming="
-            f"&symbol={api_symbol}"
+            f"&symbol={exchange}:{symbol}"
         )
 
         try:
@@ -187,7 +183,7 @@ class News(BaseScraper):
             if self.export_result:
                 self._export(
                     data=cleaned_items,
-                    symbol=f"{exchange}_{symbol}" if exchange else symbol,
+                    symbol=f"{exchange}_{symbol}",
                     data_category="news",
                 )
 
