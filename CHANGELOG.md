@@ -5,16 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-02-15
-
-### Added
-- **`Options` scraper** — Fetch option chains by expiration or strike price via TradingView's options scanner API
-- **Live API smoke tests** — New `tests/live_api/` directory for verifying real-time endpoint availability
-
-### Changed
-- **Unified Parameter Handling** — Standardized `EXCHANGE:SYMBOL` parsing across all core scrapers (`Ideas`, `News`, `Technicals`, `Fundamentals`, `Overview`)
-- **Cleaned Codebase** — Removed legacy backward compatibility logic for cleaner, more maintainable code
-
 ## [1.0.0] - 2026-02-15
 
 ### Overview
@@ -22,9 +12,11 @@ Major release introducing the new `tv_scraper` package — a complete architectu
 
 ### Added
 - **New `tv_scraper` package** with clean modular architecture alongside the legacy `tradingview_scraper` package
+- **`Options` scraper** — Fetch option chains by expiration or strike price via TradingView's options scanner API
+- **Live API smoke tests** — New `tests/live_api/` directory for verifying real-time endpoint availability
 - **`Streamer.get_available_indicators()`** — fetch standard built-in indicator IDs and versions for candle streaming
-- **11 scraper modules** organized into four categories:
-  - Market Data: `Technicals`, `Overview`, `Fundamentals`, `Markets`
+- **12 scraper modules** organized into four categories:
+  - Market Data: `Technicals`, `Overview`, `Fundamentals`, `Markets`, `Options`
   - Social: `Ideas`, `Minds`, `News`
   - Screening: `Screener`, `MarketMovers`, `SymbolMarkets`
   - Events: `Calendar`
@@ -34,15 +26,17 @@ Major release introducing the new `tv_scraper` package — a complete architectu
 - **Standardized response envelope** (`status`, `data`, `metadata`, `error`) across all scrapers
 - **Core exception hierarchy**: `TvScraperError`, `ValidationError`, `DataNotFoundError`, `NetworkError`, `ExportError`
 - **Top-level re-exports** — all public classes importable directly from `tv_scraper`
-- **238+ unit tests** covering all modules with full mocking (no network calls)
-- **95 integration tests** for import smoke testing and cross-module verification
+- **245+ unit tests** covering all modules with full mocking (no network calls)
+- **Live connectivity verification tests** for import smoke testing and cross-module verification
 - **Comprehensive documentation** with migration guide, API conventions, and per-module docs
 
 ### Changed
+- **Unified Parameter Handling** — Standardized `EXCHANGE:SYMBOL` parsing across all core scrapers (`Ideas`, `News`, `Technicals`, `Fundamentals`, `Overview`)
 - **API naming conventions**: consistent `get_*` method names (e.g., `get_technicals`, `get_ideas`, `get_news`)
 - **Parameter splitting**: exchange and symbol are always separate parameters
 - **Error handling**: scrapers return error envelopes instead of raising exceptions
 - **Export validation**: invalid `export_type` raises `ValueError` at construction time
+- **Cleaned Codebase** — Removed legacy backward compatibility logic for cleaner, more maintainable code
 
 ### Migration
 See `docs_new/migration-guide.md` for the complete migration guide from `tradingview_scraper` to `tv_scraper`.
