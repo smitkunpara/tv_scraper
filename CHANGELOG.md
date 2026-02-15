@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-15
+
+### Overview
+Major release introducing the new `tv_scraper` package — a complete architectural refactor with modular design, standardized APIs, and comprehensive test coverage.
+
+### Added
+- **New `tv_scraper` package** with clean modular architecture alongside the legacy `tradingview_scraper` package
+- **11 scraper modules** organized into four categories:
+  - Market Data: `Technicals`, `Overview`, `Fundamentals`, `Markets`
+  - Social: `Ideas`, `Minds`, `News`
+  - Screening: `Screener`, `MarketMovers`, `SymbolMarkets`
+  - Events: `Calendar`
+- **Streaming module** with `Streamer` (OHLC + indicators) and `RealTimeData` (simple OHLCV/watchlist)
+- **`BaseScraper` base class** providing standardized response envelopes, HTTP handling, and export logic
+- **`DataValidator` singleton** for exchange, indicator, timeframe, and field validation with suggestions
+- **Standardized response envelope** (`status`, `data`, `metadata`, `error`) across all scrapers
+- **Core exception hierarchy**: `TvScraperError`, `ValidationError`, `DataNotFoundError`, `NetworkError`, `ExportError`
+- **Top-level re-exports** — all public classes importable directly from `tv_scraper`
+- **238+ unit tests** covering all modules with full mocking (no network calls)
+- **95 integration tests** for import smoke testing and cross-module verification
+- **Comprehensive documentation** with migration guide, API conventions, and per-module docs
+
+### Changed
+- **API naming conventions**: consistent `get_*` method names (e.g., `get_technicals`, `get_ideas`, `get_news`)
+- **Parameter splitting**: exchange and symbol are always separate parameters
+- **Error handling**: scrapers return error envelopes instead of raising exceptions
+- **Export validation**: invalid `export_type` raises `ValueError` at construction time
+
+### Migration
+See `docs_new/migration-guide.md` for the complete migration guide from `tradingview_scraper` to `tv_scraper`.
+
 ## [0.5.2] - 2025-12-18
 
 ### Overview

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tradingview-scraper"
-version = "0.5.2"
+version = "1.0.0"
 description = "A powerful Python library for scraping real-time market data, indicators, and ideas from TradingView."
 authors = [
     {name = "Smit Kunpara", email = "smitkunpara@gmail.com"}
@@ -44,6 +44,13 @@ Issues = "https://github.com/smitkunpara/tv-scraper/issues"
 dev = [
     "pytest",
     "pytest-mock",
+    "pytest-cov",
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.0.0",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tradingview_scraper", "tv_scraper"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "tests_new"]
