@@ -65,12 +65,18 @@ scrape_headlines(
 ### `scrape_content()`
 
 ```python
-scrape_content(story_path: str) -> Dict[str, Any]
+scrape_content(
+    story_id: str,
+    language: str = "en",
+    story_path: str | None = None,
+) -> Dict[str, Any]
 ```
 
-| Parameter    | Type | Description                                    |
-|--------------|------|------------------------------------------------|
-| `story_path` | str  | Relative path from headline (e.g. `"/news/story/123"`) |
+| Parameter    | Type         | Default | Description                                    |
+|--------------|--------------|---------|------------------------------------------------|
+| `story_id`   | str          | —       | Story ID from headlines API (e.g. `"tag:reuters.com,2026:newsml_L4N3Z9104:0"`) |
+| `language`   | str          | `"en"`  | Language code (e.g. `"en"`, `"fr"`)            |
+| `story_path` | str \| None  | `None`  | (Deprecated) Legacy story path support         |
 
 ## Response Format
 
@@ -81,57 +87,48 @@ All methods return a standardized response envelope:
   "status": "success",
   "data": [
     {
-      "id": "story_12345",
       "title": "Bitcoin Surges as Institutional Interest Grows",
-      "provider": "cointelegraph",
+      "shortDescription": "Bitcoin reached new highs today as institutional investors...",
       "published": 1705350000,
-      "urgency": 2,
-      "storyPath": "/news/story_12345-bitcoin-surges/",
-      "link": "https://www.tradingview.com/news/story_12345/"
-    }
+      "storyPath": "/news/story_12345-bitcoin-surges/"
+    },
+    ...
   ],
   "metadata": {
     "exchange": "BINANCE",
     "symbol": "BTCUSD",
-    "provider": "cointelegraph"
+    "total": 25
   },
   "error": null
 }
 ```
 
-### Headline Item
+### Headline Schema
+
+Each item in the `data` array contains:
 
 ```json
 {
-    "id": "12345",
-    "title": "Bitcoin Hits New High",
-    "provider": "cointelegraph",
-    "published": 1678900000,
-    "urgency": 2,
-    "storyPath": "/news/story/12345",
-    "link": "https://..."
+  "title": "Bitcoin Hits New High",
+  "shortDescription": "Brief summary of the news article...",
+  "published": 1678900000,
+  "storyPath": "/news/story/12345"
 }
 ```
 
-### Article Content
+### Article Content Response
 
 ```json
 {
   "status": "success",
   "data": {
-    "breadcrumbs": "Markets > Crypto",
     "title": "Bitcoin Hits New High",
-    "published_datetime": "2025-01-15T10:00:00Z",
-    "related_symbols": [{"symbol": "BTCUSD", "logo": "https://..."}],
-    "body": [
-        {"type": "text", "content": "Paragraph text..."},
-        {"type": "image", "src": "https://...", "alt": "Chart"}
-    ],
-    "tags": ["Bitcoin", "Crypto"]
+    "description": "Full article content with paragraphs separated by newlines.\nSecond paragraph here...",
+    "published": 1643097623,
+    "storyPath": "/news/story/12345"
   },
   "metadata": {
-    "symbol": "BTCUSD",
-    "exchange": "BINANCE"
+    "story_id": "tag:reuters.com,2026:newsml_L4N3Z9104:0"
   },
   "error": null
 }

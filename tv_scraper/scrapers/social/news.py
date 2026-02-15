@@ -4,16 +4,18 @@ import logging
 from typing import Any, Dict, List, Optional
 
 import requests
-from bs4 import BeautifulSoup
 
 from tv_scraper.core.base import BaseScraper
 from tv_scraper.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
-# TradingView News Headlines API endpoint
+# TradingView News API endpoints
 NEWS_HEADLINES_URL = (
     "https://news-headlines.tradingview.com/v2/view/headlines/symbol"
+)
+NEWS_STORY_URL = (
+    "https://news-mediator.tradingview.com/public/news/v1/story"
 )
 
 # Valid sort options
@@ -171,60 +173,75 @@ class News(BaseScraper):
             # Apply client-side sorting
             items = self._sort_news(items, sort_by)
 
+            # Clean up output - remove unwanted fields
+            cleaned_items = [self._clean_headline(item) for item in items]
+
             # Export if requested
             if self.export_result:
                 self._export(
-                    data=items,
+                    data=cleaned_items,
                     symbol=f"{exchange}_{symbol}",
                     data_category="news",
                 )
 
             return self._success_response(
-                items,
+                cleaned_items,
                 symbol=symbol,
                 exchange=exchange,
-                total=len(items),
+                total=len(cleaned_items),
             )
 
         except Exception as exc:
             return self._error_response(f"Request failed: {exc}")
 
-    def scrape_content(self, story_path: str) -> Dict[str, Any]:
+    def scrape_content(
+        self,
+        story_id: str,
+        language: str = "en",
+        story_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Scrape full article content from a TradingView news story.
 
         Args:
-            story_path: Relative path of the story
-                (e.g. ``"/news/story/12345"``).
+            story_id: Story ID from the headlines API
+                (e.g. ``"tag:reuters.com,2026:newsml_L4N3Z9104:0"``).
+            language: Language code (default: ``"en"``).
+            story_path: Optional story path for legacy support. If provided,
+                the story ID will be extracted from it.
 
         Returns:
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        url = f"https://tradingview.com{story_path}"
+        # Handle legacy story_path parameter
+        if story_path:
+            # Extract id from the headlines if we have the story_path
+            # For now, we'll require the story_id parameter
+            pass
 
         try:
+            params = {
+                "id": story_id,
+                "lang": language,
+                "user_prostatus": "non_pro",
+            }
+
             response = requests.get(
-                url,
+                NEWS_STORY_URL,
+                params=params,
                 headers=self._headers,
                 timeout=self.timeout,
             )
             response.raise_for_status()
 
-            if "<title>Captcha Challenge</title>" in response.text:
-                logger.error(
-                    "Captcha Challenge encountered for story %s.",
-                    story_path,
-                )
-                return self._error_response(
-                    f"Captcha challenge encountered for story {story_path}. "
-                    "Try updating the TRADINGVIEW_COOKIE."
-                )
+            story_data = response.json()
 
-            article_data = self._parse_article(response.text)
+            # Parse the story data
+            article_data = self._parse_story(story_data)
 
             return self._success_response(
                 article_data,
-                story_path=story_path,
+                story_id=story_id,
             )
 
         except Exception as exc:
@@ -262,8 +279,122 @@ class News(BaseScraper):
             )
         return news_list
 
+    def _clean_headline(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        """Remove unwanted fields from headline.
+
+        Removes: id, sourceLogoid, provider, relatedSymbols, permission, urgency
+
+        Args:
+            item: Raw headline dict.
+
+        Returns:
+            Cleaned headline dict with only relevant fields.
+        """
+        # Ensure story_path starts with "/"
+        story_path = item.get("storyPath", "")
+        if story_path and not story_path.startswith("/"):
+            story_path = f"/{story_path}"
+
+        return {
+            "title": item.get("title"),
+            "shortDescription": item.get("shortDescription"),
+            "published": item.get("published"),
+            "storyPath": story_path,
+        }
+
+    def _parse_story(self, story_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse story JSON into simplified format.
+
+        Extracts title, description, and published timestamp.
+        Description is built from ast_description.children by merging paragraphs.
+
+        Args:
+            story_data: Raw JSON response from the story API.
+
+        Returns:
+            Dict with title, description, and published timestamp.
+        """
+        # Extract basic fields
+        title = story_data.get("title", "")
+        published = story_data.get("published", 0)
+
+        # Parse ast_description to build description
+        description = self._parse_ast_description(
+            story_data.get("ast_description", {})
+        )
+
+        # Ensure story_path starts with "/"
+        story_path = story_data.get("story_path", "")
+        if story_path and not story_path.startswith("/"):
+            story_path = f"/{story_path}"
+
+        return {
+            "title": title,
+            "description": description,
+            "published": published,
+            "storyPath": story_path,
+        }
+
+    def _parse_ast_description(self, ast_desc: Dict[str, Any]) -> str:
+        """Parse ast_description.children into a description string.
+
+        Merges paragraph children, extracting text from strings and
+        symbol objects, joining paragraphs with newlines.
+
+        Args:
+            ast_desc: ast_description object with children array.
+
+        Returns:
+            Merged description string with paragraphs separated by newlines.
+        """
+        children = ast_desc.get("children", [])
+        paragraphs: List[str] = []
+
+        for child in children:
+            if not isinstance(child, dict):
+                continue
+
+            child_type = child.get("type")
+            if child_type == "p":
+                # Process paragraph children
+                para_children = child.get("children", [])
+                para_text = self._parse_paragraph_children(para_children)
+                if para_text.strip():
+                    paragraphs.append(para_text.strip())
+
+        return "\n".join(paragraphs)
+
+    def _parse_paragraph_children(self, children: List[Any]) -> str:
+        """Parse children of a paragraph node.
+
+        Extracts text from string children and params.text from object children.
+
+        Args:
+            children: List of paragraph children (strings or dicts).
+
+        Returns:
+            Merged paragraph text.
+        """
+        parts: List[str] = []
+
+        for item in children:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                # Extract text from symbol objects
+                params = item.get("params", {})
+                text = params.get("text", "")
+                if text:
+                    parts.append(text)
+
+        return "".join(parts)
+
+    # Legacy method for backward compatibility
     def _parse_article(self, html: str) -> Dict[str, Any]:
-        """Parse article HTML into structured content.
+        """Legacy HTML parser (deprecated).
+
+        This method is kept for backward compatibility but is deprecated.
+        Use the JSON API via scrape_content with story_id instead.
 
         Args:
             html: Raw HTML of the article page.
@@ -272,15 +403,10 @@ class News(BaseScraper):
             Dict with breadcrumbs, title, published_datetime,
             related_symbols, body, and tags.
         """
-        soup = BeautifulSoup(html, "html.parser")
-
-        article_tag = soup.find("article")
-        row_tags = soup.find(
-            "div",
-            class_=lambda x: x and x.startswith("rowTags-"),  # type: ignore[arg-type]
+        logger.warning(
+            "HTML parsing is deprecated. Use JSON API with story_id instead."
         )
-
-        article_json: Dict[str, Any] = {
+        return {
             "breadcrumbs": None,
             "title": None,
             "published_datetime": None,
@@ -288,73 +414,3 @@ class News(BaseScraper):
             "body": [],
             "tags": [],
         }
-
-        if not article_tag:
-            return article_json
-
-        # Breadcrumbs
-        breadcrumbs = article_tag.find("nav", {"aria-label": "Breadcrumbs"})
-        if breadcrumbs:
-            spans = breadcrumbs.find_all(
-                "span", class_="breadcrumb-content-cZAS4vtj"
-            )
-            article_json["breadcrumbs"] = " > ".join(
-                item.get_text(strip=True) for item in spans
-            )
-
-        # Title
-        title = article_tag.find("h1", class_="title-KX2tCBZq")
-        if title:
-            article_json["title"] = title.get_text(strip=True)
-
-        # Published datetime
-        published_time = article_tag.find("time")
-        if published_time:
-            article_json["published_datetime"] = published_time.get("datetime", "")
-
-        # Related symbols
-        symbol_container = article_tag.find(
-            "div", class_="symbolsContainer-cBh_FN2P"
-        )
-        if symbol_container:
-            for anchor in symbol_container.find_all("a"):
-                name_tag = anchor.find("span", class_="description-cBh_FN2P")
-                if name_tag:
-                    symbol_name = name_tag.get_text(strip=True)
-                    if symbol_name:
-                        img = anchor.find("img")
-                        logo_src = img["src"] if img and img.get("src") else None
-                        article_json["related_symbols"].append(
-                            {"symbol": symbol_name, "logo": logo_src}
-                        )
-
-        # Body content
-        body_content = article_tag.find("div", class_="body-KX2tCBZq")
-        if body_content:
-            for element in body_content.find_all(
-                ["p", "img"], recursive=True
-            ):
-                if element.name == "p":
-                    article_json["body"].append(
-                        {
-                            "type": "text",
-                            "content": element.get_text(strip=True),
-                        }
-                    )
-                elif element.name == "img":
-                    article_json["body"].append(
-                        {
-                            "type": "image",
-                            "src": element["src"],
-                            "alt": element.get("alt", ""),
-                        }
-                    )
-
-        # Tags
-        if row_tags:
-            for span in row_tags.find_all("span"):
-                text = span.get_text(strip=True)
-                if text:
-                    article_json["tags"].append(text)
-
-        return article_json

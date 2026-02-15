@@ -68,6 +68,8 @@ All responses follow the standard envelope format:
     "EMA20": 42150.25,
     "MACD.macd": 150.12,
     "MACD.signal": 120.45
+    ...
+    (other indicators)
   },
   "metadata": {
     "exchange": "BINANCE",

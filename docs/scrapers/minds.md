@@ -33,37 +33,49 @@ result = scraper.get_minds(exchange="NASDAQ", symbol="AAPL", limit=50)
 
 All responses use the standard envelope:
 
-```python
+```json
 {
-    "status": "success",        # or "failed"
-    "data": [...],              # list of mind items (None on failure)
-    "metadata": {
-        "total": 42,
-        "pages": 2,
-        "symbol_info": {"short_name": "AAPL", "exchange": "NASDAQ"}
+  "status": "success",
+  "data": [
+    {
+      "text": "AAPL looking bullish today",
+      "url": "https://www.tradingview.com/minds/abc123",
+      "author": {
+        "username": "trader1",
+        "profile_url": "https://www.tradingview.com/u/trader1/",
+        "is_broker": false
+      },
+      "created": "2025-01-07 12:00:00",
+      "total_likes": 10,
+      "total_comments": 5
     },
-    "error": None               # error message string on failure
+    ...
+  ],
+  "metadata": {
+    "total": 42,
+    "pages": 2,
+    "symbol_info": {"short_name": "AAPL", "exchange": "NASDAQ"}
+  },
+  "error": null
 }
 ```
 
 ### Mind Item Schema
 
-```python
+Each item in the `data` array contains:
+
+```json
 {
-    "uid": "abc123",
-    "text": "AAPL looking bullish today",
-    "url": "https://www.tradingview.com/minds/abc123",
-    "author": {
-        "username": "trader1",
-        "profile_url": "https://www.tradingview.com/u/trader1/",
-        "is_broker": False
-    },
-    "created": "2025-01-07 12:00:00",
-    "symbols": ["NASDAQ:AAPL"],
-    "total_likes": 10,
-    "total_comments": 5,
-    "modified": False,
-    "hidden": False
+  "text": "AAPL looking bullish today",
+  "url": "https://www.tradingview.com/minds/abc123",
+  "author": {
+    "username": "trader1",
+    "profile_url": "https://www.tradingview.com/u/trader1/",
+    "is_broker": false
+  },
+  "created": "2025-01-07 12:00:00",
+  "total_likes": 10,
+  "total_comments": 5
 }
 ```
 

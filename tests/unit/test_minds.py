@@ -109,12 +109,16 @@ class TestGetMindsSuccess:
         assert len(result["data"]) == 1
 
         mind = result["data"][0]
-        assert mind["uid"] == "mind123"
+        # Should contain these fields
         assert mind["text"] == "AAPL looking bullish today"
         assert mind["author"]["username"] == "testuser"
         assert mind["total_likes"] == 10
         assert mind["total_comments"] == 5
-        assert mind["symbols"] == ["NASDAQ:AAPL"]
+        # Should NOT contain these fields (removed as per requirements)
+        assert "uid" not in mind
+        assert "symbols" not in mind
+        assert "modified" not in mind
+        assert "hidden" not in mind
 
     @patch("tv_scraper.scrapers.social.minds.requests.get")
     def test_get_minds_with_limit(self, mock_get: MagicMock, minds: Minds) -> None:
@@ -203,7 +207,7 @@ class TestParseMind:
     """Tests for the internal _parse_mind method."""
 
     def test_parse_mind_extracts_fields(self, minds: Minds) -> None:
-        """_parse_mind extracts and normalizes all expected fields."""
+        """_parse_mind extracts and normalizes expected fields (excluding removed fields)."""
         raw = _sample_mind(
             uid="uid42",
             text="Buy signal",
@@ -221,24 +225,20 @@ class TestParseMind:
 
         parsed = minds._parse_mind(raw)
 
-        assert parsed["uid"] == "uid42"
+        # Should contain these fields
         assert parsed["text"] == "Buy signal"
         assert parsed["url"] == "https://example.com"
         assert parsed["author"]["username"] == "analyst"
         assert parsed["author"]["profile_url"] == "https://www.tradingview.com/u/analyst/"
         assert parsed["author"]["is_broker"] is True
         assert parsed["created"] == "2025-06-15 08:30:00"
-        assert set(parsed["symbols"]) == {"BINANCE:BTCUSD", "BINANCE:ETHUSDT"}
         assert parsed["total_likes"] == 99
         assert parsed["total_comments"] == 15
-        assert parsed["modified"] is True
-        assert parsed["hidden"] is False
-
-    def test_parse_mind_empty_symbols(self, minds: Minds) -> None:
-        """_parse_mind handles empty symbols gracefully."""
-        raw = _sample_mind(symbols={})
-        parsed = minds._parse_mind(raw)
-        assert parsed["symbols"] == []
+        # Should NOT contain these removed fields
+        assert "uid" not in parsed
+        assert "symbols" not in parsed
+        assert "modified" not in parsed
+        assert "hidden" not in parsed
 
     def test_parse_mind_invalid_date(self, minds: Minds) -> None:
         """_parse_mind handles invalid date without raising."""

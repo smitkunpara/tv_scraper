@@ -153,6 +153,7 @@ class Minds(BaseScraper):
 
         Returns:
             Normalized mind dict with standardized keys.
+            Excludes: symbols, modified, hidden, uid
         """
         # Parse author info
         author = item.get("author", {})
@@ -172,19 +173,11 @@ class Minds(BaseScraper):
         except (ValueError, AttributeError):
             created_formatted = created
 
-        # Parse symbols mentioned
-        symbols = item.get("symbols", {})
-        symbols_list = list(symbols.values()) if symbols else []
-
         return {
-            "uid": item.get("uid"),
             "text": item.get("text", ""),
             "url": item.get("url", ""),
             "author": author_data,
             "created": created_formatted,
-            "symbols": symbols_list,
             "total_likes": item.get("total_likes", 0),
             "total_comments": item.get("total_comments", 0),
-            "modified": item.get("modified", False),
-            "hidden": item.get("hidden", False),
         }

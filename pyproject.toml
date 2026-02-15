@@ -53,4 +53,4 @@ dev = [
 packages = ["tradingview_scraper", "tv_scraper"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "tests_new"]
+testpaths = ["tests"]

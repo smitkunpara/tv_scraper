@@ -18,21 +18,37 @@ from tv_scraper.scrapers.social.news import News
 def _sample_headline(
     headline_id: str = "h123",
     title: str = "Bitcoin Hits New High",
-    provider: str = "cointelegraph",
+    short_description: str = "Bitcoin reached an all-time high today.",
     published: int = 1678900000,
-    urgency: int = 2,
     story_path: str = "/news/story/h123",
-    link: str = "https://cointelegraph.com/news/bitcoin",
 ) -> Dict[str, Any]:
     """Build a headline item as returned by the TradingView news API."""
     return {
         "id": headline_id,
         "title": title,
-        "provider": provider,
+        "shortDescription": short_description,
         "published": published,
-        "urgency": urgency,
         "storyPath": story_path,
-        "link": link,
+        "urgency": 2,
+        "provider": "cointelegraph",
+        "relatedSymbols": [],
+        "permission": "headline",
+        "sourceLogoid": "logo123",
+    }
+
+
+def _sample_cleaned_headline(
+    title: str = "Bitcoin Hits New High",
+    short_description: str = "Bitcoin reached an all-time high today.",
+    published: int = 1678900000,
+    story_path: str = "/news/story/h123",
+) -> Dict[str, Any]:
+    """Build a cleaned headline (after filtering)."""
+    return {
+        "title": title,
+        "shortDescription": short_description,
+        "published": published,
+        "storyPath": story_path,
     }
 
 
@@ -58,6 +74,39 @@ def _mock_response(
         resp.json.return_value = json_data
     resp.raise_for_status.return_value = None
     return resp
+
+
+_STORY_JSON = {
+    "title": "Bitcoin Hits New High",
+    "short_description": "Bitcoin reached new highs today.",
+    "ast_description": {
+        "type": "root",
+        "children": [
+            {
+                "type": "p",
+                "children": ["Bitcoin surged to a new all-time high today."],
+            },
+            {
+                "type": "p",
+                "children": [
+                    "The price reached ",
+                    {
+                        "type": "symbol",
+                        "params": {"symbol": "BTCUSD", "text": "BTCUSD"},
+                    },
+                    " levels.",
+                ],
+            },
+            {
+                "type": "p",
+                "children": ["Market analysts are optimistic."],
+            },
+        ],
+    },
+    "published": 1643097623,
+    "story_path": "/news/story/h123",
+    "id": "tag:reuters.com,2026:newsml_L4N3Z9104:0",
+}
 
 
 _ARTICLE_HTML = """
@@ -140,8 +189,18 @@ class TestScrapeHeadlinesSuccess:
         assert len(result["data"]) == 1
 
         item = result["data"][0]
-        assert item["id"] == "h123"
+        # Should only contain the cleaned fields
         assert item["title"] == "Bitcoin Hits New High"
+        assert item["shortDescription"] == "Bitcoin reached an all-time high today."
+        assert item["published"] == 1678900000
+        assert item["storyPath"] == "/news/story/h123"
+        # Should NOT contain these fields
+        assert "id" not in item
+        assert "provider" not in item
+        assert "urgency" not in item
+        assert "relatedSymbols" not in item
+        assert "permission" not in item
+        assert "sourceLogoid" not in item
 
     @patch("tv_scraper.scrapers.social.news.requests.get")
     def test_scrape_headlines_with_provider(
@@ -310,28 +369,51 @@ class TestScrapeHeadlinesErrors:
 
 
 class TestScrapeContentSuccess:
-    """Tests for article content scraping."""
+    """Tests for article content scraping using JSON API."""
 
     @patch("tv_scraper.scrapers.social.news.requests.get")
     def test_scrape_content_success(
         self, mock_get: MagicMock, news: News
     ) -> None:
-        """Successfully parse article HTML into structured content."""
-        mock_get.return_value = _mock_response(text=_ARTICLE_HTML)
+        """Successfully parse article JSON into structured content."""
+        mock_get.return_value = _mock_response(json_data=_STORY_JSON)
 
-        result = news.scrape_content(story_path="/news/story/h123")
+        result = news.scrape_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
 
         data = result["data"]
         assert data["title"] == "Bitcoin Hits New High"
-        assert "2025-01-15T10:00:00Z" in data["published_datetime"]
-        assert data["breadcrumbs"] == "Markets > Crypto"
-        assert len(data["related_symbols"]) == 1
-        assert data["related_symbols"][0]["symbol"] == "BTCUSD"
-        assert len(data["body"]) >= 2
-        assert data["tags"] == ["Bitcoin", "Crypto"]
+        assert data["published"] == 1643097623
+        assert data["storyPath"] == "/news/story/h123"
+        
+        # Check description is properly merged from ast_description
+        description = data["description"]
+        assert "Bitcoin surged to a new all-time high today." in description
+        assert "BTCUSD" in description
+        assert "Market analysts are optimistic." in description
+        # Paragraphs should be separated by newlines
+        assert "\n" in description
+
+    @patch("tv_scraper.scrapers.social.news.requests.get")
+    def test_scrape_content_story_path_without_slash(
+        self, mock_get: MagicMock, news: News
+    ) -> None:
+        """Story path without leading slash should be fixed."""
+        story_json = _STORY_JSON.copy()
+        story_json["story_path"] = "news/story/h123"  # No leading slash
+        
+        mock_get.return_value = _mock_response(json_data=story_json)
+
+        result = news.scrape_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
+
+        assert result["status"] == STATUS_SUCCESS
+        assert result["data"]["storyPath"] == "/news/story/h123"
 
 
 # ---------------------------------------------------------------------------
@@ -349,7 +431,9 @@ class TestScrapeContentErrors:
         """Network failure returns error response."""
         mock_get.side_effect = Exception("Connection refused")
 
-        result = news.scrape_content(story_path="/news/story/h123")
+        result = news.scrape_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
