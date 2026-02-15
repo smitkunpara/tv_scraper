@@ -171,27 +171,6 @@ class Streamer:
                 symbol=symbol,
             )
 
-    def stream(
-        self,
-        exchange: str,
-        symbol: str,
-        timeframe: str = "1m",
-        numb_candles: int = 10,
-        indicators: Optional[List[Tuple[str, str]]] = None,
-        **kwargs,
-    ) -> dict:
-        """Compatibility alias for :meth:`get_candles`."""
-        # Handle legacy parameter name 'numb_price_candles'
-        n_candles = kwargs.get("numb_price_candles", numb_candles)
-        
-        return self.get_candles(
-            exchange=exchange,
-            symbol=symbol,
-            timeframe=timeframe,
-            numb_candles=numb_candles,
-            indicators=indicators,
-        )
-
     def stream_realtime_price(
         self,
         exchange: str,

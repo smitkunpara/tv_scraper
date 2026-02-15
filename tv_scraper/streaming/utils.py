@@ -1,7 +1,7 @@
 """Streaming utility functions: symbol validation, indicator metadata fetching."""
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import requests
 

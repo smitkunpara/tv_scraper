@@ -17,9 +17,10 @@ if result["status"] == "success":
     for item in result["data"]:
         print(item["title"])
 
-# Get full article content
-if result["data"]:
-    content = scraper.scrape_content(result["data"][0]["storyPath"])
+# Get full article content using the 'id' from headlines
+if result["status"] == "success" and result["data"]:
+    article_id = result["data"][0]["id"]
+    content = scraper.scrape_content(story_id=article_id)
     print(content["data"]["title"])
 ```
 
@@ -68,7 +69,6 @@ scrape_headlines(
 scrape_content(
     story_id: str,
     language: str = "en",
-    story_path: str | None = None,
 ) -> Dict[str, Any]
 ```
 
@@ -76,7 +76,6 @@ scrape_content(
 |--------------|--------------|---------|------------------------------------------------|
 | `story_id`   | str          | —       | Story ID from headlines API (e.g. `"tag:reuters.com,2026:newsml_L4N3Z9104:0"`) |
 | `language`   | str          | `"en"`  | Language code (e.g. `"en"`, `"fr"`)            |
-| `story_path` | str \| None  | `None`  | (Deprecated) Legacy story path support         |
 
 ## Response Format
 
@@ -87,6 +86,7 @@ All methods return a standardized response envelope:
   "status": "success",
   "data": [
     {
+      "id": "tag:reuters.com,2026:newsml_L4N3Z9104:0",
       "title": "Bitcoin Surges as Institutional Interest Grows",
       "shortDescription": "Bitcoin reached new highs today as institutional investors...",
       "published": 1705350000,
@@ -109,6 +109,7 @@ Each item in the `data` array contains:
 
 ```json
 {
+  "id": "tag:reuters.com,2026:newsml_L4N3Z9104:0",
   "title": "Bitcoin Hits New High",
   "shortDescription": "Brief summary of the news article...",
   "published": 1678900000,

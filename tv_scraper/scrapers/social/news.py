@@ -3,8 +3,6 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-import requests
-
 from tv_scraper.core.base import BaseScraper
 from tv_scraper.core.exceptions import ValidationError
 
@@ -140,10 +138,9 @@ class News(BaseScraper):
         )
 
         try:
-            response = requests.get(
+            response = self._make_request(
                 url,
-                headers=self._headers,
-                timeout=self.timeout,
+                method="GET",
             )
             response.raise_for_status()
 
@@ -198,7 +195,6 @@ class News(BaseScraper):
         self,
         story_id: str,
         language: str = "en",
-        story_path: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Scrape full article content from a TradingView news story.
 
@@ -206,19 +202,11 @@ class News(BaseScraper):
             story_id: Story ID from the headlines API
                 (e.g. ``"tag:reuters.com,2026:newsml_L4N3Z9104:0"``).
             language: Language code (default: ``"en"``).
-            story_path: Optional story path for legacy support. If provided,
-                the story ID will be extracted from it.
 
         Returns:
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Handle legacy story_path parameter
-        if story_path:
-            # Extract id from the headlines if we have the story_path
-            # For now, we'll require the story_id parameter
-            pass
-
         try:
             params = {
                 "id": story_id,
@@ -226,11 +214,10 @@ class News(BaseScraper):
                 "user_prostatus": "non_pro",
             }
 
-            response = requests.get(
+            response = self._make_request(
                 NEWS_STORY_URL,
+                method="GET",
                 params=params,
-                headers=self._headers,
-                timeout=self.timeout,
             )
             response.raise_for_status()
 
@@ -296,6 +283,7 @@ class News(BaseScraper):
             story_path = f"/{story_path}"
 
         return {
+            "id": item.get("id"),
             "title": item.get("title"),
             "shortDescription": item.get("shortDescription"),
             "published": item.get("published"),
@@ -388,29 +376,3 @@ class News(BaseScraper):
                     parts.append(text)
 
         return "".join(parts)
-
-    # Legacy method for backward compatibility
-    def _parse_article(self, html: str) -> Dict[str, Any]:
-        """Legacy HTML parser (deprecated).
-
-        This method is kept for backward compatibility but is deprecated.
-        Use the JSON API via scrape_content with story_id instead.
-
-        Args:
-            html: Raw HTML of the article page.
-
-        Returns:
-            Dict with breadcrumbs, title, published_datetime,
-            related_symbols, body, and tags.
-        """
-        logger.warning(
-            "HTML parsing is deprecated. Use JSON API with story_id instead."
-        )
-        return {
-            "breadcrumbs": None,
-            "title": None,
-            "published_datetime": None,
-            "related_symbols": [],
-            "body": [],
-            "tags": [],
-        }

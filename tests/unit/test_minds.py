@@ -95,7 +95,7 @@ class TestInheritance:
 class TestGetMindsSuccess:
     """Tests for successful minds retrieval."""
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_get_minds_success(self, mock_get: MagicMock, minds: Minds) -> None:
         """Single page success returns standard envelope with parsed data."""
         mock_get.return_value = _mock_response(
@@ -120,7 +120,7 @@ class TestGetMindsSuccess:
         assert "modified" not in mind
         assert "hidden" not in mind
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_get_minds_with_limit(self, mock_get: MagicMock, minds: Minds) -> None:
         """Limit parameter truncates results to at most that many items."""
         items = [_sample_mind(uid=f"m{i}") for i in range(5)]
@@ -133,7 +133,7 @@ class TestGetMindsSuccess:
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 3
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_get_minds_pagination(self, mock_get: MagicMock, minds: Minds) -> None:
         """Multi-page cursor-based pagination follows next URL."""
         page1 = _make_page_response(
@@ -157,7 +157,7 @@ class TestGetMindsSuccess:
         assert result["metadata"]["pages"] == 2
         assert mock_get.call_count == 2
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_get_minds_no_data(self, mock_get: MagicMock, minds: Minds) -> None:
         """Empty results returns success with empty list."""
         mock_get.return_value = _mock_response(
@@ -191,7 +191,7 @@ class TestGetMindsErrors:
         assert result["data"] is None
         assert result["error"] is not None
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_get_minds_network_error(self, mock_get: MagicMock, minds: Minds) -> None:
         """Network failure returns error response, does not raise."""
         mock_get.side_effect = Exception("Connection refused")
@@ -250,7 +250,7 @@ class TestParseMind:
 class TestResponseFormat:
     """Tests for response envelope structure."""
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_response_has_standard_envelope(
         self, mock_get: MagicMock, minds: Minds
     ) -> None:
@@ -263,7 +263,7 @@ class TestResponseFormat:
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
 
-    @patch("tv_scraper.scrapers.social.minds.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_separate_exchange_symbol_params(
         self, mock_get: MagicMock, minds: Minds
     ) -> None:

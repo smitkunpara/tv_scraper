@@ -69,5 +69,3 @@ for tick in s.stream_realtime_price(exchange="BINANCE", symbol="BTCUSDT"):
 | Combined `exchange:symbol` params | Separate `exchange` and `symbol` args |
 | Raises exceptions on errors | Returns `{"status": "failed", ...}` |
 | `from tradingview_scraper.symbols.stream import Streamer` | `from tv_scraper.streaming import Streamer` |
-
-The old `stream()` method is kept as a compatibility alias.

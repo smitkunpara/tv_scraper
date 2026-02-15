@@ -172,7 +172,7 @@ class TestInheritance:
 class TestScrapeHeadlinesSuccess:
     """Tests for successful headline scraping."""
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_success(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -189,20 +189,20 @@ class TestScrapeHeadlinesSuccess:
         assert len(result["data"]) == 1
 
         item = result["data"][0]
-        # Should only contain the cleaned fields
+        # Should contain these fields
+        assert item["id"] == "h123"
         assert item["title"] == "Bitcoin Hits New High"
         assert item["shortDescription"] == "Bitcoin reached an all-time high today."
         assert item["published"] == 1678900000
         assert item["storyPath"] == "/news/story/h123"
         # Should NOT contain these fields
-        assert "id" not in item
         assert "provider" not in item
         assert "urgency" not in item
         assert "relatedSymbols" not in item
         assert "permission" not in item
         assert "sourceLogoid" not in item
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_with_provider(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -222,7 +222,7 @@ class TestScrapeHeadlinesSuccess:
         call_url = mock_get.call_args[0][0]
         assert "provider=cointelegraph" in call_url
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_with_area(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -241,7 +241,7 @@ class TestScrapeHeadlinesSuccess:
         call_url = mock_get.call_args[0][0]
         assert "area=AME" in call_url
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_with_language(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -260,7 +260,7 @@ class TestScrapeHeadlinesSuccess:
         call_url = mock_get.call_args[0][0]
         assert "lang=fr" in call_url
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_empty_result(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -334,7 +334,7 @@ class TestScrapeHeadlinesValidation:
 class TestScrapeHeadlinesErrors:
     """Runtime errors return error responses."""
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_network_error(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -347,7 +347,7 @@ class TestScrapeHeadlinesErrors:
         assert result["data"] is None
         assert result["error"] is not None
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_headlines_captcha(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -371,7 +371,7 @@ class TestScrapeHeadlinesErrors:
 class TestScrapeContentSuccess:
     """Tests for article content scraping using JSON API."""
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_content_success(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -398,7 +398,7 @@ class TestScrapeContentSuccess:
         # Paragraphs should be separated by newlines
         assert "\n" in description
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_content_story_path_without_slash(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -424,7 +424,7 @@ class TestScrapeContentSuccess:
 class TestScrapeContentErrors:
     """Error handling for content scraping."""
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_scrape_content_network_error(
         self, mock_get: MagicMock, news: News
     ) -> None:
@@ -448,7 +448,7 @@ class TestScrapeContentErrors:
 class TestResponseFormat:
     """Verify the standardized response envelope."""
 
-    @patch("tv_scraper.scrapers.social.news.requests.get")
+    @patch("tv_scraper.core.base.BaseScraper._make_request")
     def test_response_has_standard_envelope(
         self, mock_get: MagicMock, news: News
     ) -> None:

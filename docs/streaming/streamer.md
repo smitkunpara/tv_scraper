@@ -66,14 +66,6 @@ result = s.get_candles(
 }
 ```
 
-### `stream()` (Compatibility Alias)
-
-```python
-result = s.stream(exchange="BINANCE", symbol="BTCUSDT")
-```
-
-Identical to `get_candles()`. Kept for backward compatibility.
-
 ### `stream_realtime_price()`
 
 Persistent generator yielding normalized quote updates including bid, ask, and daily statistics.

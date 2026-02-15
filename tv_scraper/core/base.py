@@ -1,9 +1,10 @@
 """Base scraper class for tv_scraper."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-import requests
+if TYPE_CHECKING:
+    import requests
 
 from tv_scraper.core.constants import DEFAULT_TIMEOUT, STATUS_FAILED, STATUS_SUCCESS
 from tv_scraper.core.validators import DataValidator
@@ -79,7 +80,7 @@ class BaseScraper:
             "error": error,
         }
 
-    def _make_request(self, url: str, method: str = "GET", **kwargs: Any) -> requests.Response:
+    def _make_request(self, url: str, method: str = "GET", **kwargs: Any) -> "requests.Response":
         """Make an HTTP request with default headers and timeout.
 
         Args:
@@ -93,11 +94,13 @@ class BaseScraper:
         Raises:
             NetworkError: If the request fails.
         """
+        # Set defaults if not in kwargs
+        kwargs.setdefault("headers", self._headers)
+        kwargs.setdefault("timeout", self.timeout)
+
         return make_request(
             url,
             method=method,
-            headers=self._headers,
-            timeout=self.timeout,
             **kwargs,
         )
 

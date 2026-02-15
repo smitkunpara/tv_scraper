@@ -315,26 +315,6 @@ class TestStreamer:
 
     @patch("tv_scraper.streaming.streamer.validate_symbols")
     @patch("tv_scraper.streaming.stream_handler.create_connection")
-    def test_stream_alias(self, mock_cc, mock_validate):
-        """stream() is a compatibility alias for get_candles()."""
-        mock_ws = MagicMock()
-        mock_cc.return_value = mock_ws
-        mock_validate.return_value = True
-
-        ohlcv_entry = {"i": 0, "v": [1700000000, 100.0, 105.0, 99.0, 102.0, 5000]}
-        ts_pkt = {"m": "timescale_update", "p": ["cs_test", {"sds_1": {"s": [ohlcv_entry]}}]}
-        ts_raw = json.dumps(ts_pkt)
-        framed = f"~m~{len(ts_raw)}~m~{ts_raw}"
-        mock_ws.recv.side_effect = [framed, ConnectionError("done")]
-
-        from tv_scraper.streaming.streamer import Streamer
-
-        s = Streamer()
-        result = s.stream(exchange="BINANCE", symbol="BTCUSDT", numb_candles=1)
-        assert result["status"] == "success"
-
-    @patch("tv_scraper.streaming.streamer.validate_symbols")
-    @patch("tv_scraper.streaming.stream_handler.create_connection")
     def test_stream_realtime_price_yields_data(self, mock_cc, mock_validate):
         """stream_realtime_price returns a generator that yields normalized price data."""
         mock_ws = MagicMock()

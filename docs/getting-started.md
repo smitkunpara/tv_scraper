@@ -59,18 +59,18 @@ from tv_scraper import Ideas, Minds, News
 
 # Trading ideas
 ideas = Ideas()
-result = ideas.get_ideas(symbol="BTCUSD")
+result = ideas.scrape(exchange="CRYPTO", symbol="BTCUSD")
 for idea in result["data"]:
-    print(idea["title"], idea["symbol"])
+    print(idea["title"], idea["author"])
 
 # Minds discussions
 minds = Minds()
-result = minds.get_minds(symbol="AAPL")
+result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # News
 news = News()
-result = news.get_news(symbol="AAPL")
+result = news.scrape_headlines(exchange="NASDAQ", symbol="AAPL")
 for article in result["data"]:
     print(article["title"])
 ```
@@ -82,17 +82,17 @@ from tv_scraper import Screener, MarketMovers, SymbolMarkets
 
 # Stock screener
 screener = Screener()
-result = screener.get_screener(market="america")
+result = screener.screen(market="america")
 print(result["data"])
 
 # Market movers
 movers = MarketMovers()
-result = movers.get_market_movers(market="america", category="gainers")
+result = movers.scrape(market="america", category="gainers")
 print(result["data"])
 
 # Find all exchanges for a symbol
 sym_markets = SymbolMarkets()
-result = sym_markets.get_symbol_markets(symbol="AAPL")
+result = sym_markets.scrape(symbol="AAPL")
 print(result["data"])
 ```
 
@@ -102,7 +102,7 @@ print(result["data"])
 from tv_scraper import Calendar
 
 calendar = Calendar()
-result = calendar.get_calendar(exchange="NASDAQ", symbol="AAPL")
+result = calendar.get_dividends(markets=["america"])
 print(result["data"])
 ```
 

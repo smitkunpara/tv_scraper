@@ -2,11 +2,9 @@
 
 import logging
 import os
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
-
-import requests
-from requests.exceptions import JSONDecodeError, RequestException
 
 from tv_scraper.core.base import BaseScraper
 from tv_scraper.core.constants import BASE_URL
@@ -157,8 +155,8 @@ class Ideas(BaseScraper):
             params["sort"] = "recent"
 
         try:
-            response = requests.get(
-                url, headers=headers, params=params, timeout=self.timeout,
+            response = self._make_request(
+                url, method="GET", headers=headers, params=params
             )
 
             if response.status_code != 200:
@@ -166,7 +164,7 @@ class Ideas(BaseScraper):
                     "HTTP %d: Failed to fetch page %d for %s",
                     response.status_code, page, symbol,
                 )
-                return []
+                raise Exception(f"HTTP {response.status_code}")
 
             if "<title>Captcha Challenge</title>" in response.text:
                 logger.error(
@@ -180,14 +178,14 @@ class Ideas(BaseScraper):
 
             return [self._map_idea(item) for item in items]
 
-        except JSONDecodeError as exc:
+        except json.JSONDecodeError as exc:
             logger.error("Invalid JSON for page %d of %s: %s", page, symbol, exc)
-            return []
-        except RequestException as exc:
+            raise
+        except Exception as exc:
             logger.error(
-                "Network request failed for page %d of %s: %s", page, symbol, exc,
+                "Request failed for page %d of %s: %s", page, symbol, exc,
             )
-            return []
+            raise
 
     @staticmethod
     def _map_idea(item: Dict[str, Any]) -> Dict[str, Any]:
