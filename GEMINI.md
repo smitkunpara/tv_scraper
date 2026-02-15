@@ -21,6 +21,7 @@ The project follows a modular architecture under the `tv_scraper` package:
     - `screening/`: Screener, Market Movers, Symbol Markets.
     - `events/`: Calendar (dividends, earnings).
 - `tv_scraper/streaming/`: WebSocket implementations for live data (`Streamer`, `RealTimeData`).
+    - `Streamer` includes `get_available_indicators()` to retrieve valid indicator IDs and versions.
 - `tv_scraper/utils/`: HTTP wrappers, I/O utilities, and general helpers.
 - `tv_scraper/data/`: Static JSON files used by the `DataValidator` for verifying exchanges, indicators, etc.
 

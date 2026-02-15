@@ -13,7 +13,11 @@ from websocket import WebSocketConnectionClosedException
 
 from tv_scraper.core.constants import STATUS_FAILED, STATUS_SUCCESS, EXPORT_TYPES
 from tv_scraper.streaming.stream_handler import StreamHandler
-from tv_scraper.streaming.utils import fetch_indicator_metadata, validate_symbols
+from tv_scraper.streaming.utils import (
+    fetch_available_indicators,
+    fetch_indicator_metadata,
+    validate_symbols,
+)
 from tv_scraper.utils.helpers import format_symbol
 from tv_scraper.utils.io import generate_export_filepath, save_csv_file, save_json_file
 
@@ -82,6 +86,18 @@ class Streamer:
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def get_available_indicators() -> List[dict]:
+        """Fetch the list of available built-in indicators.
+
+        Use this to find the correct `id` (e.g. ``"STD;RSI"``) and `version`
+        to use with :meth:`get_candles`.
+
+        Returns:
+            List of indicator dicts with: name, id, version.
+        """
+        return fetch_available_indicators()
 
     def get_candles(
         self,

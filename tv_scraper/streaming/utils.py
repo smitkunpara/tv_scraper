@@ -18,6 +18,8 @@ _PINE_FACADE_URL = (
     "https://pine-facade.tradingview.com/pine-facade/translate/{script_id}/{script_version}"
 )
 
+_PINE_LIST_URL = "https://pine-facade.tradingview.com/pine-facade/list?filter=standard"
+
 
 def validate_symbols(exchange: str, symbol: str, retries: int = 3) -> bool:
     """Validate an exchange:symbol pair against the TradingView scanner API.
@@ -193,3 +195,33 @@ def prepare_indicator_metadata(
             item.update(in_x)
 
     return output_data
+
+
+def fetch_available_indicators() -> List[dict]:
+    """Fetch the list of standard built-in indicators from TradingView.
+
+    Note:
+        These IDs and versions are specifically for use with candle streaming.
+
+    Returns:
+        List of indicator dicts with: name, id, version.
+    """
+    try:
+        resp = requests.get(_PINE_LIST_URL, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+
+        if not isinstance(data, list):
+            return []
+
+        return [
+            {
+                "name": item.get("scriptName"),
+                "id": item.get("scriptIdPart"),
+                "version": item.get("version"),
+            }
+            for item in data
+        ]
+    except Exception as exc:
+        logger.error("Error fetching available indicators: %s", exc)
+        return []

@@ -12,6 +12,7 @@ Major release introducing the new `tv_scraper` package — a complete architectu
 
 ### Added
 - **New `tv_scraper` package** with clean modular architecture alongside the legacy `tradingview_scraper` package
+- **`Streamer.get_available_indicators()`** — fetch standard built-in indicator IDs and versions for candle streaming
 - **11 scraper modules** organized into four categories:
   - Market Data: `Technicals`, `Overview`, `Fundamentals`, `Markets`
   - Social: `Ideas`, `Minds`, `News`

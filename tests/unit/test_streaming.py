@@ -622,3 +622,31 @@ class TestStreamingUtils:
         assert len(results) == 1
         assert results[0]["scriptName"] == "RSI Strategy"
         assert results[0]["scriptIdPart"] == "STD;RSI"
+
+    @patch("tv_scraper.streaming.utils.requests.get")
+    def test_fetch_available_indicators(self, mock_get):
+        """fetch_available_indicators returns parsed list of built-in indicators."""
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = [
+            {
+                "scriptName": "Relative Strength Index",
+                "scriptIdPart": "STD;RSI",
+                "version": "45.0",
+            },
+            {
+                "scriptName": "Average True Range",
+                "scriptIdPart": "STD;ATR",
+                "version": "12.0",
+            },
+        ]
+        mock_get.return_value = mock_resp
+
+        from tv_scraper.streaming.utils import fetch_available_indicators
+
+        results = fetch_available_indicators()
+        assert len(results) == 2
+        assert results[0]["name"] == "Relative Strength Index"
+        assert results[0]["id"] == "STD;RSI"
+        assert results[0]["version"] == "45.0"

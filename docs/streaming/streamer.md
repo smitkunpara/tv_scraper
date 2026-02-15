@@ -17,6 +17,17 @@ s = Streamer(
 
 ## Methods
 
+### `get_available_indicators()`
+
+Fetch the list of available standard built-in indicators.
+
+> **Note:** This is specifically for use with candle and indicator streaming. Use these IDs and versions with `get_candles()`.
+
+```python
+indicators = Streamer.get_available_indicators()
+# Returns: [{"name": "Relative Strength Index", "id": "STD;RSI", "version": "45.0"}, ...]
+```
+
 ### `get_candles()`
 
 Fetch historical OHLCV candles with optional technical indicators.
