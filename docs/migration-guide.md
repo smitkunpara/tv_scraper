@@ -261,7 +261,7 @@ tech = Technicals()
 result = tech.scrape(
     exchange="NASDAQ",
     symbol="AAPL",
-    indicators=["RSI", "MACD.macd"]
+    technical_indicators=["RSI", "MACD.macd"]
 )
 if result["status"] == "success":
     rsi = result["data"].get("RSI")
