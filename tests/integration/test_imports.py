@@ -54,6 +54,10 @@ class TestTopLevelImports:
         from tv_scraper import Calendar
         assert Calendar is not None
 
+    def test_import_options(self) -> None:
+        from tv_scraper import Options
+        assert Options is not None
+
     def test_import_streamer(self) -> None:
         from tv_scraper import Streamer
         assert Streamer is not None
@@ -67,8 +71,8 @@ class TestSubpackageImports:
     """Public classes should also be importable via subpackage paths."""
 
     def test_import_from_market_data(self) -> None:
-        from tv_scraper.scrapers.market_data import Technicals, Overview, Fundamentals, Markets
-        assert all(cls is not None for cls in [Technicals, Overview, Fundamentals, Markets])
+        from tv_scraper.scrapers.market_data import Technicals, Overview, Fundamentals, Markets, Options
+        assert all(cls is not None for cls in [Technicals, Overview, Fundamentals, Markets, Options])
 
     def test_import_from_social(self) -> None:
         from tv_scraper.scrapers.social import Ideas, Minds, News
@@ -135,9 +139,9 @@ class TestVersionAndAll:
             assert hasattr(tv_scraper, name), f"{name} listed in __all__ not found in tv_scraper"
 
     def test_all_count(self) -> None:
-        """__all__ should have exactly 13 entries."""
+        """__all__ should have exactly 14 entries."""
         import tv_scraper
-        assert len(tv_scraper.__all__) == 13
+        assert len(tv_scraper.__all__) == 14
 
     def test_module_is_importable(self) -> None:
         """tv_scraper should be importable as a module."""
