@@ -1,6 +1,6 @@
 """Main Streamer class for candle + indicator streaming and realtime price.
 
-Provides ``get_candles()`` for historical OHLC + indicator data and
+Provides ``get_candles()`` for historical OHLCV + indicator data and
 ``stream_realtime_price()`` for continuous quote updates.
 """
 
@@ -55,7 +55,7 @@ def _error_response(error: str, **metadata):
 
 
 class Streamer:
-    """Stream OHLC candles, indicators, and realtime prices from TradingView.
+    """Stream OHLCV candles, indicators, and realtime prices from TradingView.
 
     Args:
         export_result: Whether to export data to file after retrieval.
@@ -91,7 +91,7 @@ class Streamer:
         numb_candles: int = 10,
         indicators: Optional[List[Tuple[str, str]]] = None,
     ) -> dict:
-        """Fetch OHLC candle data and optional indicator values.
+        """Fetch OHLCV candle data and optional indicator values.
 
         Args:
             exchange: Exchange name (e.g. ``"BINANCE"``).
@@ -102,7 +102,7 @@ class Streamer:
 
         Returns:
             Standardized response dict with
-            ``{"status", "data": {"ohlc": [...], "indicators": {...}}, "metadata", "error"}``.
+            ``{"status", "data": {"ohlcv": [...], "indicators": {...}}, "metadata", "error"}``.
         """
         try:
             exchange_symbol = format_symbol(exchange, symbol)
@@ -121,15 +121,15 @@ class Streamer:
             if ind_flag and indicators:
                 self._add_indicators(indicators)
 
-            ohlc_data: list = []
+            ohlcv_data: list = []
             indicator_data: dict = {}
             expected_ind_count = len(indicators) if ind_flag and indicators else 0
 
             for i, pkt in enumerate(self._get_data()):
-                # OHLC extraction
-                received_ohlc = self._extract_ohlc_from_stream(pkt)
-                if received_ohlc:
-                    ohlc_data = received_ohlc
+                # OHLCV extraction
+                received_ohlcv = self._extract_ohlcv_from_stream(pkt)
+                if received_ohlcv:
+                    ohlcv_data = received_ohlcv
 
                 # Indicator extraction
                 received_ind = self._extract_indicator_from_stream(pkt)
@@ -137,23 +137,23 @@ class Streamer:
                     indicator_data.update(received_ind)
 
                 # Stop conditions
-                ohlc_ready = len(ohlc_data) >= numb_candles
+                ohlcv_ready = len(ohlcv_data) >= numb_candles
                 ind_ready = not ind_flag or len(indicator_data) >= expected_ind_count
-                if ohlc_ready and ind_ready:
+                if ohlcv_ready and ind_ready:
                     break
                 if i > 15:
                     logger.warning(
-                        "Timeout after %d packets. OHLC=%d, Indicators=%d",
-                        i, len(ohlc_data), len(indicator_data),
+                        "Timeout after %d packets. OHLCV=%d, Indicators=%d",
+                        i, len(ohlcv_data), len(indicator_data),
                     )
                     break
 
-            result_data = {"ohlc": ohlc_data, "indicators": indicator_data}
+            result_data = {"ohlcv": ohlcv_data, "indicators": indicator_data}
 
             if self.export_result:
-                self._export(ohlc_data, symbol, "ohlc")
+                self._export(ohlcv_data, symbol, "ohlcv")
                 if ind_flag:
-                    self._export(indicator_data, symbol, "indicator")
+                    self._export(indicator_data, symbol, "indicators")
 
             return _success_response(
                 result_data,
@@ -178,8 +178,12 @@ class Streamer:
         timeframe: str = "1m",
         numb_candles: int = 10,
         indicators: Optional[List[Tuple[str, str]]] = None,
+        **kwargs,
     ) -> dict:
         """Compatibility alias for :meth:`get_candles`."""
+        # Handle legacy parameter name 'numb_price_candles'
+        n_candles = kwargs.get("numb_price_candles", numb_candles)
+        
         return self.get_candles(
             exchange=exchange,
             symbol=symbol,
@@ -228,6 +232,12 @@ class Streamer:
                         "volume": v.get("volume"),
                         "change": v.get("ch"),
                         "change_percent": v.get("chp"),
+                        "high": v.get("high_price"),
+                        "low": v.get("low_price"),
+                        "open": v.get("open_price"),
+                        "prev_close": v.get("prev_close_price"),
+                        "bid": v.get("bid"),
+                        "ask": v.get("ask"),
                     }
 
     # ------------------------------------------------------------------
@@ -320,11 +330,11 @@ class Streamer:
             except Exception as exc:
                 logger.error("Failed to add indicator %s: %s", script_id, exc)
 
-    def _serialize_ohlc(self, raw_data: dict) -> list:
-        """Extract OHLC entries from a timescale_update packet."""
-        ohlc_entries = raw_data.get("p", [{}, {}])[1].get("sds_1", {}).get("s", [])
+    def _serialize_ohlcv(self, raw_data: dict) -> list:
+        """Extract OHLCV entries from a timescale_update packet."""
+        ohlcv_entries = raw_data.get("p", [{}, {}])[1].get("sds_1", {}).get("s", [])
         result = []
-        for entry in ohlc_entries:
+        for entry in ohlcv_entries:
             rec = {
                 "index": entry["i"],
                 "timestamp": entry["v"][0],
@@ -338,10 +348,10 @@ class Streamer:
             result.append(rec)
         return result
 
-    def _extract_ohlc_from_stream(self, pkt: dict) -> list:
-        """Extract OHLC from a packet if it's a timescale_update."""
+    def _extract_ohlcv_from_stream(self, pkt: dict) -> list:
+        """Extract OHLCV from a packet if it's a timescale_update."""
         if pkt.get("m") == "timescale_update":
-            return self._serialize_ohlc(pkt)
+            return self._serialize_ohlcv(pkt)
         return []
 
     def _extract_indicator_from_stream(self, pkt: dict) -> dict:

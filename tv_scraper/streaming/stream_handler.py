@@ -39,7 +39,8 @@ _QUOTE_FIELDS = [
     "language", "exchange", "fractional", "is_tradable", "lp",
     "lp_time", "minmov", "minmove2", "original_name", "pricescale",
     "pro_name", "short_name", "type", "update_mode", "volume",
-    "currency_code", "rchp", "rtc",
+    "currency_code", "rchp", "rtc", "high_price", "low_price", "open_price",
+    "prev_close_price", "bid", "ask", "bid_size", "ask_size",
 ]
 
 

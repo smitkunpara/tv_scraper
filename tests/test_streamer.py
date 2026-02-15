@@ -9,7 +9,7 @@ import pytest
 import json
 import os
 import time
-from tradingview_scraper.symbols.stream import Streamer
+from tv_scraper import Streamer
 
 
 # Get JWT token from environment variable
@@ -41,12 +41,15 @@ class TestStreamerOHLC:
         )
         
         # Assertions
-        assert "ohlc" in result
-        assert "indicator" in result
-        assert isinstance(result["ohlc"], list)
-        assert isinstance(result["indicator"], dict)
-        assert len(result["ohlc"]) > 0
-        assert len(result["indicator"]) == 0  # No indicators requested
+        assert "status" in result
+        assert result["status"] == "success"
+        data = result["data"]
+        assert "ohlcv" in data
+        assert "indicators" in data
+        assert isinstance(data["ohlcv"], list)
+        assert isinstance(data["indicators"], dict)
+        assert len(data["ohlcv"]) > 0
+        assert len(data["indicators"]) == 0  # No indicators requested
         
         # Sleep to avoid forbidden error
         time.sleep(1)
@@ -75,13 +78,15 @@ class TestStreamerSingleIndicator:
         )
         
         # Assertions
-        assert "ohlc" in result
-        assert "indicator" in result
-        assert len(result["ohlc"]) > 0
-        assert len(result["indicator"]) == 1
-        assert "STD;RSI" in result["indicator"]
-        assert isinstance(result["indicator"]["STD;RSI"], list)
-        assert len(result["indicator"]["STD;RSI"]) > 0
+        assert result["status"] == "success"
+        data = result["data"]
+        assert "ohlcv" in data
+        assert "indicators" in data
+        assert len(data["ohlcv"]) > 0
+        assert len(data["indicators"]) == 1
+        assert "STD;RSI" in data["indicators"]
+        assert isinstance(data["indicators"]["STD;RSI"], list)
+        assert len(data["indicators"]["STD;RSI"]) > 0
         
         # Sleep to avoid forbidden error
         time.sleep(1)
@@ -110,16 +115,18 @@ class TestStreamerMultipleIndicators:
         )
         
         # Assertions
-        assert "ohlc" in result
-        assert "indicator" in result
-        assert len(result["ohlc"]) > 0
-        assert len(result["indicator"]) == 2
-        assert "STD;RSI" in result["indicator"]
-        assert "STD;MACD" in result["indicator"]
-        assert isinstance(result["indicator"]["STD;RSI"], list)
-        assert isinstance(result["indicator"]["STD;MACD"], list)
-        assert len(result["indicator"]["STD;RSI"]) > 0
-        assert len(result["indicator"]["STD;MACD"]) > 0
+        assert result["status"] == "success"
+        data = result["data"]
+        assert "ohlcv" in data
+        assert "indicators" in data
+        assert len(data["ohlcv"]) > 0
+        assert len(data["indicators"]) == 2
+        assert "STD;RSI" in data["indicators"]
+        assert "STD;MACD" in data["indicators"]
+        assert isinstance(data["indicators"]["STD;RSI"], list)
+        assert isinstance(data["indicators"]["STD;MACD"], list)
+        assert len(data["indicators"]["STD;RSI"]) > 0
+        assert len(data["indicators"]["STD;MACD"]) > 0
         
         # Sleep to avoid forbidden error
         time.sleep(1)
@@ -154,9 +161,10 @@ class TestStreamerMultipleIndicators:
         
         # Assertions for free account (2 indicator limit)
         # We expect only 2 indicators to be received
-        assert len(result["indicator"]) == 2, f"Free accounts can only stream 2 indicators, got {len(result['indicator'])}"
-        assert "STD;RSI" in result["indicator"], "RSI should be present"
-        assert "STD;MACD" in result["indicator"], "MACD should be present"
+        data = result["data"]
+        assert len(data["indicators"]) == 2, f"Free accounts can only stream 2 indicators, got {len(data['indicators'])}"
+        assert "STD;RSI" in data["indicators"], "RSI should be present"
+        assert "STD;MACD" in data["indicators"], "MACD should be present"
         
         # Sleep to avoid forbidden error
         time.sleep(1)
@@ -165,8 +173,8 @@ class TestStreamerMultipleIndicators:
 class TestStreamerDataStructure:
     """Test data structure and content validation"""
     
-    def test_ohlc_data_structure(self):
-        """Test that OHLC data has correct structure"""
+    def test_ohlcv_data_structure(self):
+        """Test that OHLCV data has correct structure"""
         streamer = Streamer(
             export_result=True,
             export_type='json',
@@ -177,14 +185,14 @@ class TestStreamerDataStructure:
             exchange="BINANCE",
             symbol="BTCUSDT",
             timeframe="1m",
-            numb_price_candles=3
+            numb_candles=3
         )
         
-        # Check OHLC structure
-        ohlc_candle = result["ohlc"][0]
+        # Check OHLCV structure
+        ohlcv_candle = result["data"]["ohlcv"][0]
         required_keys = ['index', 'timestamp', 'open', 'high', 'low', 'close', 'volume']
         for key in required_keys:
-            assert key in ohlc_candle, f"Missing key: {key}"
+            assert key in ohlcv_candle, f"Missing key: {key}"
         
         # Sleep to avoid forbidden error
         time.sleep(1)
@@ -205,11 +213,11 @@ class TestStreamerDataStructure:
             symbol="BTCUSDT",
             indicators=[("STD;RSI", "37.0")],
             timeframe="1m",
-            numb_price_candles=3
+            numb_candles=3
         )
         
         # Check indicator structure
-        rsi_data = result["indicator"]["STD;RSI"][0]
+        rsi_data = result["data"]["indicators"]["STD;RSI"][0]
         assert 'index' in rsi_data
         assert 'timestamp' in rsi_data
         assert isinstance(rsi_data['timestamp'], (int, float))

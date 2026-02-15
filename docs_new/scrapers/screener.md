@@ -74,28 +74,41 @@ screen(
 
 All responses use the standardized envelope:
 
-```python
+```json
 {
-    "status": "success",        # or "failed"
-    "data": [...],              # list of dicts, or None on error
+    "status": "success",
+    "data": [
+        {
+            "symbol": "NASDAQ:AAPL",
+            "name": "Apple Inc.",
+            "close": 150.25,
+            "change": 2.512,
+            "change_abs": 3.68,
+            "volume": 54231000,
+            "market_cap_basic": 2500000000000.0,
+            "price_earnings_ttm": 28.5,
+            "earnings_per_share_basic_ttm": 5.2,
+            "sector": "Electronic Technology"
+        },
+        {
+            "symbol": "NYSE:TSLA",
+            "name": "Tesla, Inc.",
+            "close": 210.5,
+            "change": 1.15,
+            "change_abs": 2.4,
+            "volume": 85000000,
+            "market_cap_basic": 600000000000.0,
+            "price_earnings_ttm": 65.2,
+            "earnings_per_share_basic_ttm": 3.2,
+            "sector": "Consumer Durables"
+        }
+    ],
     "metadata": {
         "market": "america",
-        "total": 10,            # results returned
-        "total_available": 500  # total matching on server
+        "total": 2,
+        "total_available": 1500
     },
-    "error": None               # or error message string
-}
-```
-
-Each item in `data`:
-
-```python
-{
-    "symbol": "NASDAQ:AAPL",
-    "name": "Apple Inc.",
-    "close": 150.25,
-    "volume": 50000000,
-    ...  # other requested fields
+    "error": null
 }
 ```
 

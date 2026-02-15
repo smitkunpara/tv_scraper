@@ -80,25 +80,46 @@ get_top_stocks(
 
 ## Response Format
 
-```python
+```json
 {
-    "status": "success",       # or "failed"
-    "data": [                  # list of stock dicts, or None on failure
+    "status": "success",
+    "data": [
         {
             "symbol": "NASDAQ:AAPL",
-            "name": "AAPL",
+            "name": "Apple Inc.",
             "close": 150.25,
-            "change": 2.5,
-            ...
+            "change": 2.5124,
+            "change_abs": 3.68,
+            "volume": 54231200,
+            "Recommend.All": 0.5,
+            "market_cap_basic": 2500000000000.0,
+            "price_earnings_ttm": 28.5,
+            "earnings_per_share_basic_ttm": 5.2,
+            "sector": "Electronic Technology",
+            "industry": "Telecommunications Equipment"
+        },
+        {
+            "symbol": "NASDAQ:MSFT",
+            "name": "Microsoft Corp.",
+            "close": 310.15,
+            "change": -1.2,
+            "change_abs": -3.75,
+            "volume": 28145000,
+            "Recommend.All": 0.45,
+            "market_cap_basic": 2300000000000.0,
+            "price_earnings_ttm": 32.1,
+            "earnings_per_share_basic_ttm": 9.5,
+            "sector": "Technology Services",
+            "industry": "Packaged Software"
         }
     ],
     "metadata": {
         "market": "america",
         "sort_by": "market_cap",
-        "total": 20,
+        "total": 2,
         "total_count": 5000
     },
-    "error": null              # error string on failure
+    "error": null
 }
 ```
 

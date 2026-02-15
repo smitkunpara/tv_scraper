@@ -1,6 +1,6 @@
 # Streamer API
 
-The `Streamer` class provides OHLC candle retrieval, indicator data, and
+The `Streamer` class provides OHLCV candle retrieval, indicator data, and
 continuous realtime price streaming via TradingView's WebSocket API.
 
 ## Constructor
@@ -19,7 +19,7 @@ s = Streamer(
 
 ### `get_candles()`
 
-Fetch historical OHLC candles with optional technical indicators.
+Fetch historical OHLCV candles with optional technical indicators.
 
 ```python
 result = s.get_candles(
@@ -37,15 +37,15 @@ result = s.get_candles(
 {
     "status": "success",
     "data": {
-        "ohlc": [
+        "ohlcv": [
             {
                 "index": 0,
                 "timestamp": 1700000000,
-                "open": 100.0,
-                "high": 105.0,
-                "low": 99.0,
-                "close": 102.0,
-                "volume": 5000
+                "open": 42000.0,
+                "high": 42100.0,
+                "low": 41950.0,
+                "close": 42050.2,
+                "volume": 125.5
             },
             ...
         ],
@@ -76,11 +76,11 @@ Identical to `get_candles()`. Kept for backward compatibility.
 
 ### `stream_realtime_price()`
 
-Persistent generator yielding normalized quote updates.
+Persistent generator yielding normalized quote updates including bid, ask, and daily statistics.
 
 ```python
 for tick in s.stream_realtime_price(exchange="BINANCE", symbol="BTCUSDT"):
-    print(f"Price: {tick['price']}, Change: {tick['change_percent']}%")
+    print(f"Price: {tick['price']}, Bid: {tick['bid']}, Ask: {tick['ask']}, Volume: {tick['volume']}")
 ```
 
 **Yielded dict:**
@@ -90,9 +90,15 @@ for tick in s.stream_realtime_price(exchange="BINANCE", symbol="BTCUSDT"):
     "exchange": "BINANCE",
     "symbol": "BTCUSDT",
     "price": 42000.0,
-    "volume": 12345,
+    "volume": 12345.6,
     "change": 150.0,
-    "change_percent": 0.36
+    "change_percent": 0.36,
+    "high": 42150.0,
+    "low": 41800.0,
+    "open": 41850.0,
+    "prev_close": 41845.0,
+    "bid": 41998.0,
+    "ask": 42002.0
 }
 ```
 
@@ -113,13 +119,13 @@ for tick in s.stream_realtime_price(exchange="BINANCE", symbol="BTCUSDT"):
 
 ## Export
 
-When `export_result=True`, OHLC and indicator data are saved to the `export/`
+When `export_result=True`, OHLCV and indicator data are saved to the `export/`
 directory with timestamped filenames:
 
 ```python
 s = Streamer(export_result=True, export_type="csv")
 s.get_candles(exchange="NASDAQ", symbol="AAPL")
-# Creates: export/ohlc_aapl_20260215-120000.csv
+# Creates: export/ohlcv_aapl_20260215-120000.csv
 ```
 
 ## Error Handling
