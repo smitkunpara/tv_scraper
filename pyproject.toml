@@ -27,18 +27,8 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.32.4",
-    "pandas>=2.0.3",
-    "beautifulsoup4>=4.12.3",
-    "pydantic>=2.8.2",
-    "websockets>=13.1",
     "websocket-client>=1.8.0",
-    "python-dotenv>=1.0.1",
 ]
-
-[project.urls]
-Homepage = "https://github.com/smitkunpara/tv-scraper"
-Repository = "https://github.com/smitkunpara/tv-scraper"
-Issues = "https://github.com/smitkunpara/tv-scraper/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -48,9 +38,17 @@ dev = [
     "mkdocs>=1.5.0",
     "mkdocs-material>=9.0.0",
 ]
+csv = [
+    "pandas>=2.0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/smitkunpara/tv-scraper"
+Repository = "https://github.com/smitkunpara/tv-scraper"
+Issues = "https://github.com/smitkunpara/tv-scraper/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tradingview_scraper", "tv_scraper"]
+packages = ["tv_scraper"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
