@@ -5,13 +5,13 @@
 ## Installation
 
 ```bash
-pip install tradingview-scraper
+pip install tv_scraper
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add tradingview-scraper
+uv add tv_scraper
 ```
 
 ## Quick Start

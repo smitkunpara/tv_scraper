@@ -7,13 +7,13 @@ This guide covers installation, basic usage, response format, export options, an
 ### Using pip
 
 ```bash
-pip install tradingview-scraper
+pip install tv_scraper
 ```
 
 ### Using uv
 
 ```bash
-uv add tradingview-scraper
+uv add tv_scraper
 ```
 
 ### Development Installation

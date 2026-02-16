@@ -1,6 +1,6 @@
 # Publishing to PyPI
 
-This guide explains how to publish the `tradingview-scraper` package to PyPI (Python Package Index) using **Trusted Publishing** (OIDC), which is the most secure and modern way to publish Python packages.
+This guide explains how to publish the `tv_scraper` package to PyPI (Python Package Index) using **Trusted Publishing** (OIDC), which is the most secure and modern way to publish Python packages.
 
 ## 1. Create a PyPI Account
 If you don't have one yet, create an account on [PyPI](https://pypi.org/account/register/).
@@ -43,7 +43,7 @@ To publish a new version:
 The [Publish to PyPI](.github/workflows/publish.yml) workflow will start automatically, build the package using `uv`, and upload it to PyPI.
 
 ## ⚠️ Important Notes
-- **Package Name**: Ensure `tradingview-scraper` isn't already taken on PyPI. If it is, you'll need to change the `name` in `pyproject.toml`.
+- **Package Name**: Ensure `tv_scraper` isn't already taken on PyPI. If it is, you'll need to change the `name` in `pyproject.toml`.
 - **First-time Publish**: For the very first publish, you might need to use a temporary API token or run the workflow manually once if PyPI doesn't let you set up OIDC before the project exists.
    - *Alternative*: If it's your first time, you can temporarily use an API token by reverting the `publish.yml` changes or following the PyPI "Pending Publisher" instructions.
 - **Manual Publish**: If you ever need to publish manually from your local machine:

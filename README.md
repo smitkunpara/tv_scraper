@@ -32,13 +32,27 @@ This library requires Python 3.11+ and uses `uv` for dependency management.
 
 ### Installation
 
+Install from PyPI (recommended):
+
 ```bash
-# Clone the repository
+pip install tv_scraper
+```
+
+Or install with `uv` (developer / alternate):
+
+```bash
+# Clone the repository for development
 git clone https://github.com/smitkunpara/tv_scraper.git
 cd tv_scraper
 
-# Install dependencies (uv auto-creates virtual environment)
+# Install runtime deps (uv auto-creates virtual environment)
 uv sync
+```
+
+If you prefer to install the published package using `uv`:
+
+```bash
+uv add tv_scraper
 ```
 
 ### Basic Usage Examples
