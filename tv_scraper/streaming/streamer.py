@@ -7,6 +7,7 @@ Provides ``get_candles()`` for historical OHLCV + indicator data and
 import json
 import logging
 import re
+import socket
 from typing import Generator, List, Optional, Tuple
 
 from websocket import WebSocketConnectionClosedException
@@ -194,7 +195,8 @@ class Streamer:
     ) -> Generator[dict, None, None]:
         """Persistent generator yielding normalized realtime price updates.
 
-        Yields ``qsd`` (quote session data) packets as normalised dicts::
+        Yields ``qsd`` (quote session data) and ``du`` (data update) packets
+        as normalised dicts::
 
             {"exchange": ..., "symbol": ..., "price": ..., "volume": ...,
              "change": ..., "change_percent": ..., ...}
@@ -209,31 +211,82 @@ class Streamer:
         exchange_symbol = format_symbol(exchange, symbol)
         validate_symbols(exchange, symbol)
 
-        # Add symbol to quote session for realtime updates
+        # Add symbol to both quote and chart sessions for maximum update frequency
         resolve_symbol = json.dumps({"adjustment": "splits", "symbol": exchange_symbol})
         qs = self._handler.quote_session
+        cs = self._handler.chart_session
+        
+        # Subscribe to quote session for price updates
         self._handler.send_message("quote_add_symbols", [qs, f"={resolve_symbol}"])
         self._handler.send_message("quote_fast_symbols", [qs, exchange_symbol])
-
+        
+        # Subscribe to chart session for real-time OHLCV updates
+        self._handler.send_message("resolve_symbol", [cs, "sds_sym_1", f"={resolve_symbol}"])
+        self._handler.send_message("create_series", [cs, "sds_1", "s1", "sds_sym_1", "1", 1, ""])
+        
+        last_price = None
+        
         for pkt in self._get_data():
+            # Handle quote session data (qsd)
             if pkt.get("m") == "qsd":
                 p_data = pkt.get("p", [])
                 if len(p_data) > 1 and isinstance(p_data[1], dict):
                     v = p_data[1].get("v", {})
-                    yield {
-                        "exchange": v.get("exchange", exchange),
-                        "symbol": v.get("short_name", symbol),
-                        "price": v.get("lp"),
-                        "volume": v.get("volume"),
-                        "change": v.get("ch"),
-                        "change_percent": v.get("chp"),
-                        "high": v.get("high_price"),
-                        "low": v.get("low_price"),
-                        "open": v.get("open_price"),
-                        "prev_close": v.get("prev_close_price"),
-                        "bid": v.get("bid"),
-                        "ask": v.get("ask"),
-                    }
+                    price = v.get("lp")
+                    if price is not None:
+                        last_price = price
+                        yield {
+                            "exchange": v.get("exchange", exchange),
+                            "symbol": v.get("short_name", symbol),
+                            "price": price,
+                            "volume": v.get("volume"),
+                            "change": v.get("ch"),
+                            "change_percent": v.get("chp"),
+                            "high": v.get("high_price"),
+                            "low": v.get("low_price"),
+                            "open": v.get("open_price"),
+                            "prev_close": v.get("prev_close_price"),
+                            "bid": v.get("bid"),
+                            "ask": v.get("ask"),
+                        }
+            
+            # Handle chart session data updates (du) for faster OHLCV updates
+            elif pkt.get("m") == "du":
+                p_data = pkt.get("p", [])
+                if len(p_data) > 1 and isinstance(p_data[1], dict):
+                    # Check for series data
+                    sds_data = p_data[1].get("sds_1", {})
+                    series = sds_data.get("s", [])
+                    
+                    for entry in series:
+                        if "v" in entry and len(entry["v"]) >= 5:
+                            # OHLCV: [timestamp, open, high, low, close, volume]
+                            close_price = entry["v"][4]
+                            volume = entry["v"][5] if len(entry["v"]) > 5 else None
+                            
+                            # Calculate change if we have last price
+                            change = None
+                            change_percent = None
+                            if last_price is not None:
+                                change = close_price - last_price
+                                change_percent = (change / last_price * 100) if last_price != 0 else 0
+                            
+                            last_price = close_price
+                            
+                            yield {
+                                "exchange": exchange,
+                                "symbol": symbol,
+                                "price": close_price,
+                                "volume": volume,
+                                "change": change,
+                                "change_percent": change_percent,
+                                "high": entry["v"][2],
+                                "low": entry["v"][3],
+                                "open": entry["v"][1],
+                                "prev_close": None,
+                                "bid": None,
+                                "ask": None,
+                            }
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -271,6 +324,10 @@ class Streamer:
                 except WebSocketConnectionClosedException:
                     logger.error("WebSocket connection closed.")
                     break
+                except socket.timeout:
+                    # Socket timeout is expected with non-blocking socket
+                    # Just continue to next iteration
+                    continue
                 except (ConnectionError, TimeoutError, OSError) as exc:
                     logger.error("WebSocket error: %s", exc)
                     break

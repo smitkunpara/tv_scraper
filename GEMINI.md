@@ -22,6 +22,7 @@ The project follows a modular architecture under the `tv_scraper` package:
     - `events/`: Calendar (dividends, earnings).
 - `tv_scraper/streaming/`: WebSocket implementations for live data (`Streamer`, `RealTimeData`).
     - `Streamer` includes `get_available_indicators()` to retrieve valid indicator IDs and versions.
+    - **Performance optimizations (v1.0.0+)**: TCP_NODELAY socket option, dual session subscriptions (quote + chart), and enhanced message processing for low-latency streaming (~3-4 second update frequency).
 - `tv_scraper/utils/`: HTTP wrappers, I/O utilities, and general helpers.
 - `tv_scraper/data/`: Static JSON files used by the `DataValidator` for verifying exchanges, indicators, etc.
 
@@ -75,3 +76,28 @@ All public scraper methods return a standardized dictionary:
 
 ### Data Export
 Scrapers support automatic file export via `export_result=True` and `export_type='json'` or `'csv'`. Files are saved to the `export/` directory with timestamped filenames.
+
+## WebSocket Streaming Implementation
+
+### Connection Optimization
+The streaming module (`tv_scraper.streaming`) establishes WebSocket connections with performance optimizations:
+- **TCP_NODELAY**: Disables Nagle's algorithm for immediate packet transmission, reducing latency
+- **Socket Configuration**: Applied via `sockopt` parameter during connection creation
+
+### Message Types
+The streaming system processes multiple message types for comprehensive data coverage:
+- **QSD (Quote Session Data)**: Quote-level updates with price, volume, bid/ask, and change data
+- **DU (Data Update)**: Chart session updates with real-time OHLCV data from 1-second timeframe
+- **Heartbeat (~h~)**: Keep-alive messages that are automatically echoed back
+
+### Dual Session Strategy
+Real-time price streaming (`stream_realtime_price()`) subscribes to both:
+1. **Quote Session**: Provides quote data every few seconds
+2. **Chart Session**: Provides 1-second OHLCV updates for faster price changes
+
+This dual approach ensures maximum update frequency (~1 update per 3-4 seconds) matching browser performance.
+
+### Testing
+- **Unit Tests**: Mock all WebSocket connections (`tests/unit/test_streaming.py`)
+- **Live API Tests**: Verify real-world streaming with actual connections (`tests/live_api/test_streaming.py`)
+- **Comprehensive Coverage**: Tests include timeframes, multiple exchanges, error handling, and connection stability

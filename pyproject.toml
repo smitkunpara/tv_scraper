@@ -54,3 +54,6 @@ packages = ["tradingview_scraper", "tv_scraper"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "live: marks tests that require live network connections to TradingView (deselect with '-m \"not live\"')",
+]

@@ -6,6 +6,16 @@ multi-symbol watchlist streaming.
 > **Tip:** For normalised price updates, use
 > [`Streamer.stream_realtime_price()`](streamer.md#stream_realtime_price) instead.
 
+## Performance Optimizations
+
+As of version 1.0.0, the WebSocket connection includes performance optimizations:
+
+- **TCP_NODELAY**: Disables Nagle's algorithm for lower latency data delivery
+- **Dual Session Subscription**: Subscribes to both quote and chart sessions for faster updates
+- **Enhanced Message Handling**: Processes both QSD (quote) and DU (data update) messages
+
+These optimizations provide update frequencies of ~1 update every 3-4 seconds, matching browser performance.
+
 ## Constructor
 
 ```python

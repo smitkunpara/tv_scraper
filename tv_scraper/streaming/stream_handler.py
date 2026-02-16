@@ -8,6 +8,7 @@ import json
 import logging
 import secrets
 import string
+import socket
 
 from websocket import create_connection
 
@@ -62,7 +63,14 @@ class StreamHandler:
         jwt_token: str = "unauthorized_user_token",
     ) -> None:
         url = websocket_url or _DEFAULT_WS_URL
-        self.ws = create_connection(url, headers=_REQUEST_HEADERS)
+        
+        # Create WebSocket with optimized settings for low latency
+        self.ws = create_connection(
+            url, 
+            headers=_REQUEST_HEADERS,
+            sockopt=[(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)]  # Disable Nagle's algorithm for lower latency
+        )
+        
         self._initialize(jwt_token)
 
     # -- Session helpers ---------------------------------------------------

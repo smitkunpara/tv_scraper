@@ -7,6 +7,7 @@ WebSocket feed. For normalized price data, see :class:`Streamer.stream_realtime_
 import json
 import logging
 import re
+import socket
 from typing import Generator, List
 
 from websocket import WebSocketConnectionClosedException
@@ -142,6 +143,10 @@ class RealTimeData:
                 except WebSocketConnectionClosedException:
                     logger.error("WebSocket connection closed.")
                     break
+                except socket.timeout:
+                    # Socket timeout is expected with non-blocking socket
+                    # Just continue to next iteration
+                    continue
                 except (ConnectionError, TimeoutError, OSError) as exc:
                     logger.error("WebSocket error: %s", exc)
                     break

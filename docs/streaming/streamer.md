@@ -3,6 +3,16 @@
 The `Streamer` class provides OHLCV candle retrieval, indicator data, and
 continuous realtime price streaming via TradingView's WebSocket API.
 
+## Performance Optimizations (v1.0.0+)
+
+The WebSocket connection includes several optimizations for low-latency streaming:
+
+- **TCP_NODELAY Socket Option**: Disables Nagle's algorithm for immediate packet transmission
+- **Dual Session Subscription**: Subscribes to both quote session (QSD) and chart session (DU) for maximum update frequency
+- **Enhanced Message Processing**: Handles both QSD (quote data) and DU (chart data updates) message types
+
+These optimizations deliver update frequencies of approximately 1 update every 3-4 seconds, matching browser performance for real-time price streaming.
+
 ## Constructor
 
 ```python

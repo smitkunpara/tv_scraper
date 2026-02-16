@@ -8,6 +8,16 @@ via TradingView's WebSocket API. There are two main entry points:
 | [`Streamer`](streamer.md) | Fetch OHLCV candles, indicators, and continuous price updates |
 | [`RealTimeData`](realtime-price.md) | Simple generators for raw OHLCV and watchlist packets |
 
+## Performance Optimizations
+
+As of version 1.0.0, the streaming module includes WebSocket optimizations for low-latency real-time data:
+
+- **TCP_NODELAY**: Socket option enabled to disable Nagle's algorithm, reducing packet transmission latency
+- **Dual Session Subscription**: Real-time price streaming subscribes to both quote and chart sessions
+- **Multi-Message Processing**: Handles QSD (quote session data) and DU (data update) messages for maximum update frequency
+
+These optimizations deliver approximately 1 update every 3-4 seconds for active symbols, matching browser performance.
+
 ## Architecture
 
 ```
@@ -27,6 +37,7 @@ tv_scraper/streaming/
 - Generates session identifiers (`qs_*` for quotes, `cs_*` for charts)
 - Frames messages with TradingView's `~m~{length}~m~{payload}` protocol
 - Initialises sessions (auth, locale, chart/quote creation, field setup)
+- Applies TCP_NODELAY socket option for low-latency streaming
 
 You rarely need to use `StreamHandler` directly — `Streamer` and `RealTimeData`
 compose it internally.

@@ -5,6 +5,7 @@ All tests use mocking — no actual WebSocket or HTTP connections.
 
 import json
 import re
+import socket
 from unittest.mock import MagicMock, patch, call
 
 import pytest
@@ -650,3 +651,228 @@ class TestStreamingUtils:
         assert results[0]["name"] == "Relative Strength Index"
         assert results[0]["id"] == "STD;RSI"
         assert results[0]["version"] == "45.0"
+
+
+# ---------------------------------------------------------------------------
+# WebSocket Optimization tests (v1.0.1)
+# ---------------------------------------------------------------------------
+
+
+class TestWebSocketOptimizations:
+    """Tests for WebSocket connection optimizations."""
+
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_tcp_nodelay_socket_option(self, mock_cc):
+        """TCP_NODELAY socket option is set for low-latency streaming."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        from tv_scraper.streaming.stream_handler import StreamHandler
+
+        handler = StreamHandler()
+        
+        # Verify create_connection was called with TCP_NODELAY
+        mock_cc.assert_called_once()
+        call_kwargs = mock_cc.call_args[1]
+        assert "sockopt" in call_kwargs
+        sockopt = call_kwargs["sockopt"]
+        assert (socket.IPPROTO_TCP, socket.TCP_NODELAY, 1) in sockopt
+
+    @patch("tv_scraper.streaming.streamer.validate_symbols")
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_stream_realtime_price_dual_session(self, mock_cc, mock_validate):
+        """stream_realtime_price subscribes to both quote and chart sessions."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        mock_validate.return_value = True
+
+        from tv_scraper.streaming.streamer import Streamer
+
+        s = Streamer()
+        mock_ws.send.reset_mock()
+        
+        # Start streaming (will initialize subscriptions)
+        gen = s.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+        
+        # Mock a single packet to trigger one iteration
+        qsd_pkt = {
+            "m": "qsd",
+            "p": ["qs_test", {"n": "NSE:NIFTY", "s": "ok", "v": {"lp": 25000.0}}],
+        }
+        qsd_raw = json.dumps(qsd_pkt)
+        framed = f"~m~{len(qsd_raw)}~m~{qsd_raw}"
+        
+        from websocket import WebSocketConnectionClosedException
+        mock_ws.recv.side_effect = [framed, WebSocketConnectionClosedException("closed")]
+        
+        # Consume generator
+        list(gen)
+        
+        # Verify both quote_add_symbols and create_series were called
+        all_sent = " ".join(str(c) for c in mock_ws.send.call_args_list)
+        assert "quote_add_symbols" in all_sent
+        assert "create_series" in all_sent
+        assert "resolve_symbol" in all_sent
+
+    @patch("tv_scraper.streaming.streamer.validate_symbols")
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_stream_realtime_price_handles_du_messages(self, mock_cc, mock_validate):
+        """stream_realtime_price correctly parses DU (data update) messages."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        mock_validate.return_value = True
+
+        # Build a DU packet with OHLCV data
+        du_pkt = {
+            "m": "du",
+            "p": [
+                "cs_test",
+                {
+                    "sds_1": {
+                        "s": [
+                            {"i": 0, "v": [1700000000, 25000.0, 25100.0, 24900.0, 25050.0, 1000000]}
+                        ]
+                    }
+                },
+            ],
+        }
+        du_raw = json.dumps(du_pkt)
+        framed = f"~m~{len(du_raw)}~m~{du_raw}"
+
+        from websocket import WebSocketConnectionClosedException
+        mock_ws.recv.side_effect = [framed, WebSocketConnectionClosedException("closed")]
+
+        from tv_scraper.streaming.streamer import Streamer
+
+        s = Streamer()
+        gen = s.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+
+        data = next(gen)
+        # Should extract close price from OHLCV
+        assert data["price"] == 25050.0
+        assert data["volume"] == 1000000
+
+    @patch("tv_scraper.streaming.streamer.validate_symbols")
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_stream_realtime_price_handles_qsd_messages(self, mock_cc, mock_validate):
+        """stream_realtime_price correctly parses QSD (quote session data) messages."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        mock_validate.return_value = True
+
+        # Build a QSD packet
+        qsd_pkt = {
+            "m": "qsd",
+            "p": [
+                "qs_test",
+                {
+                    "n": "NSE:NIFTY",
+                    "s": "ok",
+                    "v": {
+                        "lp": 25650.0,
+                        "volume": 240000000,
+                        "ch": 180.0,
+                        "chp": 0.71,
+                    },
+                },
+            ],
+        }
+        qsd_raw = json.dumps(qsd_pkt)
+        framed = f"~m~{len(qsd_raw)}~m~{qsd_raw}"
+
+        from websocket import WebSocketConnectionClosedException
+        mock_ws.recv.side_effect = [framed, WebSocketConnectionClosedException("closed")]
+
+        from tv_scraper.streaming.streamer import Streamer
+
+        s = Streamer()
+        gen = s.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+
+        data = next(gen)
+        assert data["price"] == 25650.0
+        assert data["volume"] == 240000000
+        assert data["change"] == 180.0
+        assert data["change_percent"] == 0.71
+
+    @patch("tv_scraper.streaming.streamer.validate_symbols")
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_socket_timeout_handling(self, mock_cc, mock_validate):
+        """Socket timeout exceptions are handled gracefully."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        mock_validate.return_value = True
+
+        # Simulate socket timeout followed by data
+        qsd_pkt = {
+            "m": "qsd",
+            "p": ["qs_test", {"n": "NSE:NIFTY", "s": "ok", "v": {"lp": 25000.0}}],
+        }
+        qsd_raw = json.dumps(qsd_pkt)
+        framed = f"~m~{len(qsd_raw)}~m~{qsd_raw}"
+
+        from websocket import WebSocketConnectionClosedException
+        mock_ws.recv.side_effect = [
+            socket.timeout("timeout"),
+            framed,
+            WebSocketConnectionClosedException("closed"),
+        ]
+
+        from tv_scraper.streaming.streamer import Streamer
+
+        s = Streamer()
+        gen = s.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+
+        # Should skip timeout and get next packet
+        data = next(gen)
+        assert data["price"] == 25000.0
+
+    @patch("tv_scraper.streaming.streamer.validate_symbols")
+    @patch("tv_scraper.streaming.stream_handler.create_connection")
+    def test_stream_realtime_price_mixed_messages(self, mock_cc, mock_validate):
+        """stream_realtime_price handles mixed QSD and DU messages."""
+        mock_ws = MagicMock()
+        mock_cc.return_value = mock_ws
+        mock_validate.return_value = True
+
+        # QSD message
+        qsd_pkt = {
+            "m": "qsd",
+            "p": ["qs_test", {"n": "NSE:NIFTY", "v": {"lp": 25600.0, "volume": 1000}}],
+        }
+        qsd_raw = json.dumps(qsd_pkt)
+        qsd_framed = f"~m~{len(qsd_raw)}~m~{qsd_raw}"
+
+        # DU message
+        du_pkt = {
+            "m": "du",
+            "p": [
+                "cs_test",
+                {
+                    "sds_1": {
+                        "s": [{"i": 0, "v": [1700000000, 25600.0, 25700.0, 25500.0, 25650.0, 2000]}]
+                    }
+                },
+            ],
+        }
+        du_raw = json.dumps(du_pkt)
+        du_framed = f"~m~{len(du_raw)}~m~{du_raw}"
+
+        from websocket import WebSocketConnectionClosedException
+        mock_ws.recv.side_effect = [
+            qsd_framed,
+            du_framed,
+            WebSocketConnectionClosedException("closed"),
+        ]
+
+        from tv_scraper.streaming.streamer import Streamer
+
+        s = Streamer()
+        gen = s.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+
+        # Get both messages
+        data1 = next(gen)
+        assert data1["price"] == 25600.0
+        assert data1["volume"] == 1000
+
+        data2 = next(gen)
+        assert data2["price"] == 25650.0
+        assert data2["volume"] == 2000
