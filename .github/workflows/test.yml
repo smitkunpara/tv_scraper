@@ -39,9 +39,6 @@ jobs:
     - name: Run Unit Tests
       run: uv run pytest tests/unit tests/integration -v --cov=tv_scraper --cov-report=term-missing
 
-    # Optional: Run live tests only if a secret is present or on a schedule
-    # - name: Run Live Tests
-    #   if: env.TRADINGVIEW_COOKIE != ''
-    #   run: uv run pytest tests/live_api
-    #   env:
-    #     TRADINGVIEW_COOKIE: ${{ secrets.TRADINGVIEW_COOKIE }}
+    - name: Run Live API Tests
+      run: uv run pytest tests/live_api -v --maxfail=5
+      continue-on-error: true  # Don't fail build if live tests timeout or fail

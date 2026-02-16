@@ -92,11 +92,11 @@ class TestLiveStreamer:
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]["ohlcv"]) >= 1
 
-    def test_live_get_candles_indian_market(self) -> None:
-        """Verify candle fetching works for Indian market."""
+    def test_live_get_candles_crypto_spot(self) -> None:
+        """Verify candle fetching works for crypto spot markets (24/7)."""
         streamer = Streamer()
         result = streamer.get_candles(
-            exchange="NSE", symbol="NIFTY", timeframe="1h", numb_candles=5
+            exchange="BINANCE", symbol="SOLUSDT", timeframe="1h", numb_candles=5
         )
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]["ohlcv"]) >= 1
@@ -140,13 +140,10 @@ class TestLiveStreamer:
         assert first_update["price"] is not None
         assert first_update["price"] > 0
 
-    @pytest.mark.skip(
-        reason="NSE market hours: 9:15 AM - 3:30 PM IST. Test can timeout outside trading hours."
-    )
-    def test_live_stream_realtime_price_indian_market(self) -> None:
-        """Verify real-time streaming works for Indian market (NSE)."""
+    def test_live_stream_realtime_price_crypto_24_7(self) -> None:
+        """Verify real-time streaming works for 24/7 crypto markets."""
         streamer = Streamer()
-        gen = streamer.stream_realtime_price(exchange="NSE", symbol="NIFTY")
+        gen = streamer.stream_realtime_price(exchange="BINANCE", symbol="ETHUSDT")
 
         updates = []
         start_time = time.time()
@@ -159,17 +156,18 @@ class TestLiveStreamer:
             if time.time() - start_time > timeout:
                 break
 
-        assert len(updates) >= 1, "No updates received for NSE:NIFTY"
+        assert len(updates) >= 1, "No updates received for BINANCE:ETHUSDT"
 
         # Verify data structure
         update = updates[0]
         assert update["price"] is not None
-        assert update["symbol"] == "NIFTY" or "NIFTY" in str(update["symbol"])
+        assert update["price"] > 0
+        assert "ETH" in str(update["symbol"]) or update["symbol"] == "ETHUSDT"
 
     def test_live_stream_realtime_price_data_quality(self) -> None:
-        """Verify streaming data contains expected fields."""
+        """Verify streaming data contains expected fields (24/7 forex market)."""
         streamer = Streamer()
-        gen = streamer.stream_realtime_price(exchange="NASDAQ", symbol="AAPL")
+        gen = streamer.stream_realtime_price(exchange="FX_IDC", symbol="GBPUSD")
 
         update = next(gen)
 
@@ -267,10 +265,10 @@ class TestLiveRealTimeData:
         assert packet_found, "No packets received from get_ohlcv"
 
     def test_live_get_latest_trade_info_basic(self) -> None:
-        """Verify RealTimeData.get_latest_trade_info() works for multiple symbols."""
+        """Verify RealTimeData.get_latest_trade_info() works for multiple symbols (24/7 markets)."""
         rt = RealTimeData()
         gen = rt.get_latest_trade_info(
-            exchanges=["BINANCE", "NASDAQ"], symbols=["BTCUSDT", "AAPL"]
+            exchanges=["BINANCE", "BINANCE"], symbols=["BTCUSDT", "ETHUSDT"]
         )
 
         # Get first packet or timeout
@@ -293,11 +291,11 @@ class TestLiveStreamingCombinations:
     """Test various combinations of streaming parameters."""
 
     def test_multiple_exchanges(self) -> None:
-        """Test streaming from different exchanges."""
+        """Test streaming from different exchanges (all 24/7 markets)."""
         exchanges_symbols = [
-            ("NASDAQ", "AAPL"),
+            ("FX_IDC", "EURUSD"),
             ("BINANCE", "BTCUSDT"),
-            ("NSE", "NIFTY"),
+            ("BINANCE", "ADAUSDT"),
         ]
 
         for exchange, symbol in exchanges_symbols:
