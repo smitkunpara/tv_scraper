@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tradingview-scraper"
+name = "tv_scraper"
 version = "1.0.0"
 description = "A powerful Python library for scraping real-time market data, indicators, and ideas from TradingView."
 authors = [
