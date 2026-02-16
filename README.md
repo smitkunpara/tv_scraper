@@ -53,7 +53,7 @@ uv sync
 If you prefer to install the published package using `uv`:
 
 ```bash
-uv add tv_scraper
+uv add tv-scraper
 ```
 
 ### Basic Usage Examples

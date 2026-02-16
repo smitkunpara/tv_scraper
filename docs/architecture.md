@@ -2,7 +2,7 @@
 
 ## Package Structure
 
-The `tv_scraper` package is organized into a clean, modular architecture:
+The `tv-scraper` package is organized into a clean, modular architecture:
 
 ```
 tv_scraper/

@@ -8,7 +8,7 @@ multi-symbol watchlist streaming.
 
 ## Performance Optimizations
 
-As of version 1.0.0, the WebSocket connection includes performance optimizations:
+As of version 1.0.2, the WebSocket connection includes performance optimizations:
 
 - **TCP_NODELAY**: Disables Nagle's algorithm for lower latency data delivery
 - **Dual Session Subscription**: Subscribes to both quote and chart sessions for faster updates

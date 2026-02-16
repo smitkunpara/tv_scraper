@@ -1,6 +1,6 @@
 # API Conventions
 
-This document defines the standards for the `tv_scraper` public API.
+This document defines the standards for the `tv-scraper` public API.
 
 ## Input Parameters
 

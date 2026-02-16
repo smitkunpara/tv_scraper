@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide covers installation, basic usage, response format, export options, and error handling for `tv_scraper`.
+This guide covers installation, basic usage, response format, export options, and error handling for `tv-scraper`.
 
 ## Installation
 

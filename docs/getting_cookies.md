@@ -27,10 +27,10 @@ Follow these steps to get a valid TradingView session cookie after solving the c
 
 ## Using the Cookie in Code
 
-Once you have the cookie string, you can use it directly in Python 
+Once you have the cookie string, you can use it directly in Python
 
 ```python
-from tradingview_scraper.symbols.ideas import Ideas
+from tv_scraper import Ideas
 
 # Your copied cookie string
 TRADINGVIEW_COOKIE = r"paste_your_cookie_string_here"
@@ -39,7 +39,7 @@ TRADINGVIEW_COOKIE = r"paste_your_cookie_string_here"
 ideas_scraper = Ideas(cookie=TRADINGVIEW_COOKIE)
 
 # Scrape ideas
-ideas = ideas_scraper.scrape(symbol="BTCUSD", startPage=1, endPage=5)
+ideas = ideas_scraper.scrape(symbol="BTCUSD", exchange="CRYPTO", start_page=1, end_page=5)
 ```
 
 !!! warning "Cookie Expiration"

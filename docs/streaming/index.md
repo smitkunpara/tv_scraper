@@ -10,7 +10,7 @@ via TradingView's WebSocket API. There are two main entry points:
 
 ## Performance Optimizations
 
-As of version 1.0.0, the streaming module includes WebSocket optimizations for low-latency real-time data:
+As of version 1.0.2, the streaming module includes WebSocket optimizations for low-latency real-time data:
 
 - **TCP_NODELAY**: Socket option enabled to disable Nagle's algorithm, reducing packet transmission latency
 - **Dual Session Subscription**: Real-time price streaming subscribes to both quote and chart sessions

@@ -1,17 +1,17 @@
-# tv_scraper Documentation
+# tv-scraper Documentation
 
-**tv_scraper** is a Python library for scraping trading data, ideas, news, and real-time market information from TradingView.com. It provides a clean, modular API with standardized response formats and built-in data export.
+**tv-scraper** is a Python library for scraping trading data, ideas, news, and real-time market information from TradingView.com. It provides a clean, modular API with standardized response formats and built-in data export.
 
 ## Installation
 
 ```bash
-pip install tv_scraper
+pip install tv-scraper
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add tv_scraper
+uv add tv-scraper
 ```
 
 ## Quick Start

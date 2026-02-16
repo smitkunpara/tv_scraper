@@ -36,7 +36,7 @@ To publish a new version:
 3. **Create a GitHub Release**:
    - Go to the **Releases** section on your GitHub repository.
    - Click **Draft a new release**.
-   - Create a new tag (e.g., `v1.0.0`).
+   - Create a new tag (e.g., `v1.0.2`).
    - Fill in the release title and description.
    - Click **Publish release**.
 

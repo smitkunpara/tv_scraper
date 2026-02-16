@@ -1,6 +1,6 @@
-# Migration Guide: tradingview_scraper → tv_scraper
+# Migration Guide: tradingview_scraper → tv-scraper
 
-This guide covers all breaking changes when migrating from the legacy `tradingview_scraper` package to the new `tv_scraper` v1.0.0.
+This guide covers all breaking changes when migrating from the legacy `tradingview_scraper` package to the new `tv-scraper` v1.0.2.
 
 ## Package Rename
 
@@ -225,7 +225,7 @@ validator.validate_exchange("TYPO")    # raises ValidationError with suggestions
 
 ## Breaking Changes Summary
 
-1. **Package rename**: `tradingview_scraper` → `tv_scraper`
+1. **Package rename**: `tradingview_scraper` → `tv-scraper`
 2. **Class renames**: `Indicators` → `Technicals`, `FundamentalGraphs` → `Fundamentals`
 3. **Method renames**: `get_symbol_overview` → `get_overview`, `stream` → `get_candles`, etc.
 4. **Parameter splitting**: `symbol="EXCHANGE:SYMBOL"` → `exchange="...", symbol="..."`

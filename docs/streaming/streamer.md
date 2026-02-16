@@ -3,7 +3,7 @@
 The `Streamer` class provides OHLCV candle retrieval, indicator data, and
 continuous realtime price streaming via TradingView's WebSocket API.
 
-## Performance Optimizations (v1.0.0+)
+## Performance Optimizations (v1.0.2+)
 
 The WebSocket connection includes several optimizations for low-latency streaming:
 

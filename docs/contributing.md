@@ -1,11 +1,11 @@
-# Contributing to TradingView Scraper
+# Contributing to tv-scraper
 
-We welcome contributions from the community! This guide will help you get started with contributing to the TradingView Scraper project.
+We welcome contributions from the community! This guide will help you get started with contributing to the tv-scraper project.
 
 ## 🚀 Ways to Contribute
 
 ### Code Contributions
-- **Bug Fixes**: Fix issues reported in the [issue tracker](https://github.com/smitkunpara/tv_scraper/issues)
+- **Bug Fixes**: Fix issues reported in the [issue tracker](https://github.com/smitkunpara/tv-scraper/issues)
 - **New Features**: Implement new scraping modules or enhance existing ones
 - **Performance Improvements**: Optimize code for better performance
 - **Documentation**: Improve documentation, add examples, or fix typos
@@ -27,8 +27,8 @@ We welcome contributions from the community! This guide will help you get starte
 
 1. **Fork and Clone the Repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/tv_scraper.git
-   cd tv_scraper
+   git clone https://github.com/YOUR_USERNAME/tv-scraper.git
+   cd tv-scraper
    ```
 
 2. **Set up Development Environment**
@@ -149,7 +149,7 @@ When reporting bugs, please include:
 5. **Environment**:
    - Python version: 3.11
    - OS: Windows 11
-   - Library version: 1.0.0
+   - Library version: 1.0.2
 
 ### Example Bug Report
 ```
