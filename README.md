@@ -155,6 +155,11 @@ See [LOCAL_TESTING.md](LOCAL_TESTING.md) for complete details on:
 - Running GitHub Actions locally with act
 - CI/CD workflow testing
 
+### Publishing to PyPI
+
+This project is configured to use **Trusted Publishing** (OIDC) via GitHub Actions.
+See [PUBLISHING.md](PUBLISHING.md) for step-by-step instructions on setting up your PyPI project.
+
 ---
 
 ## 🤝 Contributing
