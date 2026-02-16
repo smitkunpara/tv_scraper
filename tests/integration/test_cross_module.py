@@ -4,7 +4,6 @@ Verifies cross-cutting concerns such as inheritance, response format,
 export validation, and singleton consistency — all without network calls.
 """
 
-
 import pytest
 
 from tv_scraper.core.base import BaseScraper

@@ -229,11 +229,12 @@ class TestUsesMapScannerRows:
     def test_uses_map_scanner_rows(self, markets: Markets) -> None:
         """get_top_stocks must call _map_scanner_rows for data mapping."""
         mock_resp = _mock_response(SAMPLE_API_RESPONSE)
-        with mock.patch.object(
-            markets, "_make_request", return_value=mock_resp
-        ), mock.patch.object(
-            markets, "_map_scanner_rows", wraps=markets._map_scanner_rows
-        ) as spy:
+        with (
+            mock.patch.object(markets, "_make_request", return_value=mock_resp),
+            mock.patch.object(
+                markets, "_map_scanner_rows", wraps=markets._map_scanner_rows
+            ) as spy,
+        ):
             result = markets.get_top_stocks()
 
         spy.assert_called_once()

@@ -164,18 +164,24 @@ class TestExport:
 
     def test_calls_save_json_file_when_json(self) -> None:
         scraper = BaseScraper(export_result=True, export_type="json")
-        with mock.patch("tv_scraper.core.base.save_json_file") as mock_save, mock.patch(
-            "tv_scraper.core.base.generate_export_filepath",
-            return_value="/tmp/test.json",
+        with (
+            mock.patch("tv_scraper.core.base.save_json_file") as mock_save,
+            mock.patch(
+                "tv_scraper.core.base.generate_export_filepath",
+                return_value="/tmp/test.json",
+            ),
         ):
             scraper._export({"key": "val"}, symbol="AAPL", data_category="test")
             mock_save.assert_called_once_with({"key": "val"}, "/tmp/test.json")
 
     def test_calls_save_csv_file_when_csv(self) -> None:
         scraper = BaseScraper(export_result=True, export_type="csv")
-        with mock.patch("tv_scraper.core.base.save_csv_file") as mock_save, mock.patch(
-            "tv_scraper.core.base.generate_export_filepath",
-            return_value="/tmp/test.csv",
+        with (
+            mock.patch("tv_scraper.core.base.save_csv_file") as mock_save,
+            mock.patch(
+                "tv_scraper.core.base.generate_export_filepath",
+                return_value="/tmp/test.csv",
+            ),
         ):
             scraper._export({"key": "val"}, symbol="AAPL", data_category="test")
             mock_save.assert_called_once_with({"key": "val"}, "/tmp/test.csv")

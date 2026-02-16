@@ -379,7 +379,7 @@ class TestLiveStreamingEdgeCases:
             result = streamer.get_candles(
                 exchange="BINANCE", symbol="BTCUSDT", timeframe="1h", numb_candles=3
             )
-            assert result["status"] == STATUS_SUCCESS, f"Failed on iteration {i+1}"
+            assert result["status"] == STATUS_SUCCESS, f"Failed on iteration {i + 1}"
 
             # Small delay between requests
             time.sleep(0.5)
