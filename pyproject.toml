@@ -44,6 +44,7 @@ test = [
     "pytest",
     "pytest-mock",
     "pytest-cov",
+    "flake8",
 ]
 
 csv = [
