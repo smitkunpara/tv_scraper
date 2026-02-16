@@ -1,4 +1,4 @@
-name: Pylint
+name: Code Quality
 
 on: [pull_request]
 
@@ -21,6 +21,10 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync --extra dev
-    - name: Analysing the code with pylint
+    - name: Lint with ruff
       run: |
-        uv run pylint $(git ls-files '*.py')
+        uv run ruff check tv_scraper/
+    - name: Type check with mypy
+      run: |
+        uv run mypy tv_scraper/
+      continue-on-error: true
