@@ -337,7 +337,7 @@ class Streamer:
                     # Socket timeout is expected with non-blocking socket
                     # Just continue to next iteration
                     continue
-                except (ConnectionError, TimeoutError, OSError) as exc:
+                except (ConnectionError, OSError) as exc:
                     logger.error("WebSocket error: %s", exc)
                     break
         finally:

@@ -68,7 +68,15 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "PL", "RUF"]
-ignore = []
+# Ignore non-critical style warnings:
+# E501: Line too long (acceptable in docstrings and long strings)
+# PLR0913: Too many arguments (acceptable for API methods)
+# PLR2004: Magic value comparison (acceptable for HTTP status codes)
+# PLR0911: Too many return statements (acceptable for validation logic)
+# PLR0912: Too many branches (acceptable for complex business logic)
+# RUF012: Mutable class attributes (acceptable for class-level constants)
+# PLC0415: Import outside top-level (acceptable for optional dependencies)
+ignore = ["E501", "PLR0913", "PLR2004", "PLR0911", "PLR0912", "RUF012", "PLC0415"]
 
 [tool.mypy]
 python_version = "3.11"

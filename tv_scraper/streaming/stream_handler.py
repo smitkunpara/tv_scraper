@@ -140,7 +140,7 @@ class StreamHandler:
 
     @staticmethod
     def construct_message(func: str, param_list: list) -> str:
-        """Build a JSON-RPC–style message body.
+        """Build a JSON-RPC-style message body.
 
         Args:
             func: Function/command name (e.g. ``"set_locale"``).

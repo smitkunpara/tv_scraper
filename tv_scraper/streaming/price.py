@@ -61,7 +61,7 @@ class RealTimeData:
         """
         qs = self._handler.quote_session
         exchange_symbols = [
-            format_symbol(ex, sym) for ex, sym in zip(exchanges, symbols)
+            format_symbol(ex, sym) for ex, sym in zip(exchanges, symbols, strict=True)
         ]
 
         self._add_multiple_symbols_to_sessions(qs, exchange_symbols)
@@ -121,10 +121,10 @@ class RealTimeData:
             "quote_fast_symbols", [quote_session, f"={resolve_symbol}"]
         )
         self._handler.send_message(
-            "quote_add_symbols", [quote_session] + exchange_symbols
+            "quote_add_symbols", [quote_session, *exchange_symbols]
         )
         self._handler.send_message(
-            "quote_fast_symbols", [quote_session] + exchange_symbols
+            "quote_fast_symbols", [quote_session, *exchange_symbols]
         )
 
     def _get_data(self) -> Generator[dict, None, None]:
@@ -163,7 +163,7 @@ class RealTimeData:
                     # Socket timeout is expected with non-blocking socket
                     # Just continue to next iteration
                     continue
-                except (ConnectionError, TimeoutError, OSError) as exc:
+                except (ConnectionError, OSError) as exc:
                     logger.error("WebSocket error: %s", exc)
                     break
         finally:
