@@ -27,14 +27,14 @@ class Technicals(BaseScraper):
         from tv_scraper.scrapers.market_data import Technicals
 
         scraper = Technicals()
-        data = scraper.get_data(
+        data = scraper.get_technicals(
             exchange="BINANCE",
             symbol="BTCUSD",
             technical_indicators=["RSI", "Stoch.K"],
         )
     """
 
-    def get_data(
+    def get_technicals(
         self,
         exchange: str,
         symbol: str,

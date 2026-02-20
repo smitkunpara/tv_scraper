@@ -26,7 +26,7 @@ class MarketMovers(BaseScraper):
     Example::
 
         movers = MarketMovers()
-        result = movers.scrape(market="stocks-usa", category="gainers", limit=20)
+        result = movers.get_market_movers(market="stocks-usa", category="gainers", limit=20)
         for stock in result["data"]:
             print(f"{stock['symbol']}: {stock['change']}%")
     """
@@ -189,7 +189,7 @@ class MarketMovers(BaseScraper):
             "sort": self._get_sort_config(category),
         }
 
-    def get_data(
+    def get_market_movers(
         self,
         market: str = "stocks-usa",
         category: str = "gainers",

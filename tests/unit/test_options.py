@@ -52,7 +52,7 @@ class TestGetOptionsChainSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_by_expiry(
+            result = options.get_options_by_expiry(
                 exchange="BSE", symbol="SENSEX", expiration=20260219, root="BSX"
             )
 
@@ -80,7 +80,7 @@ class TestGetOptionsChainSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_by_strike(
+            result = options.get_options_by_strike(
                 exchange="BSE", symbol="SENSEX", strike=83300
             )
 
@@ -97,7 +97,7 @@ class TestGetOptionsChainErrors:
 
     def test_invalid_exchange(self, options: Options) -> None:
         """Invalid exchange returns error response."""
-        result = options.get_by_strike(
+        result = options.get_options_by_strike(
             exchange="INVALID", symbol="SENSEX", strike=83300
         )
         assert result["status"] == STATUS_FAILED
@@ -105,7 +105,7 @@ class TestGetOptionsChainErrors:
 
     def test_empty_symbol(self, options: Options) -> None:
         """Empty symbol returns error response."""
-        result = options.get_by_strike(exchange="BSE", symbol="", strike=83300)
+        result = options.get_options_by_strike(exchange="BSE", symbol="", strike=83300)
         assert result["status"] == STATUS_FAILED
 
     @patch(
@@ -117,7 +117,7 @@ class TestGetOptionsChainErrors:
         with mock.patch.object(
             options, "_make_request", side_effect=NetworkError("Timeout")
         ):
-            result = options.get_by_strike(
+            result = options.get_options_by_strike(
                 exchange="BSE", symbol="SENSEX", strike=83300
             )
 
@@ -130,7 +130,7 @@ class TestGetOptionsChainErrors:
         mock_resp.status_code = 404
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_by_strike(
+            result = options.get_options_by_strike(
                 exchange="BSE", symbol="NO_OPTIONS", strike=100
             )
 

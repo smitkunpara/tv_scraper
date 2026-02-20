@@ -24,7 +24,7 @@ class Markets(BaseScraper):
     Example::
 
         markets = Markets()
-        result = markets.get_top_stocks(market="america", sort_by="market_cap", limit=20)
+        result = markets.get_markets(market="america", sort_by="market_cap", limit=20)
         for stock in result["data"]:
             print(stock["symbol"], stock["close"])
     """
@@ -68,7 +68,7 @@ class Markets(BaseScraper):
         {"left": "market_cap_basic", "operation": "nempty"},
     ]
 
-    def get_data(
+    def get_markets(
         self,
         market: str = "america",
         sort_by: str = "market_cap",

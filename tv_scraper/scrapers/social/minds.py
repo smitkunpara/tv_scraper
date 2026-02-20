@@ -32,7 +32,7 @@ class Minds(BaseScraper):
         result = scraper.get_minds(exchange="NASDAQ", symbol="AAPL")
     """
 
-    def get_data(
+    def get_minds(
         self,
         exchange: str,
         symbol: str,

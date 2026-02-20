@@ -82,7 +82,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.get_data(market="stocks-usa", category="gainers")
+        result = scraper.get_market_movers(market="stocks-usa", category="gainers")
 
         assert result["status"] == "success"
         assert result["error"] is None
@@ -116,7 +116,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.get_data(market="stocks-usa", category="losers")
+        result = scraper.get_market_movers(market="stocks-usa", category="losers")
 
         assert result["status"] == "success"
         assert len(result["data"]) == 1
@@ -152,7 +152,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.get_data(market="stocks-usa", category="most-active")
+        result = scraper.get_market_movers(market="stocks-usa", category="most-active")
 
         assert result["status"] == "success"
 
@@ -179,7 +179,7 @@ class TestCustomFieldsAndLimit:
             values=[["IBM Corp", 180.0, 1.1]],
         )
 
-        result = scraper.get_data(
+        result = scraper.get_market_movers(
             market="stocks-usa",
             category="gainers",
             fields=custom_fields,
@@ -216,7 +216,7 @@ class TestCustomFieldsAndLimit:
             ],
         )
 
-        scraper.get_data(market="stocks-usa", category="gainers", limit=10)
+        scraper.get_market_movers(market="stocks-usa", category="gainers", limit=10)
 
         call_kwargs = mock_req.call_args
         payload = call_kwargs.kwargs.get("json_data") or call_kwargs[1].get("json_data")
@@ -229,7 +229,7 @@ class TestCustomFieldsAndLimit:
 class TestValidationErrors:
     def test_get_data_invalid_market(self, scraper: MarketMovers) -> None:
         """Invalid market returns error response without raising."""
-        result = scraper.get_data(market="invalid-mkt", category="gainers")
+        result = scraper.get_market_movers(market="invalid-mkt", category="gainers")
 
         assert result["status"] == "failed"
         assert result["data"] is None
@@ -237,7 +237,7 @@ class TestValidationErrors:
 
     def test_get_data_invalid_category(self, scraper: MarketMovers) -> None:
         """Invalid category for stocks returns error response."""
-        result = scraper.get_data(market="stocks-usa", category="bad-cat")
+        result = scraper.get_market_movers(market="stocks-usa", category="bad-cat")
 
         assert result["status"] == "failed"
         assert result["data"] is None
@@ -255,7 +255,7 @@ class TestNetworkError:
         """Network failure returns error response."""
         mock_req.side_effect = NetworkError("Connection refused")
 
-        result = scraper.get_data(market="stocks-usa", category="gainers")
+        result = scraper.get_market_movers(market="stocks-usa", category="gainers")
 
         assert result["status"] == "failed"
         assert result["data"] is None
@@ -279,7 +279,7 @@ class TestResponseEnvelope:
             ],
         )
 
-        result = scraper.get_data()
+        result = scraper.get_market_movers()
 
         assert "status" in result
         assert "data" in result
@@ -325,7 +325,7 @@ class TestCategoryDeterminesSort:
             ],
         )
 
-        scraper.get_data(market="stocks-usa", category=category)
+        scraper.get_market_movers(market="stocks-usa", category=category)
 
         call_kwargs = mock_req.call_args
         payload = call_kwargs.kwargs.get("json_data") or call_kwargs[1].get("json_data")

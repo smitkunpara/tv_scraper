@@ -12,10 +12,10 @@ from tv_scraper.scrapers.screening import Screener
 screener = Screener()
 
 # Basic US stock screen
-result = screener.get_data(market="america", limit=10)
+result = screener.get_screener(market="america", limit=10)
 
 # Screen with filters and sorting
-result = screener.get_data(
+result = screener.get_screener(
     market="america",
     filters=[
         {"left": "close", "operation": "greater", "right": 100},
@@ -48,10 +48,10 @@ Screener(
 | `export_type`   | `str`  | `"json"`| Export format: `"json"` or `"csv"`.  |
 | `timeout`       | `int`  | `10`    | HTTP timeout in seconds.             |
 
-### `screen()` Method
+### `get_screener()` Method
 
 ```python
-screen(
+get_screener(
     market: str = "america",
     filters: Optional[List[Dict[str, Any]]] = None,
     fields: Optional[List[str]] = None,
@@ -168,7 +168,7 @@ All responses use the standardized envelope:
 ### Crypto Screening
 
 ```python
-result = screener.get_data(
+result = screener.get_screener(
     market="crypto",
     filters=[{"left": "market_cap_calc", "operation": "greater", "right": 1e9}],
     fields=["name", "close", "market_cap_calc", "change"],
@@ -179,7 +179,7 @@ result = screener.get_data(
 ### Range Filtering
 
 ```python
-result = screener.get_data(
+result = screener.get_screener(
     market="america",
     filters=[{"left": "close", "operation": "in_range", "right": [50, 200]}],
     sort_by="close",
@@ -191,7 +191,7 @@ result = screener.get_data(
 
 ```python
 screener = Screener(export_result=True, export_type="csv")
-result = screener.get_data(
+result = screener.get_screener(
     market="america",
     fields=["name", "close", "volume", "market_cap_basic"],
     limit=30,
@@ -204,7 +204,7 @@ result = screener.get_data(
 | Old (`tradingview_scraper`)              | New (`tv_scraper`)                       |
 |------------------------------------------|------------------------------------------|
 | `from tradingview_scraper.symbols.screener import Screener` | `from tv_scraper.scrapers.screening import Screener` |
-| `screener.get_data(columns=[...])`         | `screener.get_data(fields=[...])`          |
+| `screener.get_data(columns=[...])`         | `screener.get_screener(fields=[...])`          |
 | Raises `ValueError` on invalid market    | Returns error response envelope          |
 | `result["totalCount"]`                   | `result["metadata"]["total_available"]`  |
 | `result["total"]`                        | `result["metadata"]["total"]`            |

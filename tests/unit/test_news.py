@@ -179,7 +179,7 @@ class TestScrapeHeadlinesSuccess:
             json_data=_make_headlines_response([_sample_headline()]),
         )
 
-        result = news.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
@@ -209,7 +209,7 @@ class TestScrapeHeadlinesSuccess:
             json_data=_make_headlines_response([_sample_headline()]),
         )
 
-        result = news.get_headlines(
+        result = news.get_news_headlines(
             exchange="BINANCE",
             symbol="BTCUSD",
             provider="cointelegraph",
@@ -227,7 +227,7 @@ class TestScrapeHeadlinesSuccess:
             json_data=_make_headlines_response([_sample_headline()]),
         )
 
-        result = news.get_headlines(
+        result = news.get_news_headlines(
             exchange="BINANCE",
             symbol="BTCUSD",
             area="americas",
@@ -246,7 +246,7 @@ class TestScrapeHeadlinesSuccess:
             json_data=_make_headlines_response([_sample_headline()]),
         )
 
-        result = news.get_headlines(
+        result = news.get_news_headlines(
             exchange="BINANCE",
             symbol="BTCUSD",
             language="fr",
@@ -265,7 +265,7 @@ class TestScrapeHeadlinesSuccess:
             json_data=_make_headlines_response([]),
         )
 
-        result = news.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"] == []
@@ -282,7 +282,7 @@ class TestScrapeHeadlinesValidation:
 
     def test_scrape_headlines_invalid_exchange(self, news: News) -> None:
         """Invalid exchange returns error response."""
-        result = news.get_headlines(exchange="FAKEXCHANGE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="FAKEXCHANGE", symbol="BTCUSD")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -294,7 +294,7 @@ class TestScrapeHeadlinesValidation:
 
     def test_scrape_headlines_empty_symbol(self, news: News) -> None:
         """Empty symbol returns error response."""
-        result = news.get_headlines(exchange="BINANCE", symbol="")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -302,7 +302,7 @@ class TestScrapeHeadlinesValidation:
 
     def test_scrape_headlines_invalid_sort(self, news: News) -> None:
         """Invalid sort_by value returns error response."""
-        result = news.get_headlines(
+        result = news.get_news_headlines(
             exchange="BINANCE",
             symbol="BTCUSD",
             sort_by="invalid_sort",
@@ -314,7 +314,7 @@ class TestScrapeHeadlinesValidation:
 
     def test_scrape_headlines_invalid_section(self, news: News) -> None:
         """Invalid section value returns error response."""
-        result = news.get_headlines(
+        result = news.get_news_headlines(
             exchange="BINANCE",
             symbol="BTCUSD",
             section="invalid_section",
@@ -342,7 +342,7 @@ class TestScrapeHeadlinesErrors:
         """Network failure returns error response, does not raise."""
         mock_get.side_effect = Exception("Connection refused")
 
-        result = news.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -355,7 +355,7 @@ class TestScrapeHeadlinesErrors:
             text="<title>Captcha Challenge</title>",
         )
 
-        result = news.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -375,7 +375,9 @@ class TestScrapeContentSuccess:
         """Successfully parse article JSON into structured content."""
         mock_get.return_value = _mock_response(json_data=_STORY_JSON)
 
-        result = news.get_content(story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0")
+        result = news.get_news_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
@@ -403,7 +405,9 @@ class TestScrapeContentSuccess:
 
         mock_get.return_value = _mock_response(json_data=story_json)
 
-        result = news.get_content(story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0")
+        result = news.get_news_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"]["storyPath"] == "/news/story/h123"
@@ -424,7 +428,9 @@ class TestScrapeContentErrors:
         """Network failure returns error response."""
         mock_get.side_effect = Exception("Connection refused")
 
-        result = news.get_content(story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0")
+        result = news.get_news_content(
+            story_id="tag:reuters.com,2026:newsml_L4N3Z9104:0"
+        )
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -448,6 +454,6 @@ class TestResponseFormat:
             json_data=_make_headlines_response([_sample_headline()]),
         )
 
-        result = news.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+        result = news.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}

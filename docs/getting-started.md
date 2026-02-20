@@ -33,22 +33,22 @@ from tv_scraper import Technicals, Overview, Fundamentals, Markets
 
 # Technical indicators
 tech = Technicals()
-result = tech.get_data(exchange="NASDAQ", symbol="AAPL")
+result = tech.get_technicals(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])  # {"RSI": 65.5, "MACD.macd": 1.23, ...}
 
 # Symbol overview
 overview = Overview()
-result = overview.get_data(exchange="NASDAQ", symbol="AAPL")
+result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # Fundamental data
 fundamentals = Fundamentals()
-result = fundamentals.get_data(exchange="NASDAQ", symbol="AAPL")
+result = fundamentals.get_fundamentals(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # Market listings (top stocks by market cap)
 markets = Markets()
-result = markets.get_data(market="america")
+result = markets.get_markets(market="america")
 print(result["data"])
 ```
 
@@ -59,18 +59,18 @@ from tv_scraper import Ideas, Minds, News
 
 # Trading ideas
 ideas = Ideas()
-result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 for idea in result["data"]:
     print(idea["title"], idea["author"])
 
 # Minds discussions
 minds = Minds()
-result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # News
 news = News()
-result = news.get_headlines(exchange="NASDAQ", symbol="AAPL")
+result = news.get_news_headlines(exchange="NASDAQ", symbol="AAPL")
 for article in result["data"]:
     print(article["title"])
 ```
@@ -82,17 +82,17 @@ from tv_scraper import Screener, MarketMovers, SymbolMarkets
 
 # Stock screener
 screener = Screener()
-result = screener.get_data(market="america")
+result = screener.get_screener(market="america")
 print(result["data"])
 
 # Market movers
 movers = MarketMovers()
-result = movers.get_data(market="stocks-usa", category="gainers")
+result = movers.get_market_movers(market="stocks-usa", category="gainers")
 print(result["data"])
 
 # Find all exchanges for a symbol
 sym_markets = SymbolMarkets()
-result = sym_markets.get_data(symbol="AAPL")
+result = sym_markets.get_markets(symbol="AAPL")
 print(result["data"])
 ```
 
@@ -144,7 +144,7 @@ All scraper methods return a **standardized response envelope**:
 ### Checking for Errors
 
 ```python
-result = tech.get_data(exchange="NASDAQ", symbol="AAPL")
+result = tech.get_technicals(exchange="NASDAQ", symbol="AAPL")
 
 if result["status"] == "success":
     data = result["data"]
@@ -160,12 +160,12 @@ All scrapers support automatic export to JSON or CSV:
 ```python
 # Export to JSON
 tech = Technicals(export_result=True, export_type="json")
-result = tech.get_data(exchange="NASDAQ", symbol="AAPL")
+result = tech.get_technicals(exchange="NASDAQ", symbol="AAPL")
 # File saved to export/ directory
 
 # Export to CSV
 tech = Technicals(export_result=True, export_type="csv")
-result = tech.get_data(exchange="NASDAQ", symbol="AAPL")
+result = tech.get_technicals(exchange="NASDAQ", symbol="AAPL")
 ```
 
 Supported export types:
@@ -186,7 +186,7 @@ except ValueError as e:
 Scrapers **never raise exceptions** for data errors. Instead, they return an error response:
 
 ```python
-result = tech.get_data(exchange="INVALID", symbol="AAPL")
+result = tech.get_technicals(exchange="INVALID", symbol="AAPL")
 # {
 #     "status": "failed",
 #     "data": None,

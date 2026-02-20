@@ -84,7 +84,7 @@ class TestGetTopStocksSuccess:
         """Default params return success envelope with mapped data."""
         mock_resp = _mock_response(SAMPLE_API_RESPONSE)
         with mock.patch.object(markets, "_make_request", return_value=mock_resp):
-            result = markets.get_data()
+            result = markets.get_markets()
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
@@ -118,7 +118,7 @@ class TestGetTopStocksSuccess:
         with mock.patch.object(
             markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = markets.get_data(fields=custom_fields)
+            result = markets.get_markets(fields=custom_fields)
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"][0]["name"] == "GE"
@@ -137,7 +137,7 @@ class TestGetTopStocksSuccess:
         with mock.patch.object(
             markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = markets.get_data(sort_by="volume")
+            result = markets.get_markets(sort_by="volume")
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -151,7 +151,7 @@ class TestGetTopStocksSuccess:
         with mock.patch.object(
             markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = markets.get_data(sort_order="asc")
+            result = markets.get_markets(sort_order="asc")
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -165,7 +165,7 @@ class TestGetTopStocksSuccess:
         with mock.patch.object(
             markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = markets.get_data(limit=10)
+            result = markets.get_markets(limit=10)
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -178,7 +178,7 @@ class TestGetTopStocksErrors:
 
     def test_get_data_invalid_market(self, markets: Markets) -> None:
         """Invalid market returns error response, does not raise."""
-        result = markets.get_data(market="narnia")
+        result = markets.get_markets(market="narnia")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -186,7 +186,7 @@ class TestGetTopStocksErrors:
 
     def test_get_data_invalid_sort_by(self, markets: Markets) -> None:
         """Invalid sort_by returns error response, does not raise."""
-        result = markets.get_data(sort_by="invalid_sort")
+        result = markets.get_markets(sort_by="invalid_sort")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -199,7 +199,7 @@ class TestGetTopStocksErrors:
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = markets.get_data()
+            result = markets.get_markets()
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -213,13 +213,13 @@ class TestResponseFormat:
         """Success response contains exactly status/data/metadata/error keys."""
         mock_resp = _mock_response(SAMPLE_API_RESPONSE)
         with mock.patch.object(markets, "_make_request", return_value=mock_resp):
-            result = markets.get_data()
+            result = markets.get_markets()
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
 
     def test_error_response_has_standard_envelope(self, markets: Markets) -> None:
         """Error response also has standard envelope keys."""
-        result = markets.get_data(market="invalid")
+        result = markets.get_markets(market="invalid")
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
 
 
@@ -235,7 +235,7 @@ class TestUsesMapScannerRows:
                 markets, "_map_scanner_rows", wraps=markets._map_scanner_rows
             ) as spy,
         ):
-            result = markets.get_data()
+            result = markets.get_markets()
 
         spy.assert_called_once()
         assert result["status"] == STATUS_SUCCESS

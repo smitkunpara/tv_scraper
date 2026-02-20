@@ -11,16 +11,16 @@ from tv_scraper.scrapers.social import News
 
 scraper = News()
 
-# Get headlines
-result = scraper.get_headlines(exchange="BINANCE", symbol="BTCUSD")
+# Get news
+result = scraper.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
 if result["status"] == "success":
     for item in result["data"]:
         print(item["title"])
 
-# Get full article content using the 'id' from headlines
+# Get full article content using the 'id' from news
 if result["status"] == "success" and result["data"]:
     article_id = result["data"][0]["id"]
-    content = scraper.scrape_content(story_id=article_id)
+    content = scraper.get_news_content(story_id=article_id)
     print(content["data"]["title"])
 ```
 
@@ -39,10 +39,10 @@ News(export_result=False, export_type="json", timeout=10, cookie=None)
 | `timeout`       | int    | `10`     | HTTP request timeout in seconds    |
 | `cookie`        | str    | `None`   | TradingView cookie for captcha     |
 
-### `scrape_headlines()`
+### `get_news_headlines()`
 
 ```python
-scrape_headlines(
+get_news_headlines(
     exchange: str,
     symbol: str,
     provider: str | None = None,
@@ -63,10 +63,10 @@ scrape_headlines(
 | `section`  | str          | `"all"`    | `all`, `esg`, `press_release`, `financial_statement` |
 | `language` | str          | `"en"`     | Language code (e.g. `"en"`, `"fr"`, `"ja"`)       |
 
-### `scrape_content()`
+### `get_news_content()`
 
 ```python
-scrape_content(
+get_news_content(
     story_id: str,
     language: str = "en",
 ) -> Dict[str, Any]
@@ -74,7 +74,7 @@ scrape_content(
 
 | Parameter    | Type         | Default | Description                                    |
 |--------------|--------------|---------|------------------------------------------------|
-| `story_id`   | str          | —       | Story ID from headlines API (e.g. `"tag:reuters.com,2026:newsml_L4N3Z9104:0"`) |
+| `story_id`   | str          | —       | Story ID from news API (e.g. `"tag:reuters.com,2026:newsml_L4N3Z9104:0"`) |
 | `language`   | str          | `"en"`  | Language code (e.g. `"en"`, `"fr"`)            |
 
 ## Response Format
@@ -103,7 +103,7 @@ All methods return a standardized response envelope:
 }
 ```
 
-### Headline Schema
+### News Schema
 
 Each item in the `data` array contains:
 
@@ -141,9 +141,9 @@ Each item in the `data` array contains:
 |------------------------------------------------|-----------------------------------------------|
 | `from tradingview_scraper.symbols.news import NewsScraper` | `from tv_scraper.scrapers.social import News` |
 | `NewsScraper(cookie=cookie)`                   | `News(cookie=cookie)`                         |
-| `scraper.get_headlines(symbol=..., exchange=...)` | `scraper.get_headlines(exchange=..., symbol=...)` |
+| `scraper.get_headlines(symbol=..., exchange=...)` | `scraper.get_news_headlines(exchange=..., symbol=...)` |
 | `sort="latest"`                                | `sort_by="latest"`                            |
-| `scraper.scrape_news_content(story_path)`      | `scraper.scrape_content(story_path)`          |
+| `scraper.scrape_news_content(story_path)`      | `scraper.get_news_content(story_id)`          |
 | Returns `list` of headlines                    | Returns `{"status", "data", "metadata", "error"}` |
 | Raises `ValueError` / `RuntimeError`           | Returns error response, never raises          |
 
@@ -152,7 +152,7 @@ Each item in the `data` array contains:
 1. **Class rename**: `NewsScraper` → `News`
 2. **Parameter order**: `exchange` before `symbol` (was `symbol` first)
 3. **Parameter rename**: `sort` → `sort_by`
-4. **Method rename**: `scrape_news_content()` → `scrape_content()`
+4. **Method rename**: `scrape_news_content()` → `get_news_content()`
 5. **Response format**: All methods return a standardized envelope dict instead of raw lists/dicts
 6. **Error handling**: Never raises — always returns `{"status": "failed", ...}` on error
 7. **Inherits**: `BaseScraper` for shared functionality (export, validation, HTTP)

@@ -141,7 +141,7 @@ class Overview(BaseScraper):
             timeout=timeout,
         )
 
-    def get_data(
+    def get_overview(
         self,
         exchange: str,
         symbol: str,
@@ -177,7 +177,9 @@ class Overview(BaseScraper):
         Returns:
             Profile data including name, description, exchange, sector, industry.
         """
-        return self.get_data(exchange=exchange, symbol=symbol, fields=self.BASIC_FIELDS)
+        return self.get_overview(
+            exchange=exchange, symbol=symbol, fields=self.BASIC_FIELDS
+        )
 
     def get_statistics(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get market statistics for a symbol.
@@ -190,7 +192,7 @@ class Overview(BaseScraper):
             Statistics including market cap, shares, valuation ratios.
         """
         fields = self.MARKET_FIELDS + self.VALUATION_FIELDS + self.DIVIDEND_FIELDS
-        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_overview(exchange=exchange, symbol=symbol, fields=fields)
 
     def get_financials(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get financial metrics for a symbol.
@@ -202,7 +204,7 @@ class Overview(BaseScraper):
         Returns:
             Financial data including revenue, margins, ratios, EBITDA.
         """
-        return self.get_data(
+        return self.get_overview(
             exchange=exchange, symbol=symbol, fields=self.FINANCIAL_FIELDS
         )
 
@@ -216,7 +218,7 @@ class Overview(BaseScraper):
         Returns:
             Performance data including weekly, monthly, yearly returns.
         """
-        return self.get_data(
+        return self.get_overview(
             exchange=exchange, symbol=symbol, fields=self.PERFORMANCE_FIELDS
         )
 
@@ -231,4 +233,4 @@ class Overview(BaseScraper):
             Technical indicators including RSI, MACD, ADX, recommendations.
         """
         fields = self.TECHNICAL_FIELDS + self.VOLATILITY_FIELDS
-        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_overview(exchange=exchange, symbol=symbol, fields=fields)

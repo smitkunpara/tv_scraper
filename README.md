@@ -91,7 +91,7 @@ from tv_scraper import Ideas
 ideas = Ideas()
 
 # Scrape popular ideas for ETHUSD
-result = ideas.scrape(
+result = ideas.get_ideas(
     exchange="CRYPTO",
     symbol="ETHUSD",
     start_page=1,

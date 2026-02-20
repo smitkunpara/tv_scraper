@@ -37,9 +37,9 @@ class News(BaseScraper):
         from tv_scraper.scrapers.social import News
 
         scraper = News()
-        headlines = scraper.scrape_headlines(exchange="BINANCE", symbol="BTCUSD")
-        if headlines["status"] == "success" and headlines["data"]:
-            content = scraper.scrape_content(headlines["data"][0]["storyPath"])
+        news = scraper.get_news_headlines(exchange="BINANCE", symbol="BTCUSD")
+        if news["status"] == "success" and news["data"]:
+            content = scraper.get_news_content(news["data"][0]["id"])
     """
 
     def __init__(
@@ -63,7 +63,7 @@ class News(BaseScraper):
         self._areas: dict[str, str] = self.validator.get_areas()
         self._language_codes: list[str] = list(self._languages.values())
 
-    def get_headlines(
+    def get_news_headlines(
         self,
         exchange: str,
         symbol: str,
@@ -187,7 +187,7 @@ class News(BaseScraper):
         except Exception as exc:
             return self._error_response(f"Request failed: {exc}")
 
-    def get_content(
+    def get_news_content(
         self,
         story_id: str,
         language: str = "en",

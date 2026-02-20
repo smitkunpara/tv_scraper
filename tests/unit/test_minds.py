@@ -101,7 +101,7 @@ class TestGetMindsSuccess:
         """Single page success returns standard envelope with parsed data."""
         mock_get.return_value = _mock_response(_make_page_response([_sample_mind()]))
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
@@ -125,7 +125,7 @@ class TestGetMindsSuccess:
         items = [_sample_mind(uid=f"m{i}") for i in range(5)]
         mock_get.return_value = _mock_response(_make_page_response(items))
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL", limit=3)
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL", limit=3)
 
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 3
@@ -147,7 +147,7 @@ class TestGetMindsSuccess:
             _mock_response(page2),
         ]
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 2
@@ -159,7 +159,7 @@ class TestGetMindsSuccess:
         """Empty results returns success with empty list."""
         mock_get.return_value = _mock_response(_make_page_response([]))
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"] == []
@@ -171,7 +171,7 @@ class TestGetMindsErrors:
 
     def test_get_data_invalid_exchange(self, minds: Minds) -> None:
         """Invalid exchange returns error response."""
-        result = minds.get_data(exchange="FAKEXCHANGE", symbol="AAPL")
+        result = minds.get_minds(exchange="FAKEXCHANGE", symbol="AAPL")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -183,7 +183,7 @@ class TestGetMindsErrors:
 
     def test_get_data_empty_symbol(self, minds: Minds) -> None:
         """Empty symbol returns error response."""
-        result = minds.get_data(exchange="NASDAQ", symbol="")
+        result = minds.get_minds(exchange="NASDAQ", symbol="")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -194,7 +194,7 @@ class TestGetMindsErrors:
         """Network failure returns error response, does not raise."""
         mock_get.side_effect = Exception("Connection refused")
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -257,7 +257,7 @@ class TestResponseFormat:
         """Response contains exactly status/data/metadata/error keys."""
         mock_get.return_value = _mock_response(_make_page_response([_sample_mind()]))
 
-        result = minds.get_data(exchange="NASDAQ", symbol="AAPL")
+        result = minds.get_minds(exchange="NASDAQ", symbol="AAPL")
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
 
@@ -277,7 +277,7 @@ class TestResponseFormat:
             )
         )
 
-        result = minds.get_data(exchange="NYSE", symbol="TSLA")
+        result = minds.get_minds(exchange="NYSE", symbol="TSLA")
 
         assert result["status"] == STATUS_SUCCESS
 

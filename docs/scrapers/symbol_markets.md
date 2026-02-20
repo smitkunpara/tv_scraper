@@ -8,7 +8,7 @@ Find all markets and exchanges where a symbol is traded.
 from tv_scraper.scrapers.screening import SymbolMarkets
 
 sm = SymbolMarkets()
-result = sm.get_data(symbol="AAPL")
+result = sm.get_symbol_markets(symbol="AAPL")
 
 for item in result["data"]:
     print(item["symbol"], item["exchange"], item["close"])
@@ -66,7 +66,7 @@ for item in result["data"]:
 
 ```python
 sm = SymbolMarkets()
-result = sm.get_data(symbol="AAPL")
+result = sm.get_symbol_markets(symbol="AAPL")
 
 print(f"AAPL is traded on {result['metadata']['total']} markets")
 for item in result["data"]:
@@ -76,13 +76,13 @@ for item in result["data"]:
 ### Search crypto markets only
 
 ```python
-result = sm.get_data(symbol="BTCUSD", scanner="crypto", limit=50)
+result = sm.get_symbol_markets(symbol="BTCUSD", scanner="crypto", limit=50)
 ```
 
 ### Custom fields
 
 ```python
-result = sm.get_data(
+result = sm.get_symbol_markets(
     symbol="TSLA",
     fields=["name", "close", "volume", "exchange"],
     scanner="america",
@@ -93,7 +93,7 @@ result = sm.get_data(
 
 ```python
 sm = SymbolMarkets(export_result=True, export_type="csv")
-result = sm.get_data(symbol="AAPL")
+result = sm.get_symbol_markets(symbol="AAPL")
 # File saved to export/ directory
 ```
 

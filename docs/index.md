@@ -21,17 +21,17 @@ from tv_scraper import Technicals, Ideas, Screener
 
 # Get technical indicators
 tech = Technicals()
-result = tech.get_data(exchange="NASDAQ", symbol="AAPL")
+result = tech.get_technicals(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # Fetch trading ideas
 ideas = Ideas()
-result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 print(result["data"])
 
 # Screen stocks
 screener = Screener()
-result = screener.get_data(market="america")
+result = screener.get_screener(market="america")
 print(result["data"])
 ```
 

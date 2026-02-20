@@ -25,7 +25,7 @@ class Screener(BaseScraper):
     Example::
 
         screener = Screener()
-        result = screener.screen(
+        result = screener.get_screener(
             market="america",
             filters=[{"left": "close", "operation": "greater", "right": 100}],
             fields=["name", "close", "volume", "market_cap_basic"],
@@ -152,7 +152,7 @@ class Screener(BaseScraper):
             }
         return payload
 
-    def get_data(
+    def get_screener(
         self,
         market: str = "america",
         filters: list[dict[str, Any]] | None = None,

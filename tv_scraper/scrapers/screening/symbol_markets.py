@@ -26,7 +26,7 @@ class SymbolMarkets(BaseScraper):
     Example::
 
         sm = SymbolMarkets()
-        result = sm.scrape(symbol="AAPL")
+        result = sm.get_symbol_markets(symbol="AAPL")
         for item in result["data"]:
             print(item["symbol"], item["exchange"])
     """
@@ -77,7 +77,7 @@ class SymbolMarkets(BaseScraper):
             "range": [0, limit],
         }
 
-    def get_data(
+    def get_symbol_markets(
         self,
         symbol: str,
         fields: list[str] | None = None,

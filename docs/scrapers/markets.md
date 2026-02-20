@@ -10,7 +10,7 @@ The `Markets` scraper retrieves ranked stock lists from TradingView's scanner AP
 from tv_scraper.scrapers.market_data import Markets
 
 markets = Markets()
-result = markets.get_data(market="america", sort_by="market_cap", limit=20)
+result = markets.get_markets(market="america", sort_by="market_cap", limit=20)
 
 for stock in result["data"]:
     print(stock["symbol"], stock["close"], stock["market_cap_basic"])
@@ -30,10 +30,10 @@ Markets(export_result: bool = False, export_type: str = "json", timeout: int = 1
 | `export_type`   | `str`  | `"json"`| Export format (`"json"` or `"csv"`)  |
 | `timeout`       | `int`  | `10`    | HTTP request timeout in seconds      |
 
-### `get_top_stocks()`
+### `get_markets()`
 
 ```python
-get_top_stocks(
+get_markets(
     market: str = "america",
     sort_by: str = "market_cap",
     fields: Optional[List[str]] = None,

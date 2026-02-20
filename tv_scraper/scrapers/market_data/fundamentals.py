@@ -135,7 +135,7 @@ class Fundamentals(BaseScraper):
         "debt_to_equity_fq",
     ]
 
-    def get_data(
+    def get_fundamentals(
         self,
         exchange: str,
         symbol: str,
@@ -189,7 +189,7 @@ class Fundamentals(BaseScraper):
         for sym in symbols:
             exchange = sym.get("exchange", "")
             symbol_name = sym.get("symbol", "")
-            result = self.get_data(
+            result = self.get_fundamentals(
                 exchange=exchange, symbol=symbol_name, fields=field_list
             )
             if result["status"] != "success":
@@ -234,7 +234,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Income statement data including revenue, profit, earnings.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.INCOME_STATEMENT_FIELDS
         )
 
@@ -248,7 +248,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Balance sheet data including assets, debt, equity.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.BALANCE_SHEET_FIELDS
         )
 
@@ -262,7 +262,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Cash flow data including operating, investing, financing activities.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.CASH_FLOW_FIELDS
         )
 
@@ -279,7 +279,7 @@ class Fundamentals(BaseScraper):
             Statistics data including ratios and valuation metrics.
         """
         fields = self.LIQUIDITY_FIELDS + self.LEVERAGE_FIELDS + self.VALUATION_FIELDS
-        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_fundamentals(exchange=exchange, symbol=symbol, fields=fields)
 
     def get_dividends(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get dividend information for a symbol.
@@ -291,7 +291,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Dividend data including yield, per share, payout ratio.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.DIVIDEND_FIELDS
         )
 
@@ -305,7 +305,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Profitability data including ROE, ROA, ROI.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.PROFITABILITY_FIELDS
         )
 
@@ -319,6 +319,6 @@ class Fundamentals(BaseScraper):
         Returns:
             Margin data including gross, operating, net, EBITDA margins.
         """
-        return self.get_data(
+        return self.get_fundamentals(
             exchange=exchange, symbol=symbol, fields=self.MARGIN_FIELDS
         )

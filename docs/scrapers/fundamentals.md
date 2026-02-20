@@ -12,7 +12,7 @@ from tv_scraper.scrapers.market_data import Fundamentals
 scraper = Fundamentals()
 
 # All fundamental metrics for Apple
-result = scraper.get_data(exchange="NASDAQ", symbol="AAPL")
+result = scraper.get_fundamentals(exchange="NASDAQ", symbol="AAPL")
 print(result["data"])
 
 # Income statement only
@@ -156,7 +156,7 @@ comparison = fg.compare_fundamentals(
 from tv_scraper.scrapers.market_data import Fundamentals
 
 f = Fundamentals(export_result=True, export_type="json")
-result = f.get_data(exchange="NASDAQ", symbol="AAPL")
+result = f.get_fundamentals(exchange="NASDAQ", symbol="AAPL")
 comparison = f.compare_fundamentals(
     symbols=[
         {"exchange": "NASDAQ", "symbol": "AAPL"},

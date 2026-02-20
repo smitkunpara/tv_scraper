@@ -7,19 +7,19 @@ This document defines the standards for the `tv-scraper` public API.
 ### Symbol Identification
 All scrapers accept `exchange` and `symbol` as **separate** string parameters:
 ```python
-scraper.get_data(exchange="NASDAQ", symbol="AAPL")
+scraper.get_technicals(exchange="NASDAQ", symbol="AAPL")
 ```
 
 ### Field Selection
 Optional field selection uses a list of strings:
 ```python
-scraper.get_data(exchange="NASDAQ", symbol="AAPL", fields=["close", "volume", "change"])
+scraper.get_technicals(exchange="NASDAQ", symbol="AAPL", fields=["close", "volume", "change"])
 ```
 
 ### Sorting
 Sorting follows a consistent pattern:
 ```python
-scraper.get_data(sort_by="volume", sort_order="desc")  # or "asc"
+scraper.get_technicals(sort_by="volume", sort_order="desc")  # or "asc"
 ```
 `sort_order` defaults to `"desc"` when not specified.
 
@@ -27,10 +27,10 @@ scraper.get_data(sort_by="volume", sort_order="desc")  # or "asc"
 All parameters use **snake_case**:
 ```python
 # Correct
-scraper.get_data(export_result=True, export_type="json", sort_by="change")
+scraper.get_technicals(export_result=True, export_type="json", sort_by="change")
 
 # Wrong — never use camelCase
-scraper.get_data(exportResult=True)
+scraper.get_technicals(exportResult=True)
 ```
 
 ## Output Format
@@ -69,7 +69,7 @@ Every public scraper method returns a standardized response dict:
 Public scraper methods **never raise exceptions**. All errors are caught internally and returned as error responses:
 
 ```python
-result = scraper.get_data(exchange="INVALID", symbol="AAPL")
+result = scraper.get_technicals(exchange="INVALID", symbol="AAPL")
 # Returns: {"status": "failed", "data": None, "error": "Invalid exchange: ...", "metadata": {}}
 ```
 
@@ -80,7 +80,7 @@ The `DataValidator` raises `ValidationError` for invalid input. `BaseScraper` su
 
 All functions and methods have **100% type hints**:
 ```python
-def get_data(
+def get_technicals(
     self,
     exchange: str,
     symbol: str,

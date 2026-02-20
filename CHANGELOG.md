@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-20
+
+### ✨ API Standardization & Strict Typing
+This major update standardizes the public API across all scrapers with descriptive, discoverable method names (e.g., `get_news()`, `get_minds()`) and enforces strict type safety by requiring separate `exchange` and `symbol` parameters.
+
+### Added
+- **Full Type Hinting**: 100% type hint coverage across all modules, satisfying `mypy` strict mode.
+- **Strict Generic Types**: Added explicit type parameters to all `dict` and `list` annotations in streaming modules.
+
+### Changed
+- **API Standardization**: Standardized primary scraping methods with descriptive names (e.g., `get_technicals()`, `get_fundamentals()`, `get_minds()`, `get_news_headlines()`) across all scraper classes to replace generic `get_data()` or `scrape()` methods.
+- **Strict Parameter Passing**: Removed legacy `EXCHANGE:SYMBOL` string parsing. All methods now require `exchange` and `symbol` as distinct, validated parameters.
+- **Streaming Refactor**: Substantially cleaned up `RealTimeData` and `Streamer` logic with improved connection handling and type safety.
+- **Standardized Response Metadata**: Metadata now consistently returns separate `exchange` and `symbol` keys.
+
+### Fixed
+- **Docstring Stubs**: Updated all class-level examples and method documentation to reflect the new API naming conventions.
+- **Redundant Logic**: Eliminated duplicate parsing and validation logic in core and streaming layers.
+
 ## [1.0.3] - 2026-02-19
 
 ### ✨ Unified Validation & Options Stability

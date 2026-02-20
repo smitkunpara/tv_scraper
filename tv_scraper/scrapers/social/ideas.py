@@ -34,7 +34,7 @@ class Ideas(BaseScraper):
         from tv_scraper.scrapers.social import Ideas
 
         scraper = Ideas()
-        result = scraper.scrape(exchange="CRYPTO", symbol="BTCUSD")
+        result = scraper.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
     """
 
     def __init__(
@@ -51,7 +51,7 @@ class Ideas(BaseScraper):
         )
         self._cookie: str | None = cookie or os.environ.get("TRADINGVIEW_COOKIE")
 
-    def get_data(
+    def get_ideas(
         self,
         exchange: str,
         symbol: str,

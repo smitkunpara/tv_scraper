@@ -22,10 +22,10 @@ Technicals(export_result: bool = False, export_type: str = "json", timeout: int 
 | `export_type`   | `str`  | `"json"`| Export format: `"json"` or `"csv"`. |
 | `timeout`       | `int`  | `10`    | HTTP request timeout in seconds.   |
 
-## `scrape()` Method
+## `get_technicals()` Method
 
 ```python
-scrape(
+get_technicals(
     exchange: str = "BITSTAMP",
     symbol: str = "BTCUSD",
     timeframe: str = "1d",
@@ -101,7 +101,7 @@ Errors are **never raised** — they are always returned as error responses.
 from tv_scraper.scrapers.market_data import Technicals
 
 scraper = Technicals()
-data = scraper.get_data(
+data = scraper.get_technicals(
     exchange="BINANCE",
     symbol="BTCUSDT",
     timeframe="4h",
@@ -114,7 +114,7 @@ print(data["data"])
 ### All Indicators
 
 ```python
-full = scraper.get_data(
+full = scraper.get_technicals(
     exchange="COINBASE",
     symbol="ETHUSD",
     timeframe="1d",
@@ -127,7 +127,7 @@ print(len(full["data"]))  # All available indicators
 
 ```python
 scraper = Technicals(export_result=True, export_type="csv")
-data = scraper.get_data(
+data = scraper.get_technicals(
     exchange="BINANCE",
     symbol="BTCUSD",
     technical_indicators=["RSI", "Stoch.K"],
@@ -138,7 +138,7 @@ data = scraper.get_data(
 ### Field Filtering
 
 ```python
-data = scraper.get_data(
+data = scraper.get_technicals(
     exchange="BINANCE",
     symbol="BTCUSD",
     all_indicators=True,
@@ -152,8 +152,8 @@ data = scraper.get_data(
 |------------------------------------------------------|-------------------------------------------------------|
 | `from tradingview_scraper import Indicators`         | `from tv_scraper.scrapers.market_data import Technicals` |
 | `Indicators()`                                       | `Technicals()`                                        |
-| `scrape(indicators=["RSI"])`                         | `scrape(technical_indicators=["RSI"])`                |
-| `scrape(allIndicators=True)`                         | `scrape(all_indicators=True)`                         |
+| `scrape(indicators=["RSI"])`                         | `get_technicals(technical_indicators=["RSI"])`        |
+| `scrape(allIndicators=True)`                         | `get_technicals(all_indicators=True)`                 |
 | Raises `ValueError` on invalid input                | Returns `{"status": "failed", "error": "..."}` |
 | Response: `{"status": "success", "data": {...}}`    | Response: `{"status": "success", "data": {...}, "metadata": {...}, "error": None}` |
 

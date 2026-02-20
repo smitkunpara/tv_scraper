@@ -75,7 +75,7 @@ class TestScreenSuccess:
             }
         )
         with mock.patch.object(screener, "_make_request", return_value=mock_resp):
-            result = screener.get_data(market="america", limit=10)
+            result = screener.get_screener(market="america", limit=10)
 
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 2
@@ -98,7 +98,9 @@ class TestScreenSuccess:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(market="america", fields=custom_fields, limit=5)
+            result = screener.get_screener(
+                market="america", fields=custom_fields, limit=5
+            )
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"][0]["name"] == "Apple Inc."
@@ -140,7 +142,7 @@ class TestScreenSuccess:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(market="america", filters=filters)
+            result = screener.get_screener(market="america", filters=filters)
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -173,7 +175,7 @@ class TestScreenSuccess:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(
+            result = screener.get_screener(
                 market="america", sort_by="volume", sort_order="asc"
             )
 
@@ -209,7 +211,7 @@ class TestScreenSuccess:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(market="america", limit=25)
+            result = screener.get_screener(market="america", limit=25)
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -222,7 +224,7 @@ class TestScreenErrors:
 
     def test_get_data_invalid_market(self, screener: Screener) -> None:
         """Invalid market returns error response, does not raise."""
-        result = screener.get_data(market="invalid_market")
+        result = screener.get_screener(market="invalid_market")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "market" in result["error"].lower()
@@ -234,7 +236,7 @@ class TestScreenErrors:
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = screener.get_data(market="america")
+            result = screener.get_screener(market="america")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -268,7 +270,7 @@ class TestResponseFormat:
             }
         )
         with mock.patch.object(screener, "_make_request", return_value=mock_resp):
-            result = screener.get_data(market="america")
+            result = screener.get_screener(market="america")
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
         assert result["metadata"]["market"] == "america"
@@ -277,7 +279,7 @@ class TestResponseFormat:
 
     def test_error_response_has_standard_envelope(self, screener: Screener) -> None:
         """Error response has same envelope keys as success."""
-        result = screener.get_data(market="invalid_market")
+        result = screener.get_screener(market="invalid_market")
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -305,7 +307,7 @@ class TestUsesMapScannerRows:
                 "_map_scanner_rows",
                 wraps=screener._map_scanner_rows,
             ) as mock_map:
-                result = screener.get_data(market="america", fields=fields)
+                result = screener.get_screener(market="america", fields=fields)
 
         mock_map.assert_called_once_with(raw_items, fields)
         assert result["status"] == STATUS_SUCCESS
@@ -340,7 +342,7 @@ class TestDefaultFields:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(market="crypto")
+            result = screener.get_screener(market="crypto")
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -360,7 +362,7 @@ class TestDefaultFields:
         with mock.patch.object(
             screener, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = screener.get_data(market="forex")
+            result = screener.get_screener(market="forex")
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]

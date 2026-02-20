@@ -39,7 +39,7 @@ TRADINGVIEW_COOKIE = r"paste_your_cookie_string_here"
 ideas_scraper = Ideas(cookie=TRADINGVIEW_COOKIE)
 
 # Scrape ideas
-ideas = ideas_scraper.get_data(symbol="BTCUSD", exchange="CRYPTO", start_page=1, end_page=5)
+ideas = ideas_scraper.get_ideas(symbol="BTCUSD", exchange="CRYPTO", start_page=1, end_page=5)
 ```
 
 !!! warning "Cookie Expiration"

@@ -49,21 +49,21 @@ class Options(BaseScraper):
 
         scraper = Options()
         # Get by expiry
-        result = scraper.get_chain_by_expiry(
+        result = scraper.get_options_by_expiry(
             exchange="BSE",
             symbol="SENSEX",
             expiration=20260219,
             root="BSX"
         )
         # Get by strike
-        result = scraper.get_chain_by_strike(
+        result = scraper.get_options_by_strike(
             exchange="BSE",
             symbol="SENSEX",
             strike=83300
         )
     """
 
-    def get_by_expiry(
+    def get_options_by_expiry(
         self,
         exchange: str,
         symbol: str,
@@ -108,7 +108,7 @@ class Options(BaseScraper):
 
         return self._execute_request(payload, exchange, symbol, "expiry", expiration)
 
-    def get_by_strike(
+    def get_options_by_strike(
         self,
         exchange: str,
         symbol: str,

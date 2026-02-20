@@ -70,19 +70,19 @@ from tv_scraper import (
 
 | Module | Old Method | New Method |
 |---|---|---|
-| Technicals | `Indicators.get_data()` | `Technicals.get_data()` |
-| Overview | `Overview.get_symbol_overview()` | `Overview.get_data()` |
-| Fundamentals | `FundamentalGraphs.get_data()` | `Fundamentals.get_data()` |
-| Ideas | `Ideas.get_data()` | `Ideas.get_data()` |
+| Technicals | `Indicators.get_data()` | `Technicals.get_technicals()` |
+| Overview | `Overview.get_symbol_overview()` | `Overview.get_overview()` |
+| Fundamentals | `FundamentalGraphs.get_data()` | `Fundamentals.get_fundamentals()` |
+| Ideas | `Ideas.get_ideas()` | `Ideas.get_ideas()` |
 | News | `News.scrape_news_content()` | `News.scrape_content()` |
 | News | `News.get_headlines()` | `News.get_headlines()` |
-| Screener | `Screener.get_data()` | `Screener.get_data()` |
-| MarketMovers | `MarketMovers.get_data()` | `MarketMovers.get_data()` |
-| SymbolMarkets | `SymbolMarkets.get_data()` | `SymbolMarkets.get_data()` |
+| Screener | `Screener.get_screener()` | `Screener.get_screener()` |
+| MarketMovers | `MarketMovers.get_market_movers()` | `MarketMovers.get_market_movers()` |
+| SymbolMarkets | `SymbolMarkets.get_symbol_markets()` | `SymbolMarkets.get_symbol_markets()` |
 | Calendar | `Calendar.get_dividends()` | `Calendar.get_dividends()` |
 | Calendar | `Calendar.get_earnings()` | `Calendar.get_earnings()` |
-| Minds | `Minds.get_data()` | `Minds.get_data()` |
-| Markets | `Markets.get_data()` | `Markets.get_data()` |
+| Minds | `Minds.get_minds()` | `Minds.get_minds()` |
+| Markets | `Markets.get_markets()` | `Markets.get_markets()` |
 | Streamer | `Streamer.stream()` | `Streamer.get_candles()` |
 | RealTimeData | `RealTimeData.get_ohlcv()` | `RealTimeData.get_ohlcv()` |
 
@@ -94,10 +94,10 @@ In the old API, some methods accepted a combined `"EXCHANGE:SYMBOL"` string. The
 
 ```python
 # Old
-result = scraper.get_data(symbol="NASDAQ:AAPL")
+result = scraper.get_technicals(symbol="NASDAQ:AAPL")
 
 # New
-result = scraper.get_data(exchange="NASDAQ", symbol="AAPL")
+result = scraper.get_technicals(exchange="NASDAQ", symbol="AAPL")
 ```
 
 ### Parameter Renames
@@ -125,7 +125,7 @@ Responses varied by scraper — some returned raw dicts, some returned lists, so
 
 ```python
 # Old — inconsistent return types
-result = indicators.get_data(...)
+result = technicals.get_technicals(...)
 # Could be: dict, list, DataFrame, or raise an exception
 ```
 
@@ -134,7 +134,7 @@ result = indicators.get_data(...)
 All scrapers return a **standardized response envelope**:
 
 ```python
-result = technicals.get_data(exchange="NASDAQ", symbol="AAPL")
+result = technicals.get_technicals(exchange="NASDAQ", symbol="AAPL")
 # Always returns:
 {
     "status": "success",       # or "failed"
@@ -165,7 +165,7 @@ if result["status"] == "success":
 ```python
 # Old — could raise any exception
 try:
-    result = scraper.get_data(symbol="INVALID")
+    result = scraper.get_technicals(symbol="INVALID")
 except DataNotFoundError as e:
     handle_error(e)
 except Exception as e:
@@ -178,7 +178,7 @@ Scrapers **never raise** for data/network errors. They return error envelopes:
 
 ```python
 # New — always returns a dict
-result = scraper.get_data(exchange="INVALID", symbol="AAPL")
+result = scraper.get_technicals(exchange="INVALID", symbol="AAPL")
 if result["status"] == "failed":
     print(result["error"])
     # "Invalid exchange: 'INVALID'. Did you mean: ..."
@@ -243,7 +243,7 @@ from tradingview_scraper.symbols.technicals import Indicators
 
 indicators = Indicators()
 try:
-    result = indicators.get_data(
+    result = technicals.get_technicals(
         symbol="NASDAQ:AAPL",
         indicators=["RSI", "MACD.macd"]
     )
@@ -258,7 +258,7 @@ except Exception as e:
 from tv_scraper import Technicals
 
 tech = Technicals()
-result = tech.get_data(
+result = tech.get_technicals(
     exchange="NASDAQ",
     symbol="AAPL",
     technical_indicators=["RSI", "MACD.macd"]

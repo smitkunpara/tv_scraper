@@ -84,7 +84,7 @@ class TestScrapeSuccess:
             _make_api_response([_sample_idea(title="Bull Run Coming")])
         )
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD", sort_by="popular")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD", sort_by="popular")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["error"] is None
@@ -108,7 +108,7 @@ class TestScrapeSuccess:
             _make_api_response([_sample_idea(title="Latest Analysis")])
         )
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD", sort_by="recent")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD", sort_by="recent")
 
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 1
@@ -124,7 +124,7 @@ class TestScrapeSuccess:
         """Multi-page get_data with ThreadPoolExecutor returns combined results."""
         mock_get.return_value = _mock_response(_make_api_response([_sample_idea()]))
 
-        result = ideas.get_data(
+        result = ideas.get_ideas(
             exchange="CRYPTO",
             symbol="BTCUSD",
             start_page=1,
@@ -143,7 +143,7 @@ class TestScrapeSuccess:
         """Empty items list returns success with empty data list."""
         mock_get.return_value = _mock_response(_make_api_response([]))
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"] == []
@@ -155,7 +155,7 @@ class TestScrapeErrors:
 
     def test_get_data_invalid_sort(self, ideas: Ideas) -> None:
         """Invalid sort_by returns error response without making HTTP calls."""
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD", sort_by="invalid")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD", sort_by="invalid")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -165,7 +165,7 @@ class TestScrapeErrors:
 
     def test_get_data_empty_symbol(self, ideas: Ideas) -> None:
         """Empty symbol returns error response."""
-        result = ideas.get_data(exchange="CRYPTO", symbol="")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -176,7 +176,7 @@ class TestScrapeErrors:
         """Network/request failure returns error response, does not raise."""
         mock_get.side_effect = Exception("Connection refused")
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -191,7 +191,7 @@ class TestScrapeErrors:
         )
         mock_get.return_value = captcha_resp
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -208,7 +208,7 @@ class TestResponseFormat:
         """Response contains exactly status/data/metadata/error keys."""
         mock_get.return_value = _mock_response(_make_api_response([_sample_idea()]))
 
-        result = ideas.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        result = ideas.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
         assert result["metadata"]["symbol"] == "BTCUSD"
@@ -221,7 +221,7 @@ class TestResponseFormat:
         mock_get.return_value = _mock_response(_make_api_response([_sample_idea()]))
 
         # These should all be valid snake_case param names (no camelCase)
-        result = ideas.get_data(
+        result = ideas.get_ideas(
             exchange="CRYPTO",
             symbol="BTCUSD",
             start_page=1,
@@ -242,7 +242,7 @@ class TestCookieHandling:
         scraper = Ideas(cookie=cookie_value)
         mock_get.return_value = _mock_response(_make_api_response([_sample_idea()]))
 
-        scraper.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        scraper.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         call_kwargs = mock_get.call_args
         headers = call_kwargs[1].get("headers", call_kwargs.kwargs.get("headers", {}))
@@ -255,7 +255,7 @@ class TestCookieHandling:
         scraper = Ideas()
         mock_get.return_value = _mock_response(_make_api_response([_sample_idea()]))
 
-        scraper.get_data(exchange="CRYPTO", symbol="BTCUSD")
+        scraper.get_ideas(exchange="CRYPTO", symbol="BTCUSD")
 
         call_kwargs = mock_get.call_args
         headers = call_kwargs[1].get("headers", call_kwargs.kwargs.get("headers", {}))

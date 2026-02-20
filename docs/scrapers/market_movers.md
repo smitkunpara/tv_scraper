@@ -12,7 +12,7 @@ scanner API.
 from tv_scraper.scrapers.screening import MarketMovers
 
 movers = MarketMovers()
-result = movers.get_data(market="stocks-usa", category="gainers", limit=20)
+result = movers.get_market_movers(market="stocks-usa", category="gainers", limit=20)
 
 for stock in result["data"]:
     print(f"{stock['symbol']}: {stock['change']}%")
@@ -36,10 +36,10 @@ MarketMovers(
 | `export_type`   | `str`  | `"json"`| Export format: `"json"` or `"csv"`.|
 | `timeout`       | `int`  | `10`    | HTTP request timeout in seconds.   |
 
-### `scrape()`
+### `get_market_movers()`
 
 ```python
-scrape(
+get_market_movers(
     market: str = "stocks-usa",
     category: str = "gainers",
     fields: Optional[List[str]] = None,
@@ -104,21 +104,21 @@ All responses follow the standard envelope:
 ```python
 movers = MarketMovers()
 
-losers = movers.get_data(category="losers", limit=10)
-active = movers.get_data(category="most-active", limit=10)
+losers = movers.get_market_movers(category="losers", limit=10)
+active = movers.get_market_movers(category="most-active", limit=10)
 ```
 
 ### Pre-Market / After-Hours
 
 ```python
-pre_gainers = movers.get_data(category="pre-market-gainers")
-ah_losers   = movers.get_data(category="after-hours-losers")
+pre_gainers = movers.get_market_movers(category="pre-market-gainers")
+ah_losers   = movers.get_market_movers(category="after-hours-losers")
 ```
 
 ### Custom Fields
 
 ```python
-result = movers.get_data(
+result = movers.get_market_movers(
     fields=["name", "close", "change", "volume"],
     limit=5,
 )
@@ -128,7 +128,7 @@ result = movers.get_data(
 
 ```python
 for mkt in ["stocks-usa", "crypto", "forex"]:
-    r = movers.get_data(market=mkt, category="gainers", limit=5)
+    r = movers.get_market_movers(market=mkt, category="gainers", limit=5)
     print(f"{mkt}: {len(r['data'])} results")
 ```
 
@@ -136,7 +136,7 @@ for mkt in ["stocks-usa", "crypto", "forex"]:
 
 ```python
 movers = MarketMovers(export_result=True, export_type="csv")
-movers.get_data(market="stocks-usa", category="gainers")
+movers.get_market_movers(market="stocks-usa", category="gainers")
 # File saved to export/ directory
 ```
 
