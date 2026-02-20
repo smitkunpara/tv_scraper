@@ -44,7 +44,6 @@ Or install with `uv` (developer / alternate):
 # Clone the repository for development
 git clone https://github.com/smitkunpara/tv-scraper.git
 cd tv-scraper
-```,oldString:
 
 # Install runtime deps (uv auto-creates virtual environment)
 uv sync
@@ -189,3 +188,4 @@ We welcome contributions! Please see our [Contributing Guide](https://smitkunpar
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
