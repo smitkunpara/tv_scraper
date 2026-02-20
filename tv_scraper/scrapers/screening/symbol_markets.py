@@ -77,7 +77,7 @@ class SymbolMarkets(BaseScraper):
             "range": [0, limit],
         }
 
-    def scrape(
+    def get_data(
         self,
         symbol: str,
         fields: list[str] | None = None,
@@ -87,8 +87,7 @@ class SymbolMarkets(BaseScraper):
         """Scrape all markets/exchanges where a symbol is traded.
 
         Args:
-            symbol: The symbol to search for (e.g. ``"AAPL"``, ``"BTCUSD"``)
-                or combined ``"EXCHANGE:SYMBOL"`` (e.g. ``"NASDAQ:AAPL"``).
+            symbol: The symbol to search for (e.g. ``"AAPL"``, ``"BTCUSD"``).
             fields: Columns to retrieve. Defaults to :attr:`DEFAULT_FIELDS`.
             scanner: Scanner region (``"global"``, ``"america"``, ``"crypto"``,
                 ``"forex"``, ``"cfd"``).

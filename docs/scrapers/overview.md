@@ -87,7 +87,7 @@ All methods return a standardised 4-key envelope:
 from tv_scraper.scrapers.market_data import Overview
 
 overview = Overview()
-result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
+result = overview.get_data(exchange="NASDAQ", symbol="AAPL")
 
 if result["status"] == "success":
     data = result["data"]
@@ -98,7 +98,7 @@ if result["status"] == "success":
 ### Custom Fields
 
 ```python
-result = overview.get_overview(
+result = overview.get_data(
     exchange="BITSTAMP",
     symbol="BTCUSD",
     fields=["close", "volume", "change"],
@@ -122,7 +122,7 @@ technicals = overview.get_technicals(exchange="NASDAQ", symbol="AAPL")
 
 ```python
 overview = Overview(export_result=True, export_type="csv")
-result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
+result = overview.get_data(exchange="NASDAQ", symbol="AAPL")
 # File saved to export/ directory
 ```
 
@@ -131,7 +131,7 @@ result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
 | Old API | New API |
 |---------|---------|
 | `from tradingview_scraper.symbols.overview import Overview` | `from tv_scraper.scrapers.market_data import Overview` |
-| `overview.get_symbol_overview(symbol="NASDAQ:AAPL")` | `overview.get_overview(exchange="NASDAQ", symbol="AAPL")` |
+| `overview.get_symbol_overview(symbol="NASDAQ:AAPL")` | `overview.get_data(exchange="NASDAQ", symbol="AAPL")` |
 | `overview.get_profile("NASDAQ:AAPL")` | `overview.get_profile(exchange="NASDAQ", symbol="AAPL")` |
 | Combined symbol `"EXCHANGE:SYMBOL"` | Separate `exchange` and `symbol` parameters |
 | Response: `{"status", "data", "error"}` | Response: `{"status", "data", "metadata", "error"}` |

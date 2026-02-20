@@ -12,7 +12,7 @@ scanner API.
 from tv_scraper.scrapers.screening import MarketMovers
 
 movers = MarketMovers()
-result = movers.scrape(market="stocks-usa", category="gainers", limit=20)
+result = movers.get_data(market="stocks-usa", category="gainers", limit=20)
 
 for stock in result["data"]:
     print(f"{stock['symbol']}: {stock['change']}%")
@@ -104,21 +104,21 @@ All responses follow the standard envelope:
 ```python
 movers = MarketMovers()
 
-losers = movers.scrape(category="losers", limit=10)
-active = movers.scrape(category="most-active", limit=10)
+losers = movers.get_data(category="losers", limit=10)
+active = movers.get_data(category="most-active", limit=10)
 ```
 
 ### Pre-Market / After-Hours
 
 ```python
-pre_gainers = movers.scrape(category="pre-market-gainers")
-ah_losers   = movers.scrape(category="after-hours-losers")
+pre_gainers = movers.get_data(category="pre-market-gainers")
+ah_losers   = movers.get_data(category="after-hours-losers")
 ```
 
 ### Custom Fields
 
 ```python
-result = movers.scrape(
+result = movers.get_data(
     fields=["name", "close", "change", "volume"],
     limit=5,
 )
@@ -128,7 +128,7 @@ result = movers.scrape(
 
 ```python
 for mkt in ["stocks-usa", "crypto", "forex"]:
-    r = movers.scrape(market=mkt, category="gainers", limit=5)
+    r = movers.get_data(market=mkt, category="gainers", limit=5)
     print(f"{mkt}: {len(r['data'])} results")
 ```
 
@@ -136,7 +136,7 @@ for mkt in ["stocks-usa", "crypto", "forex"]:
 
 ```python
 movers = MarketMovers(export_result=True, export_type="csv")
-movers.scrape(market="stocks-usa", category="gainers")
+movers.get_data(market="stocks-usa", category="gainers")
 # File saved to export/ directory
 ```
 

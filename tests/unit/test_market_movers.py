@@ -41,12 +41,12 @@ class TestInheritance:
         assert issubclass(MarketMovers, BaseScraper)
 
 
-# ---------- Successful scrapes ----------
+# ---------- Successful get_datas ----------
 
 
 class TestScrapeSuccess:
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_success_gainers(
+    def test_get_data_success_gainers(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Default category (gainers) returns success envelope with data."""
@@ -82,7 +82,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.scrape(market="stocks-usa", category="gainers")
+        result = scraper.get_data(market="stocks-usa", category="gainers")
 
         assert result["status"] == "success"
         assert result["error"] is None
@@ -92,7 +92,7 @@ class TestScrapeSuccess:
         assert result["data"][1]["symbol"] == "NASDAQ:MSFT"
 
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_success_losers(
+    def test_get_data_success_losers(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Losers category returns properly sorted data."""
@@ -116,7 +116,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.scrape(market="stocks-usa", category="losers")
+        result = scraper.get_data(market="stocks-usa", category="losers")
 
         assert result["status"] == "success"
         assert len(result["data"]) == 1
@@ -128,7 +128,7 @@ class TestScrapeSuccess:
         assert payload["sort"]["sortOrder"] == "asc"
 
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_success_active(
+    def test_get_data_success_active(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Most-active category sorts by volume desc."""
@@ -152,7 +152,7 @@ class TestScrapeSuccess:
             ],
         )
 
-        result = scraper.scrape(market="stocks-usa", category="most-active")
+        result = scraper.get_data(market="stocks-usa", category="most-active")
 
         assert result["status"] == "success"
 
@@ -168,7 +168,7 @@ class TestScrapeSuccess:
 
 class TestCustomFieldsAndLimit:
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_custom_fields(
+    def test_get_data_custom_fields(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Custom fields list is used instead of defaults."""
@@ -179,7 +179,7 @@ class TestCustomFieldsAndLimit:
             values=[["IBM Corp", 180.0, 1.1]],
         )
 
-        result = scraper.scrape(
+        result = scraper.get_data(
             market="stocks-usa",
             category="gainers",
             fields=custom_fields,
@@ -193,7 +193,7 @@ class TestCustomFieldsAndLimit:
         assert payload["columns"] == custom_fields
 
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_with_limit(
+    def test_get_data_with_limit(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Limit parameter is passed to the scanner payload."""
@@ -216,7 +216,7 @@ class TestCustomFieldsAndLimit:
             ],
         )
 
-        scraper.scrape(market="stocks-usa", category="gainers", limit=10)
+        scraper.get_data(market="stocks-usa", category="gainers", limit=10)
 
         call_kwargs = mock_req.call_args
         payload = call_kwargs.kwargs.get("json_data") or call_kwargs[1].get("json_data")
@@ -227,17 +227,17 @@ class TestCustomFieldsAndLimit:
 
 
 class TestValidationErrors:
-    def test_scrape_invalid_market(self, scraper: MarketMovers) -> None:
+    def test_get_data_invalid_market(self, scraper: MarketMovers) -> None:
         """Invalid market returns error response without raising."""
-        result = scraper.scrape(market="invalid-mkt", category="gainers")
+        result = scraper.get_data(market="invalid-mkt", category="gainers")
 
         assert result["status"] == "failed"
         assert result["data"] is None
         assert "invalid-mkt" in result["error"]
 
-    def test_scrape_invalid_category(self, scraper: MarketMovers) -> None:
+    def test_get_data_invalid_category(self, scraper: MarketMovers) -> None:
         """Invalid category for stocks returns error response."""
-        result = scraper.scrape(market="stocks-usa", category="bad-cat")
+        result = scraper.get_data(market="stocks-usa", category="bad-cat")
 
         assert result["status"] == "failed"
         assert result["data"] is None
@@ -249,13 +249,13 @@ class TestValidationErrors:
 
 class TestNetworkError:
     @mock.patch("tv_scraper.core.base.make_request")
-    def test_scrape_network_error(
+    def test_get_data_network_error(
         self, mock_req: mock.Mock, scraper: MarketMovers
     ) -> None:
         """Network failure returns error response."""
         mock_req.side_effect = NetworkError("Connection refused")
 
-        result = scraper.scrape(market="stocks-usa", category="gainers")
+        result = scraper.get_data(market="stocks-usa", category="gainers")
 
         assert result["status"] == "failed"
         assert result["data"] is None
@@ -279,7 +279,7 @@ class TestResponseEnvelope:
             ],
         )
 
-        result = scraper.scrape()
+        result = scraper.get_data()
 
         assert "status" in result
         assert "data" in result
@@ -325,7 +325,7 @@ class TestCategoryDeterminesSort:
             ],
         )
 
-        scraper.scrape(market="stocks-usa", category=category)
+        scraper.get_data(market="stocks-usa", category=category)
 
         call_kwargs = mock_req.call_args
         payload = call_kwargs.kwargs.get("json_data") or call_kwargs[1].get("json_data")

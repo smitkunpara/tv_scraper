@@ -131,6 +131,71 @@ class BaseScraper:
         else:
             save_json_file(data, filepath)
 
+    def _fetch_symbol_fields(
+        self,
+        exchange: str,
+        symbol: str,
+        fields: list[str],
+        data_category: str,
+    ) -> dict[str, Any]:
+        """Fetch field values for a symbol from the TradingView scanner API.
+
+        This is a shared implementation for scrapers that query the
+        ``GET /symbol`` endpoint with a flat field list (e.g. Overview,
+        Fundamentals).
+
+        Args:
+            exchange: Exchange name (e.g. ``"NASDAQ"``).
+            symbol: Trading symbol (e.g. ``"AAPL"``).
+            fields: List of field names to retrieve.
+            data_category: Category prefix for export filenames.
+
+        Returns:
+            Standardized response dict.
+        """
+        from tv_scraper.core.constants import SCANNER_URL
+        from tv_scraper.core.exceptions import NetworkError, ValidationError
+
+        try:
+            self.validator.verify_symbol_exchange(exchange, symbol)
+        except ValidationError as exc:
+            return self._error_response(str(exc))
+
+        url = f"{SCANNER_URL}/symbol"
+        params: dict[str, str] = {
+            "symbol": f"{exchange}:{symbol}",
+            "fields": ",".join(fields),
+            "no_404": "true",
+        }
+
+        try:
+            response = self._make_request(url, method="GET", params=params)
+            json_response: dict[str, Any] = response.json()
+        except NetworkError as exc:
+            return self._error_response(str(exc))
+        except (ValueError, KeyError) as exc:
+            return self._error_response(f"Failed to parse API response: {exc}")
+
+        if not json_response:
+            return self._error_response("No data returned from API.")
+
+        result: dict[str, Any] = {"symbol": f"{exchange}:{symbol}"}
+        for field in fields:
+            result[field] = json_response.get(field)
+
+        if self.export_result:
+            self._export(
+                data=result,
+                symbol=f"{exchange}_{symbol}",
+                data_category=data_category,
+            )
+
+        return self._success_response(
+            result,
+            exchange=exchange,
+            symbol=symbol,
+        )
+
     def _map_scanner_rows(
         self, items: list[dict[str, Any]], fields: list[str]
     ) -> list[dict[str, Any]]:

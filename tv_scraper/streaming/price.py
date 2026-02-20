@@ -6,10 +6,7 @@ WebSocket feed. For normalized price data, see :class:`Streamer.stream_realtime_
 
 import json
 import logging
-import re
 from collections.abc import Generator
-
-from websocket import WebSocketConnectionClosedException
 
 from tv_scraper.core.constants import WEBSOCKET_URL
 from tv_scraper.core.validators import DataValidator
@@ -50,7 +47,7 @@ class RealTimeData:
         cs = self._handler.chart_session
 
         self._add_symbol_to_sessions(qs, cs, exchange_symbol)
-        return self._get_data()
+        return self._handler.receive_packets()
 
     def get_latest_trade_info(
         self, exchanges: list[str], symbols: list[str]
@@ -70,7 +67,7 @@ class RealTimeData:
         ]
 
         self._add_multiple_symbols_to_sessions(qs, exchange_symbols)
-        return self._get_data()
+        return self._handler.receive_packets()
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -131,48 +128,3 @@ class RealTimeData:
         self._handler.send_message(
             "quote_fast_symbols", [quote_session, *exchange_symbols]
         )
-
-    def _get_data(self) -> Generator[dict, None, None]:
-        """Receive and parse WebSocket data, handling heartbeats.
-
-        Yields:
-            Parsed JSON packets.
-        """
-        try:
-            while True:
-                try:
-                    raw_result = self._handler.ws.recv()
-                    if isinstance(raw_result, bytes):
-                        result = raw_result.decode("utf-8")
-                    else:
-                        result = str(raw_result)
-
-                    # Heartbeat echo
-                    if re.match(r"~m~\d+~m~~h~\d+$", result):
-                        logger.debug("Heartbeat: %s", result)
-                        self._handler.ws.send(result)
-                        continue
-
-                    # Split multiplexed messages
-                    parts = [x for x in re.split(r"~m~\d+~m~", result) if x]
-                    for part in parts:
-                        try:
-                            yield json.loads(part)
-                        except (json.JSONDecodeError, ValueError):
-                            logger.debug("Non-JSON fragment skipped: %s", part[:80])
-
-                except WebSocketConnectionClosedException:
-                    logger.error("WebSocket connection closed.")
-                    break
-                except TimeoutError:
-                    # Socket timeout is expected with non-blocking socket
-                    # Just continue to next iteration
-                    continue
-                except (ConnectionError, OSError) as exc:
-                    logger.error("WebSocket error: %s", exc)
-                    break
-        finally:
-            try:
-                self._handler.ws.close()
-            except Exception:
-                pass

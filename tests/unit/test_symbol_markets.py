@@ -37,7 +37,7 @@ class TestInheritance:
 class TestScrapeSuccess:
     """Tests for successful scraping scenarios."""
 
-    def test_scrape_success(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_success(self, symbol_markets: SymbolMarkets) -> None:
         """Default params return success envelope with data list."""
         mock_resp = _mock_response(
             {
@@ -77,7 +77,7 @@ class TestScrapeSuccess:
             }
         )
         with mock.patch.object(symbol_markets, "_make_request", return_value=mock_resp):
-            result = symbol_markets.scrape(symbol="AAPL")
+            result = symbol_markets.get_data(symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert len(result["data"]) == 2
@@ -87,7 +87,7 @@ class TestScrapeSuccess:
         assert result["data"][1]["symbol"] == "GPW:AAPL"
         assert result["error"] is None
 
-    def test_scrape_custom_fields(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_custom_fields(self, symbol_markets: SymbolMarkets) -> None:
         """Custom fields list is used instead of defaults."""
         custom_fields = ["name", "close", "volume", "exchange"]
         mock_resp = _mock_response(
@@ -101,7 +101,7 @@ class TestScrapeSuccess:
         with mock.patch.object(
             symbol_markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = symbol_markets.scrape(symbol="AAPL", fields=custom_fields)
+            result = symbol_markets.get_data(symbol="AAPL", fields=custom_fields)
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"][0]["name"] == "AAPL"
@@ -114,7 +114,7 @@ class TestScrapeSuccess:
         payload = call_kwargs["json_data"]
         assert payload["columns"] == custom_fields
 
-    def test_scrape_custom_scanner(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_custom_scanner(self, symbol_markets: SymbolMarkets) -> None:
         """Custom scanner is used in the URL."""
         mock_resp = _mock_response(
             {
@@ -141,7 +141,7 @@ class TestScrapeSuccess:
         with mock.patch.object(
             symbol_markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = symbol_markets.scrape(symbol="BTCUSD", scanner="crypto")
+            result = symbol_markets.get_data(symbol="BTCUSD", scanner="crypto")
 
         assert result["status"] == STATUS_SUCCESS
         # Verify the scanner-specific URL was used
@@ -149,7 +149,7 @@ class TestScrapeSuccess:
         url = call_args[0][0]
         assert "crypto" in url
 
-    def test_scrape_with_limit(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_with_limit(self, symbol_markets: SymbolMarkets) -> None:
         """Limit param controls the range in the API payload."""
         mock_resp = _mock_response(
             {
@@ -176,7 +176,7 @@ class TestScrapeSuccess:
         with mock.patch.object(
             symbol_markets, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = symbol_markets.scrape(symbol="AAPL", limit=25)
+            result = symbol_markets.get_data(symbol="AAPL", limit=25)
 
         assert result["status"] == STATUS_SUCCESS
         call_kwargs = mock_req.call_args[1]
@@ -187,30 +187,30 @@ class TestScrapeSuccess:
 class TestScrapeErrors:
     """Tests for error handling — returns error responses, never raises."""
 
-    def test_scrape_invalid_scanner(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_invalid_scanner(self, symbol_markets: SymbolMarkets) -> None:
         """Invalid scanner returns error response, does not raise."""
-        result = symbol_markets.scrape(symbol="AAPL", scanner="invalid-scanner")
+        result = symbol_markets.get_data(symbol="AAPL", scanner="invalid-scanner")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "scanner" in result["error"].lower()
 
-    def test_scrape_empty_symbol(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_empty_symbol(self, symbol_markets: SymbolMarkets) -> None:
         """Empty symbol returns error response, does not raise."""
-        result = symbol_markets.scrape(symbol="")
+        result = symbol_markets.get_data(symbol="")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "symbol" in result["error"].lower()
 
-    def test_scrape_network_error(self, symbol_markets: SymbolMarkets) -> None:
+    def test_get_data_network_error(self, symbol_markets: SymbolMarkets) -> None:
         """Network error returns error response, does not raise."""
         with mock.patch.object(
             symbol_markets,
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = symbol_markets.scrape(symbol="AAPL")
+            result = symbol_markets.get_data(symbol="AAPL")
 
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -247,7 +247,7 @@ class TestResponseFormat:
             }
         )
         with mock.patch.object(symbol_markets, "_make_request", return_value=mock_resp):
-            result = symbol_markets.scrape(symbol="AAPL")
+            result = symbol_markets.get_data(symbol="AAPL")
 
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
         assert result["metadata"]["total"] == 1
@@ -258,7 +258,7 @@ class TestResponseFormat:
         self, symbol_markets: SymbolMarkets
     ) -> None:
         """Error response has same envelope keys as success."""
-        result = symbol_markets.scrape(symbol="AAPL", scanner="invalid")
+        result = symbol_markets.get_data(symbol="AAPL", scanner="invalid")
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
@@ -269,7 +269,7 @@ class TestUsesMapScannerRows:
     """Verify SymbolMarkets delegates row mapping to _map_scanner_rows."""
 
     def test_uses_map_scanner_rows(self, symbol_markets: SymbolMarkets) -> None:
-        """scrape() calls _map_scanner_rows to transform API data."""
+        """get_data() calls _map_scanner_rows to transform API data."""
         raw_items = [
             {
                 "s": "NASDAQ:AAPL",
@@ -299,7 +299,7 @@ class TestUsesMapScannerRows:
                 "_map_scanner_rows",
                 wraps=symbol_markets._map_scanner_rows,
             ) as mock_map:
-                result = symbol_markets.scrape(symbol="AAPL")
+                result = symbol_markets.get_data(symbol="AAPL")
 
         mock_map.assert_called_once_with(raw_items, symbol_markets.DEFAULT_FIELDS)
         assert result["status"] == STATUS_SUCCESS

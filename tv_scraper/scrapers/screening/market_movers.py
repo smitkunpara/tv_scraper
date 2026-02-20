@@ -189,7 +189,7 @@ class MarketMovers(BaseScraper):
             "sort": self._get_sort_config(category),
         }
 
-    def scrape(
+    def get_data(
         self,
         market: str = "stocks-usa",
         category: str = "gainers",

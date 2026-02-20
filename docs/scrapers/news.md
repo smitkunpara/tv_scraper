@@ -12,7 +12,7 @@ from tv_scraper.scrapers.social import News
 scraper = News()
 
 # Get headlines
-result = scraper.scrape_headlines(exchange="BINANCE", symbol="BTCUSD")
+result = scraper.get_headlines(exchange="BINANCE", symbol="BTCUSD")
 if result["status"] == "success":
     for item in result["data"]:
         print(item["title"])
@@ -141,7 +141,7 @@ Each item in the `data` array contains:
 |------------------------------------------------|-----------------------------------------------|
 | `from tradingview_scraper.symbols.news import NewsScraper` | `from tv_scraper.scrapers.social import News` |
 | `NewsScraper(cookie=cookie)`                   | `News(cookie=cookie)`                         |
-| `scraper.scrape_headlines(symbol=..., exchange=...)` | `scraper.scrape_headlines(exchange=..., symbol=...)` |
+| `scraper.get_headlines(symbol=..., exchange=...)` | `scraper.get_headlines(exchange=..., symbol=...)` |
 | `sort="latest"`                                | `sort_by="latest"`                            |
 | `scraper.scrape_news_content(story_path)`      | `scraper.scrape_content(story_path)`          |
 | Returns `list` of headlines                    | Returns `{"status", "data", "metadata", "error"}` |

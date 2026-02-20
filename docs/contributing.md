@@ -75,7 +75,7 @@ class TestTechnicals:
     def test_scrape_valid_indicators(self):
         """Test scraping with valid indicators."""
         scraper = Technicals()
-        result = scraper.scrape(
+        result = scraper.get_data(
             exchange="BINANCE",
             symbol="BTCUSD",
             technical_indicators=["RSI"]
@@ -86,7 +86,7 @@ class TestTechnicals:
     def test_scrape_invalid_exchange(self):
         """Test error handling for invalid exchange."""
         scraper = Technicals()
-        result = scraper.scrape(
+        result = scraper.get_data(
             exchange="INVALID",
             symbol="BTCUSD",
             technical_indicators=["RSI"]
@@ -160,7 +160,7 @@ When reporting bugs, please include:
 from tv_scraper import Technicals
 
 scraper = Technicals()
-result = scraper.scrape(
+result = scraper.get_data(
     exchange="BINANCE",
     symbol="BTCUSD",
     technical_indicators=["RSI", "MACD"]

@@ -101,7 +101,7 @@ Errors are **never raised** — they are always returned as error responses.
 from tv_scraper.scrapers.market_data import Technicals
 
 scraper = Technicals()
-data = scraper.scrape(
+data = scraper.get_data(
     exchange="BINANCE",
     symbol="BTCUSDT",
     timeframe="4h",
@@ -114,7 +114,7 @@ print(data["data"])
 ### All Indicators
 
 ```python
-full = scraper.scrape(
+full = scraper.get_data(
     exchange="COINBASE",
     symbol="ETHUSD",
     timeframe="1d",
@@ -127,7 +127,7 @@ print(len(full["data"]))  # All available indicators
 
 ```python
 scraper = Technicals(export_result=True, export_type="csv")
-data = scraper.scrape(
+data = scraper.get_data(
     exchange="BINANCE",
     symbol="BTCUSD",
     technical_indicators=["RSI", "Stoch.K"],
@@ -138,7 +138,7 @@ data = scraper.scrape(
 ### Field Filtering
 
 ```python
-data = scraper.scrape(
+data = scraper.get_data(
     exchange="BINANCE",
     symbol="BTCUSD",
     all_indicators=True,

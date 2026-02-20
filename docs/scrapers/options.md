@@ -12,7 +12,7 @@ from tv_scraper.scrapers.market_data import Options
 scraper = Options()
 
 # Get option chain by expiration date
-result = scraper.get_chain_by_expiry(
+result = scraper.get_by_expiry(
     exchange="BSE",
     symbol="SENSEX",
     expiration=20260219,
@@ -21,7 +21,7 @@ result = scraper.get_chain_by_expiry(
 print(result["data"])
 
 # Get option chain by strike price
-result = scraper.get_chain_by_strike(
+result = scraper.get_by_strike(
     exchange="BSE",
     symbol="SENSEX",
     strike=83300

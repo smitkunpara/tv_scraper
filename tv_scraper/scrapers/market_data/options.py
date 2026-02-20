@@ -63,7 +63,7 @@ class Options(BaseScraper):
         )
     """
 
-    def get_chain_by_expiry(
+    def get_by_expiry(
         self,
         exchange: str,
         symbol: str,
@@ -74,10 +74,8 @@ class Options(BaseScraper):
         """Fetch option chain for a symbol filtered by expiration date.
 
         Args:
-            exchange: Exchange name (e.g. ``"BSE"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol slug (e.g. ``"SENSEX"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"BSE:SENSEX"``).
+            exchange: Exchange name (e.g. ``"BSE"``).
+            symbol: Trading symbol slug (e.g. ``"SENSEX"``).
             expiration: Expiration date in YYYYMMDD format (e.g. ``20260219``).
             root: Root symbol for the option (e.g. ``"BSX"``).
             columns: List of data columns to retrieve. Defaults to
@@ -87,9 +85,6 @@ class Options(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
 
         # Validation — verify combination exists and has options
         try:
@@ -113,7 +108,7 @@ class Options(BaseScraper):
 
         return self._execute_request(payload, exchange, symbol, "expiry", expiration)
 
-    def get_chain_by_strike(
+    def get_by_strike(
         self,
         exchange: str,
         symbol: str,
@@ -123,10 +118,8 @@ class Options(BaseScraper):
         """Fetch option chain for a symbol filtered by strike price.
 
         Args:
-            exchange: Exchange name (e.g. ``"BSE"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol slug (e.g. ``"SENSEX"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"BSE:SENSEX"``).
+            exchange: Exchange name (e.g. ``"BSE"``).
+            symbol: Trading symbol slug (e.g. ``"SENSEX"``).
             strike: Strike price (e.g. ``83300``).
             columns: List of data columns to retrieve. Defaults to
                 :attr:`DEFAULT_OPTION_COLUMNS`.
@@ -135,11 +128,7 @@ class Options(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
 
-        # Validation — verify combination exists and has options
         try:
             self.validator.verify_options_symbol(exchange, symbol)
         except ValidationError as exc:

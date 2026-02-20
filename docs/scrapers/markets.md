@@ -10,7 +10,7 @@ The `Markets` scraper retrieves ranked stock lists from TradingView's scanner AP
 from tv_scraper.scrapers.market_data import Markets
 
 markets = Markets()
-result = markets.get_top_stocks(market="america", sort_by="market_cap", limit=20)
+result = markets.get_data(market="america", sort_by="market_cap", limit=20)
 
 for stock in result["data"]:
     print(stock["symbol"], stock["close"], stock["market_cap_basic"])
@@ -128,19 +128,19 @@ get_top_stocks(
 ### Most Active Stocks by Volume
 
 ```python
-result = markets.get_top_stocks(market="america", sort_by="volume", limit=15)
+result = markets.get_data(market="america", sort_by="volume", limit=15)
 ```
 
 ### Top Indian Stocks Ascending by Price
 
 ```python
-result = markets.get_top_stocks(market="india", sort_by="price", sort_order="asc", limit=10)
+result = markets.get_data(market="india", sort_by="price", sort_order="asc", limit=10)
 ```
 
 ### Custom Fields
 
 ```python
-result = markets.get_top_stocks(
+result = markets.get_data(
     fields=["name", "close", "volume", "market_cap_basic", "sector"],
     limit=10,
 )
@@ -150,7 +150,7 @@ result = markets.get_top_stocks(
 
 ```python
 markets = Markets(export_result=True, export_type="csv")
-result = markets.get_top_stocks(market="uk", sort_by="market_cap")
+result = markets.get_data(market="uk", sort_by="market_cap")
 ```
 
 ## Migration from `tradingview_scraper`

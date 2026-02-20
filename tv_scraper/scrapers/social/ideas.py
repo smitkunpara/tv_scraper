@@ -51,7 +51,7 @@ class Ideas(BaseScraper):
         )
         self._cookie: str | None = cookie or os.environ.get("TRADINGVIEW_COOKIE")
 
-    def scrape(
+    def get_data(
         self,
         exchange: str,
         symbol: str,
@@ -62,10 +62,8 @@ class Ideas(BaseScraper):
         """Scrape trading ideas for a symbol across one or more pages.
 
         Args:
-            exchange: Exchange name (e.g. ``"NSE"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol slug (e.g. ``"NIFTY"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"NSE:NIFTY"``).
+            exchange: Exchange name (e.g. ``"NSE"``).
+            symbol: Trading symbol slug (e.g. ``"NIFTY"``).
             start_page: First page to scrape (1-based).
             end_page: Last page to scrape (inclusive).
             sort_by: Sorting criteria — ``"popular"`` or ``"recent"``.
@@ -74,9 +72,6 @@ class Ideas(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
 
         # --- Validation ---
         try:

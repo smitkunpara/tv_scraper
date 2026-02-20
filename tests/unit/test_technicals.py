@@ -36,11 +36,11 @@ class TestTechnicalsInheritance:
 class TestScrapeSuccess:
     """Tests for successful scraping scenarios."""
 
-    def test_scrape_success_default_indicators(self, technicals: Technicals) -> None:
+    def test_get_data_success_default_indicators(self, technicals: Technicals) -> None:
         """Scrape with a few indicators and verify envelope format."""
         mock_resp = _mock_response({"RSI": 55.0, "Recommend.All": 0.7, "CCI20": 45.0})
         with mock.patch.object(technicals, "_make_request", return_value=mock_resp):
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BITSTAMP",
                 symbol="BTCUSD",
                 technical_indicators=["RSI", "Recommend.All", "CCI20"],
@@ -52,11 +52,11 @@ class TestScrapeSuccess:
         assert result["error"] is None
         assert "metadata" in result
 
-    def test_scrape_success_specific_indicators(self, technicals: Technicals) -> None:
+    def test_get_data_success_specific_indicators(self, technicals: Technicals) -> None:
         """Scrape with specific indicators returns correct mapped data."""
         mock_resp = _mock_response({"RSI": 50.0, "Stoch.K": 80.0})
         with mock.patch.object(technicals, "_make_request", return_value=mock_resp):
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BINANCE",
                 symbol="BTCUSD",
                 timeframe="1d",
@@ -67,13 +67,13 @@ class TestScrapeSuccess:
         assert result["data"]["Stoch.K"] == 80.0
         assert result["error"] is None
 
-    def test_scrape_all_indicators(self, technicals: Technicals) -> None:
+    def test_get_data_all_indicators(self, technicals: Technicals) -> None:
         """all_indicators=True loads every indicator from the data file."""
         all_inds = technicals.validator.get_indicators()
         mock_data = {ind: float(i) for i, ind in enumerate(all_inds)}
         mock_resp = _mock_response(mock_data)
         with mock.patch.object(technicals, "_make_request", return_value=mock_resp):
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BINANCE",
                 symbol="BTCUSD",
                 all_indicators=True,
@@ -82,13 +82,13 @@ class TestScrapeSuccess:
         for ind in all_inds:
             assert ind in result["data"]
 
-    def test_scrape_with_timeframe(self, technicals: Technicals) -> None:
+    def test_get_data_with_timeframe(self, technicals: Technicals) -> None:
         """Non-daily timeframe appends |{value} suffix to indicator names."""
         mock_resp = _mock_response({"RSI|240": 60.0})
         with mock.patch.object(
             technicals, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BINANCE",
                 symbol="BTCUSD",
                 timeframe="4h",
@@ -112,9 +112,9 @@ class TestScrapeSuccess:
 class TestScrapeErrors:
     """Tests for error handling — returns error responses, never raises."""
 
-    def test_scrape_invalid_exchange(self, technicals: Technicals) -> None:
+    def test_get_data_invalid_exchange(self, technicals: Technicals) -> None:
         """Invalid exchange returns error response, does not raise."""
-        result = technicals.scrape(
+        result = technicals.get_data(
             exchange="INVALID_EXCHANGE",
             symbol="BTCUSD",
             technical_indicators=["RSI"],
@@ -123,9 +123,9 @@ class TestScrapeErrors:
         assert result["data"] is None
         assert "Invalid exchange" in result["error"]
 
-    def test_scrape_invalid_timeframe(self, technicals: Technicals) -> None:
+    def test_get_data_invalid_timeframe(self, technicals: Technicals) -> None:
         """Invalid timeframe returns error response."""
-        result = technicals.scrape(
+        result = technicals.get_data(
             exchange="BINANCE",
             symbol="BTCUSD",
             timeframe="99x",
@@ -135,9 +135,9 @@ class TestScrapeErrors:
         assert result["data"] is None
         assert "Invalid timeframe" in result["error"]
 
-    def test_scrape_invalid_indicators(self, technicals: Technicals) -> None:
+    def test_get_data_invalid_indicators(self, technicals: Technicals) -> None:
         """Invalid indicator name returns error response."""
-        result = technicals.scrape(
+        result = technicals.get_data(
             exchange="BINANCE",
             symbol="BTCUSD",
             technical_indicators=["NONEXISTENT_INDICATOR"],
@@ -146,9 +146,9 @@ class TestScrapeErrors:
         assert result["data"] is None
         assert "Invalid indicator" in result["error"]
 
-    def test_scrape_empty_symbol(self, technicals: Technicals) -> None:
+    def test_get_data_empty_symbol(self, technicals: Technicals) -> None:
         """Empty symbol returns error response."""
-        result = technicals.scrape(
+        result = technicals.get_data(
             exchange="BINANCE",
             symbol="",
             technical_indicators=["RSI"],
@@ -157,14 +157,14 @@ class TestScrapeErrors:
         assert result["data"] is None
         assert result["error"] is not None
 
-    def test_scrape_network_error(self, technicals: Technicals) -> None:
+    def test_get_data_network_error(self, technicals: Technicals) -> None:
         """Network error returns error response, does not raise."""
         with mock.patch.object(
             technicals,
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BINANCE",
                 symbol="BTCUSD",
                 technical_indicators=["RSI"],
@@ -173,9 +173,9 @@ class TestScrapeErrors:
         assert result["data"] is None
         assert "Connection refused" in result["error"]
 
-    def test_scrape_no_indicators_no_all(self, technicals: Technicals) -> None:
+    def test_get_data_no_indicators_no_all(self, technicals: Technicals) -> None:
         """No indicators and all_indicators=False returns error."""
-        result = technicals.scrape(
+        result = technicals.get_data(
             exchange="BINANCE",
             symbol="BTCUSD",
         )
@@ -191,7 +191,7 @@ class TestResponseFormat:
         """Success response contains exactly status/data/metadata/error keys."""
         mock_resp = _mock_response({"data": [{"s": "BINANCE:BTCUSD", "d": [50.0]}]})
         with mock.patch.object(technicals, "_make_request", return_value=mock_resp):
-            result = technicals.scrape(
+            result = technicals.get_data(
                 exchange="BINANCE",
                 symbol="BTCUSD",
                 technical_indicators=["RSI"],

@@ -34,22 +34,10 @@ class Technicals(BaseScraper):
         )
     """
 
-    def __init__(
+    def get_data(
         self,
-        export_result: bool = False,
-        export_type: str = "json",
-        timeout: int = 10,
-    ) -> None:
-        super().__init__(
-            export_result=export_result,
-            export_type=export_type,
-            timeout=timeout,
-        )
-
-    def scrape(
-        self,
-        exchange: str = "BITSTAMP",
-        symbol: str = "BTCUSD",
+        exchange: str,
+        symbol: str,
         timeframe: str = "1d",
         technical_indicators: list[str] | None = None,
         all_indicators: bool = False,
@@ -58,10 +46,8 @@ class Technicals(BaseScraper):
         """Scrape technical indicator values for a symbol.
 
         Args:
-            exchange: Exchange name (e.g. ``"BINANCE"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol slug (e.g. ``"NIFTY"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"NSE:NIFTY"``).
+            exchange: Exchange name (e.g. ``"BINANCE"``).
+            symbol: Trading symbol slug (e.g. ``"NIFTY"``).
             timeframe: Timeframe string (e.g. ``"1d"``, ``"4h"``, ``"1w"``).
             technical_indicators: List of indicator names to fetch.
                 Required unless ``all_indicators=True``.
@@ -73,9 +59,6 @@ class Technicals(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
 
         # --- Validation ---
         try:

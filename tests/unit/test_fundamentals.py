@@ -38,7 +38,7 @@ class TestInheritance:
 class TestGetFundamentalsSuccess:
     """Tests for successful fundamentals retrieval."""
 
-    def test_get_fundamentals_success(self, fundamentals: Fundamentals) -> None:
+    def test_get_data_success(self, fundamentals: Fundamentals) -> None:
         """Get fundamentals with default (all) fields returns success envelope."""
         # Flat mock response as returned by GET /symbol endpoint
         mock_data: dict[str, Any] = {
@@ -49,7 +49,7 @@ class TestGetFundamentalsSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(fundamentals, "_make_request", return_value=mock_resp):
-            result = fundamentals.get_fundamentals(exchange="NASDAQ", symbol="AAPL")
+            result = fundamentals.get_data(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"] is not None
@@ -58,9 +58,7 @@ class TestGetFundamentalsSuccess:
         assert result["data"]["total_revenue"] == 394000000000
         assert result["data"]["EBITDA"] == 130000000000
 
-    def test_get_fundamentals_with_custom_fields(
-        self, fundamentals: Fundamentals
-    ) -> None:
+    def test_get_data_with_custom_fields(self, fundamentals: Fundamentals) -> None:
         """Custom fields are sent to the API and returned correctly."""
         custom_fields = ["total_revenue", "net_income", "EBITDA"]
         mock_data: dict[str, Any] = {
@@ -73,7 +71,7 @@ class TestGetFundamentalsSuccess:
         with mock.patch.object(
             fundamentals, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = fundamentals.get_fundamentals(
+            result = fundamentals.get_data(
                 exchange="NASDAQ", symbol="AAPL", fields=custom_fields
             )
 
@@ -92,32 +90,28 @@ class TestGetFundamentalsSuccess:
 class TestGetFundamentalsErrors:
     """Tests for error handling — returns error responses, never raises."""
 
-    def test_get_fundamentals_invalid_exchange(
-        self, fundamentals: Fundamentals
-    ) -> None:
+    def test_get_data_invalid_exchange(self, fundamentals: Fundamentals) -> None:
         """Invalid exchange returns error response, does not raise."""
-        result = fundamentals.get_fundamentals(
-            exchange="INVALID_EXCHANGE", symbol="AAPL"
-        )
+        result = fundamentals.get_data(exchange="INVALID_EXCHANGE", symbol="AAPL")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "Invalid exchange" in result["error"]
 
-    def test_get_fundamentals_empty_symbol(self, fundamentals: Fundamentals) -> None:
+    def test_get_data_empty_symbol(self, fundamentals: Fundamentals) -> None:
         """Empty symbol returns error response."""
-        result = fundamentals.get_fundamentals(exchange="NASDAQ", symbol="")
+        result = fundamentals.get_data(exchange="NASDAQ", symbol="")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert result["error"] is not None
 
-    def test_get_fundamentals_network_error(self, fundamentals: Fundamentals) -> None:
+    def test_get_data_network_error(self, fundamentals: Fundamentals) -> None:
         """Network error returns error response, does not raise."""
         with mock.patch.object(
             fundamentals,
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = fundamentals.get_fundamentals(exchange="NASDAQ", symbol="AAPL")
+            result = fundamentals.get_data(exchange="NASDAQ", symbol="AAPL")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "Connection refused" in result["error"]
@@ -128,7 +122,7 @@ class TestCategoryMethods:
 
     def test_get_income_statement(self, fundamentals: Fundamentals) -> None:
         """get_income_statement passes INCOME_STATEMENT_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"total_revenue": 394000000000},
                 exchange="NASDAQ",
@@ -145,7 +139,7 @@ class TestCategoryMethods:
 
     def test_get_balance_sheet(self, fundamentals: Fundamentals) -> None:
         """get_balance_sheet passes BALANCE_SHEET_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"total_assets": 350000000000},
                 exchange="NASDAQ",
@@ -162,7 +156,7 @@ class TestCategoryMethods:
 
     def test_get_cash_flow(self, fundamentals: Fundamentals) -> None:
         """get_cash_flow passes CASH_FLOW_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"free_cash_flow": 85000000000},
                 exchange="NASDAQ",
@@ -184,7 +178,7 @@ class TestCategoryMethods:
             + Fundamentals.LEVERAGE_FIELDS
             + Fundamentals.VALUATION_FIELDS
         )
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"current_ratio": 1.1},
                 exchange="NASDAQ",
@@ -201,7 +195,7 @@ class TestCategoryMethods:
 
     def test_get_dividends(self, fundamentals: Fundamentals) -> None:
         """get_dividends passes DIVIDEND_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"dividends_yield": 0.65},
                 exchange="NASDAQ",
@@ -218,7 +212,7 @@ class TestCategoryMethods:
 
     def test_get_profitability(self, fundamentals: Fundamentals) -> None:
         """get_profitability passes PROFITABILITY_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"return_on_equity": 150.0},
                 exchange="NASDAQ",
@@ -235,7 +229,7 @@ class TestCategoryMethods:
 
     def test_get_margins(self, fundamentals: Fundamentals) -> None:
         """get_margins passes MARGIN_FIELDS."""
-        with mock.patch.object(fundamentals, "get_fundamentals") as mock_get:
+        with mock.patch.object(fundamentals, "get_data") as mock_get:
             mock_get.return_value = fundamentals._success_response(
                 {"gross_margin": 43.0},
                 exchange="NASDAQ",
@@ -311,7 +305,7 @@ class TestResponseFormat:
         """Response contains exactly status/data/metadata/error keys."""
         mock_resp = _mock_response({"total_revenue": 394000000000})
         with mock.patch.object(fundamentals, "_make_request", return_value=mock_resp):
-            result = fundamentals.get_fundamentals(
+            result = fundamentals.get_data(
                 exchange="NASDAQ", symbol="AAPL", fields=["total_revenue"]
             )
         assert set(result.keys()) == {"status", "data", "metadata", "error"}

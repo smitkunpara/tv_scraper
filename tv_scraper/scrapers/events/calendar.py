@@ -78,18 +78,6 @@ class Calendar(BaseScraper):
         )
     """
 
-    def __init__(
-        self,
-        export_result: bool = False,
-        export_type: str = "json",
-        timeout: int = 10,
-    ) -> None:
-        super().__init__(
-            export_result=export_result,
-            export_type=export_type,
-            timeout=timeout,
-        )
-
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------

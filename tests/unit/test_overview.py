@@ -37,7 +37,7 @@ class TestOverviewInheritance:
 class TestGetOverviewSuccess:
     """Tests for successful overview retrieval."""
 
-    def test_get_overview_success(self, overview: Overview) -> None:
+    def test_get_data_success(self, overview: Overview) -> None:
         """Get overview with default (all) fields returns success envelope."""
         # Flat mock response as returned by GET /symbol endpoint
         mock_data = {
@@ -48,7 +48,7 @@ class TestGetOverviewSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(overview, "_make_request", return_value=mock_resp):
-            result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
+            result = overview.get_data(exchange="NASDAQ", symbol="AAPL")
 
         assert result["status"] == STATUS_SUCCESS
         assert result["data"] is not None
@@ -57,7 +57,7 @@ class TestGetOverviewSuccess:
         assert result["data"]["name"] == "AAPL"
         assert result["data"]["close"] == 150.25
 
-    def test_get_overview_with_custom_fields(self, overview: Overview) -> None:
+    def test_get_data_with_custom_fields(self, overview: Overview) -> None:
         """Custom fields are sent to the API and returned correctly."""
         custom_fields = ["close", "volume", "market_cap_basic"]
         mock_data = {
@@ -70,7 +70,7 @@ class TestGetOverviewSuccess:
         with mock.patch.object(
             overview, "_make_request", return_value=mock_resp
         ) as mock_req:
-            result = overview.get_overview(
+            result = overview.get_data(
                 exchange="NASDAQ", symbol="AAPL", fields=custom_fields
             )
 
@@ -89,28 +89,28 @@ class TestGetOverviewSuccess:
 class TestGetOverviewErrors:
     """Tests for error handling — returns error responses, never raises."""
 
-    def test_get_overview_invalid_exchange(self, overview: Overview) -> None:
+    def test_get_data_invalid_exchange(self, overview: Overview) -> None:
         """Invalid exchange returns error response, does not raise."""
-        result = overview.get_overview(exchange="INVALID_EXCHANGE", symbol="AAPL")
+        result = overview.get_data(exchange="INVALID_EXCHANGE", symbol="AAPL")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "Invalid exchange" in result["error"]
 
-    def test_get_overview_empty_symbol(self, overview: Overview) -> None:
+    def test_get_data_empty_symbol(self, overview: Overview) -> None:
         """Empty symbol returns error response."""
-        result = overview.get_overview(exchange="NASDAQ", symbol="")
+        result = overview.get_data(exchange="NASDAQ", symbol="")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert result["error"] is not None
 
-    def test_get_overview_network_error(self, overview: Overview) -> None:
+    def test_get_data_network_error(self, overview: Overview) -> None:
         """Network error returns error response, does not raise."""
         with mock.patch.object(
             overview,
             "_make_request",
             side_effect=NetworkError("Connection refused"),
         ):
-            result = overview.get_overview(exchange="NASDAQ", symbol="AAPL")
+            result = overview.get_data(exchange="NASDAQ", symbol="AAPL")
         assert result["status"] == STATUS_FAILED
         assert result["data"] is None
         assert "Connection refused" in result["error"]
@@ -120,8 +120,8 @@ class TestCategoryMethods:
     """Tests for convenience category methods."""
 
     def test_get_profile_returns_profile_fields(self, overview: Overview) -> None:
-        """get_profile passes BASIC_FIELDS to get_overview."""
-        with mock.patch.object(overview, "get_overview") as mock_get:
+        """get_profile passes BASIC_FIELDS to get_data."""
+        with mock.patch.object(overview, "get_data") as mock_get:
             mock_get.return_value = overview._success_response(
                 {"name": "AAPL"}, exchange="NASDAQ", symbol="AAPL"
             )
@@ -139,7 +139,7 @@ class TestCategoryMethods:
             + Overview.VALUATION_FIELDS
             + Overview.DIVIDEND_FIELDS
         )
-        with mock.patch.object(overview, "get_overview") as mock_get:
+        with mock.patch.object(overview, "get_data") as mock_get:
             mock_get.return_value = overview._success_response(
                 {"market_cap_basic": 2500000000000},
                 exchange="NASDAQ",
@@ -154,7 +154,7 @@ class TestCategoryMethods:
 
     def test_get_financials_returns_financial_fields(self, overview: Overview) -> None:
         """get_financials passes FINANCIAL_FIELDS."""
-        with mock.patch.object(overview, "get_overview") as mock_get:
+        with mock.patch.object(overview, "get_data") as mock_get:
             mock_get.return_value = overview._success_response(
                 {"total_revenue": 400000000000},
                 exchange="NASDAQ",
@@ -171,7 +171,7 @@ class TestCategoryMethods:
         self, overview: Overview
     ) -> None:
         """get_performance passes PERFORMANCE_FIELDS."""
-        with mock.patch.object(overview, "get_overview") as mock_get:
+        with mock.patch.object(overview, "get_data") as mock_get:
             mock_get.return_value = overview._success_response(
                 {"Perf.W": 1.5}, exchange="NASDAQ", symbol="AAPL"
             )
@@ -185,7 +185,7 @@ class TestCategoryMethods:
     def test_get_technicals_returns_technical_fields(self, overview: Overview) -> None:
         """get_technicals passes TECHNICAL_FIELDS + VOLATILITY_FIELDS."""
         expected_fields = Overview.TECHNICAL_FIELDS + Overview.VOLATILITY_FIELDS
-        with mock.patch.object(overview, "get_overview") as mock_get:
+        with mock.patch.object(overview, "get_data") as mock_get:
             mock_get.return_value = overview._success_response(
                 {"RSI": 55.0}, exchange="NASDAQ", symbol="AAPL"
             )
@@ -205,7 +205,7 @@ class TestResponseFormat:
         mock_data = {"close": 150.25}
         mock_resp = _mock_response(mock_data)
         with mock.patch.object(overview, "_make_request", return_value=mock_resp):
-            result = overview.get_overview(
+            result = overview.get_data(
                 exchange="NASDAQ", symbol="AAPL", fields=["close"]
             )
         assert set(result.keys()) == {"status", "data", "metadata", "error"}
@@ -219,7 +219,7 @@ class TestResponseFormat:
         with mock.patch.object(
             overview, "_make_request", return_value=mock_resp
         ) as mock_req:
-            overview.get_overview(exchange="NASDAQ", symbol="AAPL", fields=["close"])
+            overview.get_data(exchange="NASDAQ", symbol="AAPL", fields=["close"])
 
         call_kwargs = mock_req.call_args[1]
         params = call_kwargs["params"]

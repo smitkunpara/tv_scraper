@@ -1058,7 +1058,7 @@ wheels = [
 
 [[package]]
 name = "tv-scraper"
-version = "1.0.2"
+version = "1.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
@@ -1089,7 +1089,6 @@ test = [
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
-    { name = "pre-commit" },
     { name = "ruff" },
 ]
 
@@ -1116,7 +1115,6 @@ provides-extras = ["dev", "test", "csv"]
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy", specifier = ">=1.19.1" },
-    { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "ruff", specifier = ">=0.15.1" },
 ]
 

@@ -6,11 +6,13 @@ and session initialization.
 
 import json
 import logging
+import re
 import secrets
 import socket
 import string
+from collections.abc import Generator
 
-from websocket import create_connection
+from websocket import WebSocketConnectionClosedException, create_connection
 
 from tv_scraper.core.constants import WEBSOCKET_URL
 
@@ -200,3 +202,49 @@ class StreamHandler:
         self.send_message("quote_create_session", [quote_session])
         self.send_message("quote_set_fields", [quote_session, *_QUOTE_FIELDS])
         self.send_message("quote_hibernate_all", [quote_session])
+
+    def receive_packets(self) -> Generator[dict, None, None]:
+        """Receive and parse WebSocket data, handling heartbeats.
+
+        Yields parsed JSON packets from the TradingView stream.
+        Automatically echoes heartbeat messages back to the server.
+
+        Yields:
+            Parsed JSON packets from the TradingView stream.
+        """
+        try:
+            while True:
+                try:
+                    raw_result = self.ws.recv()
+                    if isinstance(raw_result, bytes):
+                        result = raw_result.decode("utf-8")
+                    else:
+                        result = str(raw_result)
+
+                    # Heartbeat echo
+                    if re.match(r"~m~\d+~m~~h~\d+$", result):
+                        logger.debug("Heartbeat: %s", result)
+                        self.ws.send(result)
+                        continue
+
+                    # Split multiplexed messages
+                    parts = [x for x in re.split(r"~m~\d+~m~", result) if x]
+                    for part in parts:
+                        try:
+                            yield json.loads(part)
+                        except (json.JSONDecodeError, ValueError):
+                            logger.debug("Non-JSON fragment skipped: %s", part[:80])
+
+                except WebSocketConnectionClosedException:
+                    logger.error("WebSocket connection closed.")
+                    break
+                except TimeoutError:
+                    continue
+                except (ConnectionError, OSError) as exc:
+                    logger.error("WebSocket error: %s", exc)
+                    break
+        finally:
+            try:
+                self.ws.close()
+            except Exception:
+                pass

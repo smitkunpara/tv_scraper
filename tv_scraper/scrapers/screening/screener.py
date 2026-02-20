@@ -152,7 +152,7 @@ class Screener(BaseScraper):
             }
         return payload
 
-    def screen(
+    def get_data(
         self,
         market: str = "america",
         filters: list[dict[str, Any]] | None = None,

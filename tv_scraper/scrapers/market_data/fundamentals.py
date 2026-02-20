@@ -1,13 +1,8 @@
 """Fundamentals scraper for fetching financial data from TradingView."""
 
-import logging
 from typing import Any
 
 from tv_scraper.core.base import BaseScraper
-from tv_scraper.core.constants import SCANNER_URL
-from tv_scraper.core.exceptions import NetworkError, ValidationError
-
-logger = logging.getLogger(__name__)
 
 
 class Fundamentals(BaseScraper):
@@ -140,19 +135,7 @@ class Fundamentals(BaseScraper):
         "debt_to_equity_fq",
     ]
 
-    def __init__(
-        self,
-        export_result: bool = False,
-        export_type: str = "json",
-        timeout: int = 10,
-    ) -> None:
-        super().__init__(
-            export_result=export_result,
-            export_type=export_type,
-            timeout=timeout,
-        )
-
-    def get_fundamentals(
+    def get_data(
         self,
         exchange: str,
         symbol: str,
@@ -161,10 +144,8 @@ class Fundamentals(BaseScraper):
         """Get fundamental financial data for a symbol.
 
         Args:
-            exchange: Exchange name (e.g. ``"NASDAQ"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol (e.g. ``"AAPL"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"NASDAQ:AAPL"``).
+            exchange: Exchange name (e.g. ``"NASDAQ"``).
+            symbol: Trading symbol (e.g. ``"AAPL"``).
             fields: Specific fields to retrieve. If ``None``, retrieves all
                 fields defined in ``ALL_FIELDS``.
 
@@ -172,57 +153,12 @@ class Fundamentals(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
-
-        # --- Validation ---
-        try:
-            self.validator.verify_symbol_exchange(exchange, symbol)
-        except ValidationError as exc:
-            return self._error_response(str(exc))
-
-        # Determine fields to request
         field_list = fields if fields else self.ALL_FIELDS
-
-        # --- Build API request ---
-        url = f"{SCANNER_URL}/symbol"
-        params: dict[str, str] = {
-            "symbol": f"{exchange}:{symbol}",
-            "fields": ",".join(field_list),
-            "no_404": "true",
-        }
-
-        # --- Execute request ---
-        try:
-            response = self._make_request(url, method="GET", params=params)
-            json_response: dict[str, Any] = response.json()
-        except NetworkError as exc:
-            return self._error_response(str(exc))
-        except (ValueError, KeyError) as exc:
-            return self._error_response(f"Failed to parse API response: {exc}")
-
-        # --- Parse response ---
-        if not json_response:
-            return self._error_response("No data returned from API.")
-
-        # API returns a flat dict of field:value
-        result: dict[str, Any] = {"symbol": f"{exchange}:{symbol}"}
-        for field in field_list:
-            result[field] = json_response.get(field)
-
-        # --- Export ---
-        if self.export_result:
-            self._export(
-                data=result,
-                symbol=f"{exchange}_{symbol}",
-                data_category="fundamentals",
-            )
-
-        return self._success_response(
-            result,
+        return self._fetch_symbol_fields(
             exchange=exchange,
             symbol=symbol,
+            fields=field_list,
+            data_category="fundamentals",
         )
 
     def compare_fundamentals(
@@ -253,7 +189,7 @@ class Fundamentals(BaseScraper):
         for sym in symbols:
             exchange = sym.get("exchange", "")
             symbol_name = sym.get("symbol", "")
-            result = self.get_fundamentals(
+            result = self.get_data(
                 exchange=exchange, symbol=symbol_name, fields=field_list
             )
             if result["status"] != "success":
@@ -298,7 +234,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Income statement data including revenue, profit, earnings.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.INCOME_STATEMENT_FIELDS
         )
 
@@ -312,7 +248,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Balance sheet data including assets, debt, equity.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.BALANCE_SHEET_FIELDS
         )
 
@@ -326,7 +262,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Cash flow data including operating, investing, financing activities.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.CASH_FLOW_FIELDS
         )
 
@@ -343,7 +279,7 @@ class Fundamentals(BaseScraper):
             Statistics data including ratios and valuation metrics.
         """
         fields = self.LIQUIDITY_FIELDS + self.LEVERAGE_FIELDS + self.VALUATION_FIELDS
-        return self.get_fundamentals(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)
 
     def get_dividends(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get dividend information for a symbol.
@@ -355,7 +291,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Dividend data including yield, per share, payout ratio.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.DIVIDEND_FIELDS
         )
 
@@ -369,7 +305,7 @@ class Fundamentals(BaseScraper):
         Returns:
             Profitability data including ROE, ROA, ROI.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.PROFITABILITY_FIELDS
         )
 
@@ -383,6 +319,6 @@ class Fundamentals(BaseScraper):
         Returns:
             Margin data including gross, operating, net, EBITDA margins.
         """
-        return self.get_fundamentals(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.MARGIN_FIELDS
         )

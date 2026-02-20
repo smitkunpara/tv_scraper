@@ -52,7 +52,7 @@ class TestGetOptionsChainSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_chain_by_expiry(
+            result = options.get_by_expiry(
                 exchange="BSE", symbol="SENSEX", expiration=20260219, root="BSX"
             )
 
@@ -80,7 +80,7 @@ class TestGetOptionsChainSuccess:
         mock_resp = _mock_response(mock_data)
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_chain_by_strike(
+            result = options.get_by_strike(
                 exchange="BSE", symbol="SENSEX", strike=83300
             )
 
@@ -91,31 +91,13 @@ class TestGetOptionsChainSuccess:
         assert result["metadata"]["filter_type"] == "strike"
         assert result["metadata"]["filter_value"] == 83300
 
-    @patch(
-        "tv_scraper.core.validators.DataValidator.verify_options_symbol",
-        return_value=True,
-    )
-    def test_combined_symbol_support(self, mock_verify, options: Options) -> None:
-        """Combined EXCHANGE:SYMBOL is supported."""
-        mock_data = {"totalCount": 0, "fields": [], "symbols": []}
-        mock_resp = _mock_response(mock_data)
-
-        with mock.patch.object(
-            options, "_make_request", return_value=mock_resp
-        ) as mock_req:
-            options.get_chain_by_strike(exchange="", symbol="BSE:SENSEX", strike=83300)
-
-            # Verify payload has correct underlying
-            payload = mock_req.call_args[1]["json_data"]
-            assert payload["index_filters"][0]["values"] == ["BSE:SENSEX"]
-
 
 class TestGetOptionsChainErrors:
     """Tests for error handling."""
 
     def test_invalid_exchange(self, options: Options) -> None:
         """Invalid exchange returns error response."""
-        result = options.get_chain_by_strike(
+        result = options.get_by_strike(
             exchange="INVALID", symbol="SENSEX", strike=83300
         )
         assert result["status"] == STATUS_FAILED
@@ -123,7 +105,7 @@ class TestGetOptionsChainErrors:
 
     def test_empty_symbol(self, options: Options) -> None:
         """Empty symbol returns error response."""
-        result = options.get_chain_by_strike(exchange="BSE", symbol="", strike=83300)
+        result = options.get_by_strike(exchange="BSE", symbol="", strike=83300)
         assert result["status"] == STATUS_FAILED
 
     @patch(
@@ -135,7 +117,7 @@ class TestGetOptionsChainErrors:
         with mock.patch.object(
             options, "_make_request", side_effect=NetworkError("Timeout")
         ):
-            result = options.get_chain_by_strike(
+            result = options.get_by_strike(
                 exchange="BSE", symbol="SENSEX", strike=83300
             )
 
@@ -148,7 +130,7 @@ class TestGetOptionsChainErrors:
         mock_resp.status_code = 404
 
         with mock.patch.object(options, "_make_request", return_value=mock_resp):
-            result = options.get_chain_by_strike(
+            result = options.get_by_strike(
                 exchange="BSE", symbol="NO_OPTIONS", strike=100
             )
 

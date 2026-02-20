@@ -68,7 +68,7 @@ class Markets(BaseScraper):
         {"left": "market_cap_basic", "operation": "nempty"},
     ]
 
-    def get_top_stocks(
+    def get_data(
         self,
         market: str = "america",
         sort_by: str = "market_cap",

@@ -1,13 +1,8 @@
 """Overview scraper for fetching comprehensive symbol data from TradingView."""
 
-import logging
 from typing import Any
 
 from tv_scraper.core.base import BaseScraper
-from tv_scraper.core.constants import SCANNER_URL
-from tv_scraper.core.exceptions import NetworkError, ValidationError
-
-logger = logging.getLogger(__name__)
 
 
 class Overview(BaseScraper):
@@ -146,7 +141,7 @@ class Overview(BaseScraper):
             timeout=timeout,
         )
 
-    def get_overview(
+    def get_data(
         self,
         exchange: str,
         symbol: str,
@@ -155,10 +150,8 @@ class Overview(BaseScraper):
         """Get comprehensive overview data for a symbol.
 
         Args:
-            exchange: Exchange name (e.g. ``"NASDAQ"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol (e.g. ``"AAPL"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"NASDAQ:AAPL"``).
+            exchange: Exchange name (e.g. ``"NASDAQ"``).
+            symbol: Trading symbol (e.g. ``"AAPL"``).
             fields: Specific fields to retrieve. If ``None``, retrieves all
                 fields defined in ``ALL_FIELDS``.
 
@@ -166,57 +159,12 @@ class Overview(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
-
-        # --- Validation ---
-        try:
-            self.validator.verify_symbol_exchange(exchange, symbol)
-        except ValidationError as exc:
-            return self._error_response(str(exc))
-
-        # Determine fields to request
         field_list = fields if fields else self.ALL_FIELDS
-
-        # --- Build API request ---
-        url = f"{SCANNER_URL}/symbol"
-        params: dict[str, str] = {
-            "symbol": f"{exchange}:{symbol}",
-            "fields": ",".join(field_list),
-            "no_404": "true",
-        }
-
-        # --- Execute request ---
-        try:
-            response = self._make_request(url, method="GET", params=params)
-            json_response: dict[str, Any] = response.json()
-        except NetworkError as exc:
-            return self._error_response(str(exc))
-        except (ValueError, KeyError) as exc:
-            return self._error_response(f"Failed to parse API response: {exc}")
-
-        # --- Parse response ---
-        if not json_response:
-            return self._error_response("No data returned from API.")
-
-        # API returns a flat dict of field:value
-        result: dict[str, Any] = {"symbol": f"{exchange}:{symbol}"}
-        for field in field_list:
-            result[field] = json_response.get(field)
-
-        # --- Export ---
-        if self.export_result:
-            self._export(
-                data=result,
-                symbol=f"{exchange}_{symbol}",
-                data_category="overview",
-            )
-
-        return self._success_response(
-            result,
+        return self._fetch_symbol_fields(
             exchange=exchange,
             symbol=symbol,
+            fields=field_list,
+            data_category="overview",
         )
 
     def get_profile(self, exchange: str, symbol: str) -> dict[str, Any]:
@@ -229,9 +177,7 @@ class Overview(BaseScraper):
         Returns:
             Profile data including name, description, exchange, sector, industry.
         """
-        return self.get_overview(
-            exchange=exchange, symbol=symbol, fields=self.BASIC_FIELDS
-        )
+        return self.get_data(exchange=exchange, symbol=symbol, fields=self.BASIC_FIELDS)
 
     def get_statistics(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get market statistics for a symbol.
@@ -244,7 +190,7 @@ class Overview(BaseScraper):
             Statistics including market cap, shares, valuation ratios.
         """
         fields = self.MARKET_FIELDS + self.VALUATION_FIELDS + self.DIVIDEND_FIELDS
-        return self.get_overview(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)
 
     def get_financials(self, exchange: str, symbol: str) -> dict[str, Any]:
         """Get financial metrics for a symbol.
@@ -256,7 +202,7 @@ class Overview(BaseScraper):
         Returns:
             Financial data including revenue, margins, ratios, EBITDA.
         """
-        return self.get_overview(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.FINANCIAL_FIELDS
         )
 
@@ -270,7 +216,7 @@ class Overview(BaseScraper):
         Returns:
             Performance data including weekly, monthly, yearly returns.
         """
-        return self.get_overview(
+        return self.get_data(
             exchange=exchange, symbol=symbol, fields=self.PERFORMANCE_FIELDS
         )
 
@@ -285,4 +231,4 @@ class Overview(BaseScraper):
             Technical indicators including RSI, MACD, ADX, recommendations.
         """
         fields = self.TECHNICAL_FIELDS + self.VOLATILITY_FIELDS
-        return self.get_overview(exchange=exchange, symbol=symbol, fields=fields)
+        return self.get_data(exchange=exchange, symbol=symbol, fields=fields)

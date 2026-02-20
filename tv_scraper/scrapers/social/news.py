@@ -63,7 +63,7 @@ class News(BaseScraper):
         self._areas: dict[str, str] = self.validator.get_areas()
         self._language_codes: list[str] = list(self._languages.values())
 
-    def scrape_headlines(
+    def get_headlines(
         self,
         exchange: str,
         symbol: str,
@@ -76,10 +76,8 @@ class News(BaseScraper):
         """Scrape news headlines for a symbol.
 
         Args:
-            exchange: Exchange name (e.g. ``"NSE"``). Can be empty if
-                combined symbol is used in the `symbol` parameter.
-            symbol: Trading symbol slug (e.g. ``"NIFTY"``) or combined
-                ``"EXCHANGE:SYMBOL"`` string (e.g. ``"NSE:NIFTY"``).
+            exchange: Exchange name (e.g. ``"NSE"``).
+            symbol: Trading symbol slug (e.g. ``"NIFTY"``).
             provider: Optional news provider filter (e.g. ``"cointelegraph"``).
             area: Optional region filter (e.g. ``"americas"``).
             sort_by: Sort order. One of ``"latest"``, ``"oldest"``,
@@ -92,9 +90,6 @@ class News(BaseScraper):
             Standardized response dict with keys
             ``status``, ``data``, ``metadata``, ``error``.
         """
-        # Support combined EXCHANGE:SYMBOL
-        if not exchange and ":" in symbol:
-            exchange, symbol = symbol.split(":", 1)
 
         # Validate inputs
         try:
@@ -192,7 +187,7 @@ class News(BaseScraper):
         except Exception as exc:
             return self._error_response(f"Request failed: {exc}")
 
-    def scrape_content(
+    def get_content(
         self,
         story_id: str,
         language: str = "en",

@@ -10,7 +10,7 @@ The `Minds` scraper fetches community-generated discussions from TradingView's M
 from tv_scraper.scrapers.social import Minds
 
 scraper = Minds(export_result=False, export_type="json")
-result = scraper.get_minds(exchange="NASDAQ", symbol="AAPL", limit=50)
+result = scraper.get_data(exchange="NASDAQ", symbol="AAPL", limit=50)
 ```
 
 ### Constructor
@@ -87,7 +87,7 @@ Each item in the `data` array contains:
 from tv_scraper.scrapers.social import Minds
 
 scraper = Minds()
-result = scraper.get_minds(exchange="NASDAQ", symbol="AAPL")
+result = scraper.get_data(exchange="NASDAQ", symbol="AAPL")
 
 if result["status"] == "success":
     for mind in result["data"]:
@@ -97,7 +97,7 @@ if result["status"] == "success":
 ### With Limit
 
 ```python
-result = scraper.get_minds(exchange="BITSTAMP", symbol="BTCUSD", limit=20)
+result = scraper.get_data(exchange="BITSTAMP", symbol="BTCUSD", limit=20)
 print(f"Retrieved {result['metadata']['total']} discussions")
 ```
 
@@ -105,7 +105,7 @@ print(f"Retrieved {result['metadata']['total']} discussions")
 
 ```python
 scraper = Minds(export_result=True, export_type="csv")
-result = scraper.get_minds(exchange="NYSE", symbol="TSLA")
+result = scraper.get_data(exchange="NYSE", symbol="TSLA")
 ```
 
 ## Migration from `tradingview_scraper`
@@ -113,7 +113,7 @@ result = scraper.get_minds(exchange="NYSE", symbol="TSLA")
 | Old (`tradingview_scraper`)                          | New (`tv_scraper`)                                   |
 |------------------------------------------------------|------------------------------------------------------|
 | `from tradingview_scraper.symbols.minds import Minds` | `from tv_scraper.scrapers.social import Minds`       |
-| `minds.get_minds(symbol="NASDAQ:AAPL")`              | `minds.get_minds(exchange="NASDAQ", symbol="AAPL")`  |
+| `minds.get_data(symbol="NASDAQ:AAPL")`              | `minds.get_data(exchange="NASDAQ", symbol="AAPL")`  |
 | Response: `{"status", "data", "total", "pages", ...}` | Response: `{"status", "data", "metadata", "error"}`  |
 | Empty results → `{"status": "failed"}`                | Empty results → `{"status": "success", "data": []}`  |
 

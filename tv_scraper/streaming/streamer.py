@@ -6,10 +6,7 @@ Provides ``get_candles()`` for historical OHLCV + indicator data and
 
 import json
 import logging
-import re
 from collections.abc import Generator
-
-from websocket import WebSocketConnectionClosedException
 
 from tv_scraper.core.constants import EXPORT_TYPES, STATUS_FAILED, STATUS_SUCCESS
 from tv_scraper.core.validators import DataValidator
@@ -36,26 +33,6 @@ _TIMEFRAME_MAP = {
     "1w": "1W",
     "1M": "1M",
 }
-
-
-def _success_response(data, **metadata):
-    """Build a standardized success response."""
-    return {
-        "status": STATUS_SUCCESS,
-        "data": data,
-        "metadata": metadata,
-        "error": None,
-    }
-
-
-def _error_response(error: str, **metadata):
-    """Build a standardized error response."""
-    return {
-        "status": STATUS_FAILED,
-        "data": None,
-        "metadata": metadata,
-        "error": error,
-    }
 
 
 class Streamer:
@@ -141,7 +118,7 @@ class Streamer:
             indicator_data: dict = {}
             expected_ind_count = len(indicators) if ind_flag and indicators else 0
 
-            for i, pkt in enumerate(self._get_data()):
+            for i, pkt in enumerate(self._handler.receive_packets()):
                 # OHLCV extraction
                 received_ohlcv = self._extract_ohlcv_from_stream(pkt)
                 if received_ohlcv:
@@ -173,21 +150,29 @@ class Streamer:
                 if ind_flag:
                     self._export(indicator_data, symbol, "indicators")
 
-            return _success_response(
-                result_data,
-                exchange=exchange,
-                symbol=symbol,
-                timeframe=timeframe,
-                numb_candles=numb_candles,
-            )
+            return {
+                "status": STATUS_SUCCESS,
+                "data": result_data,
+                "metadata": {
+                    "exchange": exchange,
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "numb_candles": numb_candles,
+                },
+                "error": None,
+            }
 
         except Exception as exc:
             logger.error("get_candles error: %s", exc)
-            return _error_response(
-                str(exc),
-                exchange=exchange,
-                symbol=symbol,
-            )
+            return {
+                "status": STATUS_FAILED,
+                "data": None,
+                "metadata": {
+                    "exchange": exchange,
+                    "symbol": symbol,
+                },
+                "error": str(exc),
+            }
 
     def stream_realtime_price(
         self,
@@ -231,7 +216,7 @@ class Streamer:
 
         last_price = None
 
-        for pkt in self._get_data():
+        for pkt in self._handler.receive_packets():
             # Handle quote session data (qsd)
             if pkt.get("m") == "qsd":
                 p_data = pkt.get("p", [])
@@ -300,51 +285,6 @@ class Streamer:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
-
-    def _get_data(self) -> Generator[dict, None, None]:
-        """Receive and parse WebSocket data, handling heartbeats.
-
-        Yields:
-            Parsed JSON packets from the TradingView stream.
-        """
-        try:
-            while True:
-                try:
-                    raw_result = self._handler.ws.recv()
-                    if isinstance(raw_result, bytes):
-                        result = raw_result.decode("utf-8")
-                    else:
-                        result = str(raw_result)
-
-                    # Heartbeat echo
-                    if re.match(r"~m~\d+~m~~h~\d+$", result):
-                        logger.debug("Heartbeat: %s", result)
-                        self._handler.ws.send(result)
-                        continue
-
-                    # Split multiplexed messages
-                    parts = [x for x in re.split(r"~m~\d+~m~", result) if x]
-                    for part in parts:
-                        try:
-                            yield json.loads(part)
-                        except (json.JSONDecodeError, ValueError):
-                            logger.debug("Non-JSON fragment skipped: %s", part[:80])
-
-                except WebSocketConnectionClosedException:
-                    logger.error("WebSocket connection closed.")
-                    break
-                except TimeoutError:
-                    # Socket timeout is expected with non-blocking socket
-                    # Just continue to next iteration
-                    continue
-                except (ConnectionError, OSError) as exc:
-                    logger.error("WebSocket error: %s", exc)
-                    break
-        finally:
-            try:
-                self._handler.ws.close()
-            except Exception:
-                pass
 
     def _add_symbol_to_sessions(
         self,

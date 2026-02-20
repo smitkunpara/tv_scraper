@@ -32,19 +32,7 @@ class Minds(BaseScraper):
         result = scraper.get_minds(exchange="NASDAQ", symbol="AAPL")
     """
 
-    def __init__(
-        self,
-        export_result: bool = False,
-        export_type: str = "json",
-        timeout: int = 10,
-    ) -> None:
-        super().__init__(
-            export_result=export_result,
-            export_type=export_type,
-            timeout=timeout,
-        )
-
-    def get_minds(
+    def get_data(
         self,
         exchange: str,
         symbol: str,

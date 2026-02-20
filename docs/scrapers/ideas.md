@@ -29,7 +29,7 @@ scraper = Ideas(
 ### `scrape()`
 
 ```python
-result = scraper.scrape(
+result = scraper.get_data(
     exchange="CRYPTO",
     symbol="BTCUSD",
     start_page=1,
@@ -99,7 +99,7 @@ Each idea dict:
 from tv_scraper.scrapers.social import Ideas
 
 scraper = Ideas()
-result = scraper.scrape(exchange="CRYPTO", symbol="BTCUSD")
+result = scraper.get_data(exchange="CRYPTO", symbol="BTCUSD")
 
 if result["status"] == "success":
     for idea in result["data"]:
@@ -109,7 +109,7 @@ if result["status"] == "success":
 ### Multi-Page Scrape
 
 ```python
-result = scraper.scrape(
+result = scraper.get_data(
     exchange="CRYPTO",
     symbol="BTCUSD",
     start_page=1,
@@ -123,7 +123,7 @@ print(f"Found {result['metadata']['total']} ideas across {result['metadata']['pa
 
 ```python
 scraper = Ideas(cookie="sessionid=abc123; _sp_id=xyz789")
-result = scraper.scrape(exchange="CRYPTO", symbol="BTCUSD")
+result = scraper.get_data(exchange="CRYPTO", symbol="BTCUSD")
 ```
 
 Or set the `TRADINGVIEW_COOKIE` environment variable and omit the `cookie` parameter.
@@ -132,7 +132,7 @@ Or set the `TRADINGVIEW_COOKIE` environment variable and omit the `cookie` param
 
 ```python
 scraper = Ideas(export_result=True, export_type="csv")
-result = scraper.scrape(exchange="CRYPTO", symbol="ETHUSD", end_page=3)
+result = scraper.get_data(exchange="CRYPTO", symbol="ETHUSD", end_page=3)
 ```
 
 ## Migration from `tradingview_scraper`
@@ -141,7 +141,7 @@ result = scraper.scrape(exchange="CRYPTO", symbol="ETHUSD", end_page=3)
 |---|---|
 | `from tradingview_scraper.symbols.ideas import Ideas` | `from tv_scraper.scrapers.social import Ideas` |
 | `Ideas(cookie=...)` | `Ideas(cookie=..., timeout=10)` |
-| `.scrape(symbol=..., startPage=1, endPage=5, sort="popular")` | `.scrape(exchange=..., symbol=..., start_page=1, end_page=5, sort_by="popular")` |
+| `.get_data(symbol=..., startPage=1, endPage=5, sort="popular")` | `.get_data(exchange=..., symbol=..., start_page=1, end_page=5, sort_by="popular")` |
 | Returns `List[Dict]` | Returns `Dict` with `status/data/metadata/error` envelope |
 | Returns `[]` on error | Returns `{"status": "failed", "data": None, "error": "..."}` |
 | Raises on invalid args | Never raises from public methods |
